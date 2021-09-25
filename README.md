@@ -2,7 +2,7 @@
   
 ## How it works
 
-This application creates a chat interface for a Twilio or Zipwhip text-enabled landline number to send and receive messages to/from on a mobile phone. It uses APIs to send messages, Webhooks to track incoming messages, and Websockets to send messages to the chat client in the web browser.
+This application creates a chat interface for a Twilio text-enabled landline number to send and receive messages to/from on a mobile phone. It uses APIs to send messages, Webhooks to track incoming messages, and Websockets to send messages to the chat client in the web browser.
 
 You can run locally or deploy to heroku.
 
@@ -10,8 +10,8 @@ You can run locally or deploy to heroku.
 
 - Chat client built in html/javascript based on this [Codepen sample UI](https://codepen.io/sajadhsm/pen/odaBdd)
 - Chat client connects to [Websocket](https://npm.im/ws) server to receive messages
-- Chat client sends text messages via Twilio SMS API or [Zipwhip message/send API](https://documenter.getpostman.com/view/8724737/SWE85d1x)
-- Node http server receives Twilio Webhooks or [Zipwhip Webhooks](https://documenter.getpostman.com/view/8724737/SzS1UpJd) for incoming text messages
+- Chat client sends text messages via Twilio Conversations API
+- Node http server receives Twilio Event Streams Webhooks for incoming text messages
 - Node http server forwards Webhook messages to Websocket server
 - Node Websocket server broadcasts messages to chat client(s)
 - One click deploy button for [Heroku](https://heroku.com)
@@ -21,17 +21,7 @@ You can run locally or deploy to heroku.
 ### Requirements
 
 - [Node.js](https://nodejs.org/)
-- [Zipwhip account](https://www.zipwhip.com)
-
-### Zipwhip Account Settings
-
-This application should give you a ready-made starting point for writing your own text messaging application. Before we begin, we need to collect
-all the config values we need to run the application:
-
-| Config Value        | Description                                                                                                                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Zipwhip Session Key | The session key associated with your Zipwhip landline number - see [/user/login API](https://documenter.getpostman.com/view/8724737/SWE85d1x?version=latest#505c508c-da07-4841-891d-5fdfb0c711a6) for details.|
-| Mobile Phone Number | The phone number for your mobile phone in E.164 format (e.g. +12065551234) |
+- [Twilio account](https://twilio.com)
 
 ### Local development
 
@@ -40,8 +30,8 @@ After the above requirements have been met:
 1.  Clone this repository and `cd` into it
 
     ```bash
-    git clone git@github.com:johnchaffee/chat-websockets.git
-    cd chat-websockets
+    git clone git@github.com:johnchaffee/twilio-conversations-widget.git
+    cd twilio-conversations-widget
     ```
 
 2.  Install dependencies
@@ -50,7 +40,7 @@ After the above requirements have been met:
     npm install
     ```
 
-3.  Create a `.env` file in your root directory and enter the content below. Replace the `SESSION` AND `MOBILE` values with your Zipwhip Session Key and Mobile Phone number.
+3.  Create a `.env` file in your root directory and enter the environment variables below.
 
     ```
     PORT=3000
@@ -70,11 +60,11 @@ After the above requirements have been met:
 
    Your application is now accessible at [http://localhost:3000](http://localhost:3000/)
 
-5. Make the application visible from the outside world.
+5. Make the application visible to the outside world.
 
-   Your application needs to be accessible in a public internet address for Zipwhip Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#cloud-deployment) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
+   Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#cloud-deployment) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
 
-   If you have ngrok installed to open a tunnel to your local server run the following command:
+   If you have ngrok installed, you can open a tunnel to your local server by running the following command:
 
    ```
    ngrok http 3000
@@ -86,7 +76,7 @@ After the above requirements have been met:
    https://<unique_id>.ngrok.io/
    ```
 
-6. Create [Zipwhip webhooks](https://documenter.getpostman.com/view/8724737/SzS1UpJd) for `message send` and `message receive` using the  `SESSION` from step 3. You'll need to point the webhooks to the ngrok url above.
+6. Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming messages. You'll need to point it to the ngrok and/or heroku url above.
 
 That's it! Now you can start sending and receiving messages text messages in the chat client.
 
@@ -102,17 +92,11 @@ As an alternative to running the app locally, you can deploy it to heroku by cli
 Note: When deploying to heroku, you will be prompted to enter several environment variables as described below. 
 
 * `APP_HOST_NAME` - The subdomain for your app on heroku. For example, enter `my-cool-app` to create an app hosted at `https://my-cool-app.herokuapp.com`.
-* `MOBILE` - A default mobile phone number in E.164 format to send messages to (e.g. `+12065551212`).
+* `MOBILE` - A default mobile phone number to send messages to in E.164 format (e.g. `+12065551212`).
+ * `TWILIO_LANDLINE` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
+ * `TWILIO_ACCOUNT_SID`
+ * `TWILIO_AUTH_TOKEN`
 
-   If you enter `TWILIO`, you will need to enter these variables:
-
-   * `TWILIO_LANDLINE`
-   * `TWILIO_ACCOUNT_SID`
-   * `TWILIO_AUTH_TOKEN`
-
-   If you enter `ZIPWHIP`, you will need to enter these variables:
-
-   * `ZIPWHIP_SESSION`
 
 <!-- ### Requirements
 
