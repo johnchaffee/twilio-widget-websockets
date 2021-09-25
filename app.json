@@ -1,0 +1,43 @@
+{
+  "name": "Text Messaging Widget Example",
+  "description": "A barebones http and websockets sample messaging app",
+  "repository": "https://github.com/johnchaffee/chat-websockets",
+  "keywords": ["node", "express", "websockets"],
+  "env": {
+    "APP_HOST_NAME": {
+      "description": "Enter an App name above, then re-enter it here.",
+      "value": ""
+    },
+    "PLATFORM": {
+      "description": "Enter your messaging platform provider (TWILIO or ZIPWHIP).",
+      "value": ""
+    },
+    "MOBILE": {
+      "description": "Enter your mobile phone number in E.164 format (+12065551212).",
+      "value": ""
+    },
+    "TWILIO_ACCOUNT_SID": {
+      "description": "If using TWILIO, enter your Twilio Account SID, else leave blank.",
+      "value": ""
+    },
+    "TWILIO_AUTH_TOKEN": {
+      "description": "If using TWILIO, enter your Twilio Auth Token, else leave blank.",
+      "value": ""
+    },
+    "TWILIO_LANDLINE": {
+      "description": "If using TWILIO, enter your Twilio landline phone number in E.164 format (+12065551212), else leave blank.",
+      "value": ""
+    },
+    "ZIPWHIP_LANDLINE": {
+      "description": "If using ZIPWHIP, enter your Zipwhip landline phone number in E.164 format (+12065551212), else leave blank.",
+      "value": ""
+    },
+    "ZIPWHIP_SESSION": {
+      "description": "If using ZIPWHIP, enter the Zipwhip Session key, else leave blank.",
+      "value": ""
+    }
+  },
+  "scripts": {
+    "postdeploy": "./deploy.sh"
+  }
+}
