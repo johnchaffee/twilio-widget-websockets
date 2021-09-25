@@ -125,7 +125,7 @@ app.get("/", (req, res) => {
 });
 
 // Chat client sends /messagesend request to this server
-// This server then posts messageSend request to Twilio API
+// This server then posts request to Twilio API
 // Then sends message to Websocket server
 app.post("/messagesend", (req, res, next) => {
   let body = req.body.body;
@@ -140,7 +140,7 @@ app.post("/messagesend", (req, res, next) => {
     body: body,
   };
   // Send message to Twilio API
-  messageSend(body, mobile);
+  twilioSend(body, mobile);
   // Send message to Websocket server
   try {
     wsClient.send(JSON.stringify(myObj));
@@ -224,12 +224,6 @@ app.post(/.*/, (req, res, next) => {
   res.sendStatus(200);
   // res.send("<Response></Response>");
 });
-
-// MESSAGE SEND
-// Forward chat client /messsage/send requests to Twilio API
-function messageSend(body, mobile) {
-  twilioSend(body, mobile);
-}
 
 // TWILIO MESSAGE SEND API
 function twilioSend(body, mobile) {

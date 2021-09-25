@@ -57,12 +57,6 @@ After the above requirements have been met:
     NODE_ENV=development
     APP_HOST_NAME=localhost
     MOBILE=<YOUR MOBILE PHONE NUMBER IN E.164 FORMAT>
-    PLATFORM=<Enter either TWILIO or ZIPWHIP>
-
-    # If using ZIPWHIP platform
-    ZIPWHIP_SESSION=<Your Zipwhip Session Key>
-
-    # If using TWILIO platform
     TWILIO_LANDLINE=<Your Twilio Phone Number>
     TWILIO_ACCOUNT_SID=<Your Twilio Account SID>
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
@@ -109,7 +103,6 @@ Note: When deploying to heroku, you will be prompted to enter several environmen
 
 * `APP_HOST_NAME` - The subdomain for your app on heroku. For example, enter `my-cool-app` to create an app hosted at `https://my-cool-app.herokuapp.com`.
 * `MOBILE` - A default mobile phone number in E.164 format to send messages to (e.g. `+12065551212`).
-* `PLATFORM` - The messaging platform you are using. You must enter either `TWILIO` or `ZIPWHIP`.
 
    If you enter `TWILIO`, you will need to enter these variables:
 
