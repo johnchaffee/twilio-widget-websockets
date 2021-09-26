@@ -1,8 +1,8 @@
-# Chat Websockets Demo
+# Twilio Conversations Widget
   
 ## How it works
 
-This application creates a chat interface for a Twilio text-enabled landline number to send and receive messages to/from on a mobile phone. It uses APIs to send messages, Webhooks to track incoming messages, and Websockets to send messages to the chat client in the web browser.
+This application creates a chat interface for a Twilio text-enabled landline number to send and receive messages to/from on a mobile phone. It uses the Twilio Conversations API to send messages, Event Streams Webhooks for incoming incoming messages, and Websockets to communicate with the chat client in the web browser.
 
 You can run locally or deploy to heroku.
 
@@ -46,8 +46,8 @@ After the above requirements have been met:
     PORT=3000
     NODE_ENV=development
     APP_HOST_NAME=localhost
-    MOBILE=<YOUR MOBILE PHONE NUMBER IN E.164 FORMAT>
-    TWILIO_LANDLINE=<Your Twilio Phone Number>
+    MOBILE_NUMBER=<YOUR MOBILE PHONE NUMBER IN E.164 FORMAT>
+    TWILIO_NUMBER=<Your Twilio Phone Number>
     TWILIO_ACCOUNT_SID=<Your Twilio Account SID>
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
     ```
@@ -93,7 +93,7 @@ Note: When deploying to heroku, you will be prompted to enter several environmen
 
 * `APP_HOST_NAME` - The subdomain for your app on heroku. For example, enter `my-cool-app` to create an app hosted at `https://my-cool-app.herokuapp.com`.
 * `MOBILE` - A default mobile phone number to send messages to in E.164 format (e.g. `+12065551212`).
- * `TWILIO_LANDLINE` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
+ * `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
  * `TWILIO_ACCOUNT_SID`
  * `TWILIO_AUTH_TOKEN`
 

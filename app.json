@@ -16,11 +16,11 @@
       "description": "Enter your Twilio Auth Token.",
       "value": ""
     },
-    "TWILIO_LANDLINE": {
+    "TWILIO_NUMBER": {
       "description": "Enter your Twilio landline phone number in E.164 format (+12065551212).",
       "value": ""
     },
-    "MOBILE": {
+    "MOBILE_NUMBER": {
       "description": "Enter your mobile phone number in E.164 format (+12065551212).",
       "value": ""
     }
