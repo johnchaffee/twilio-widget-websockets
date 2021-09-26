@@ -1,5 +1,5 @@
 require("dotenv").config();
-const WebSocket = require("ws"); // new
+const WebSocket = require("ws");
 const WebSocketServer = WebSocket.Server;
 const http = require("http");
 const express = require("express");
@@ -9,15 +9,14 @@ const fetch = require("node-fetch");
 const app = express();
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
-const mobile = process.env.MOBILE;
-const twilio_landline = process.env.TWILIO_LANDLINE;
+const mobile = process.env.MOBILE_NUMBER;
+const twilio_number = process.env.TWILIO_NUMBER;
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
 // const basic_auth = process.env.BASIC_AUTH;
 const buf = Buffer.from(twilio_account_sid + ":" + twilio_auth_token);
 const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
-// console.log("BASIC_AUTH: " + basic_auth);
 let epoch = Date.now();
 let the_date = new Date(epoch).toISOString();
 let myObj = {};
@@ -26,11 +25,11 @@ let messages = [];
 let landline = "";
 const limit = 50;
 
-// TODO - refactor twilioGetMessages() so it only fetches messages sent to or from Twilio number
+// TODO - refactor twilioGetMessages() to use Conversations API
 // On startup fetch messages from twilioGetMessages()
-landline = twilio_landline;
-twilioGetMessages();
+landline = twilio_number;
 console.log("LANDLINE: " + landline);
+twilioGetMessages();
 
 const server = http.createServer(app);
 server.listen(port);
@@ -140,6 +139,7 @@ app.post("/messagesend", (req, res, next) => {
     body: body,
   };
   // Send message to Twilio API
+  // TODO Change twilioSend to use Conversations message create API
   twilioSend(body, mobile);
   // Send message to Websocket server
   try {
@@ -155,32 +155,7 @@ app.post("/messagesend", (req, res, next) => {
 // Listen for incoming messages from mobile
 // Push message to websocket client
 
-// TWILIO WEBHOOK
-app.post(/\/twilio/, (req, res, next) => {
-  console.log("TWILIO INCOMING WEBHOOK");
-  epoch = Date.now();
-  the_date = new Date(epoch).toISOString();
-  myObj = {
-    dateCreated: the_date,
-    direction: "inbound",
-    landline: landline,
-    mobile: req.body.From,
-    body: req.body.Body,
-  };
-  // console.log(JSON.stringify(myObj));
-  // on webhook event, send message to websocket server
-  try {
-    wsClient.send(JSON.stringify(myObj));
-  } catch (err) {
-    console.log("TWILIO WEBHOOK CATCH");
-    console.log(err);
-  }
-  // Reply with empty TWIML response no matter what
-  res.send("<Response></Response>");
-  // res.sendStatus(200);
-});
-
-// TWILIO EVENT STREAMS WEBHOOK
+// TWILIO EVENT STREAMS
 app.post(/\/event-streams/, (req, res, next) => {
   console.log("TWILIO EVENT STREAMS WEBHOOK");
   // Get first array object in request body
