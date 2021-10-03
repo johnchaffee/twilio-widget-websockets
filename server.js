@@ -11,6 +11,7 @@ const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
 const mobile = process.env.MOBILE_NUMBER;
 const twilio_number = process.env.TWILIO_NUMBER;
+const facebook_messenger_id = process.env.FACEBOOK_MESSENGER_ID;
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
 // const basic_auth = process.env.BASIC_AUTH;
@@ -107,7 +108,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-app.use(express.static(path.resolve(__dirname, "assets")));
+app.use(express.static('public'));
 
 // app.get("/", (req, res) => {
 //   res.render("index");
@@ -130,6 +131,12 @@ app.get("/", (req, res) => {
 app.post("/messagesend", (req, res, next) => {
   let body = req.body.body;
   let mobile = req.body.mobile;
+  // If sending to messenger, send from facebook_messenger_id
+  if (mobile.slice(0, 9) === "messenger") {
+    landline = facebook_messenger_id;
+  } else {
+    landline = twilio_number;
+  }
   epoch = Date.now();
   the_date = new Date(epoch).toISOString();
   myObj = {
@@ -195,8 +202,8 @@ app.post(/\/event-streams/, (req, res, next) => {
 // Catchall to acknowledge webhooks that don't match the paths above
 app.post(/.*/, (req, res, next) => {
   console.log("ACK WEBHOOK");
-  res.sendStatus(200);
-  // res.send("<Response></Response>");
+  // res.sendStatus(200);
+  res.send("<Response></Response>");
 });
 
 // TWILIO MESSAGE SEND API
