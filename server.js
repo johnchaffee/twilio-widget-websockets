@@ -123,6 +123,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// OUTGOING MESSAGE
 // Chat client sends /messagesend request to this server
 // This server then posts request to Twilio API
 // Then sends message to Websocket server
@@ -151,11 +152,9 @@ app.post("/messagesend", (req, res, next) => {
   res.sendStatus(200);
 });
 
-// WEBHOOKS
+// INCOMING MESSAGE VIA TWILIO EVENT STREAMS
 // Listen for incoming messages from mobile
 // Push message to websocket client
-
-// TWILIO EVENT STREAMS
 app.post(/\/event-streams/, (req, res, next) => {
   console.log("TWILIO EVENT STREAMS WEBHOOK");
   // Get first array object in request body
