@@ -11,6 +11,7 @@ const app_host_name = process.env.APP_HOST_NAME || "localhost";
 const mobile = process.env.MOBILE_NUMBER;
 const twilio_number = process.env.TWILIO_NUMBER;
 const facebook_messenger_id = process.env.FACEBOOK_MESSENGER_ID;
+const whatsapp_id = process.env.WHATSAPP_ID;
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
 // const basic_auth = process.env.BASIC_AUTH;
@@ -119,6 +120,8 @@ app.post("/messagesend", (req, res, next) => {
   // If sending to messenger, send from facebook_messenger_id
   if (mobile.slice(0, 9) === "messenger") {
     landline = facebook_messenger_id;
+  } else if (mobile.slice(0, 8) === "whatsapp") {
+    landline = whatsapp_id;
   } else {
     landline = twilio_number;
   }

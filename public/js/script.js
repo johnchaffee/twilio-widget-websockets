@@ -4,9 +4,9 @@ const mobileParam = urlParams.get("mobile");
 console.log(`mobileParam: ${mobileParam}`);
 const mobileParamEncoded = encodeURIComponent(urlParams.get("mobile")); // %2B12065551111
 console.log(`mobileParamEncoded: ${mobileParamEncoded}`);
-const mobileParamDecoded = decodeURIComponent(mobileParam);  // +12065551111
+const mobileParamDecoded = decodeURIComponent(mobileParam); // +12065551111
 console.log(`mobileParamDecoded: ${mobileParamDecoded}`);
-let mobile = mobileParamDecoded; 
+let mobile = mobileParamDecoded;
 console.log(`MOBILE: ${mobile}`);
 
 const host = location.origin;
@@ -68,7 +68,9 @@ wsClient.onmessage = (event) => {
     // console.log("APPEND CONVERSATION LIST:");
     // console.log(mobileNumber);
     formattedMobile = formatMobile(mobileNumber);
-    conversationLink = `<a href="?mobile=${encodeURIComponent(mobileNumber)}">${formattedMobile}</a>`;
+    conversationLink = `<a href="?mobile=${encodeURIComponent(
+      mobileNumber
+    )}">${formattedMobile}</a>`;
     if (mobile == mobileNumber) {
       // Set background color style for selectedConversation
       conversationListHTML += `
@@ -112,8 +114,7 @@ function renderConversation(thisMessage) {
 }
 
 // Icons made by Freepik from www.flaticon.com
-const LANDLINE_IMG =
-  "https://image.flaticon.com/icons/svg/327/327779.svg";
+const LANDLINE_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
 const MOBILE_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
 const LANDLINE_NAME = "Twilio";
 const MOBILE_NAME = "Customer";
@@ -158,15 +159,12 @@ function get(selector, root = document) {
 
 // Display date as hh:mm:ss
 function formatDate(date) {
-  return `${date.slice(11, 13)}:${date.slice(14, 16)}:${date.slice(
-    17,
-    19
-  )}`;
+  return `${date.slice(11, 13)}:${date.slice(14, 16)}:${date.slice(17, 19)}`;
 }
 
 // Display phone number as (###) ###-####
 function formatMobile(mobile) {
-  if (mobile.slice(0, 9) === "messenger") {
+  if (mobile.slice(0, 9) === "messenger" || mobile.slice(0, 8) === "whatsapp") {
     return `${mobile}`;
     // return "Messenger";
   } else {
