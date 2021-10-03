@@ -59,7 +59,7 @@ a:active {
 .sidebar {
   margin: 25px 0 25px 10px;
   background-color: white;
-  width: 260px;
+  width: 300px;
   border: var(--border);
   border-radius: 5px;
   background: var(--msger-bg);

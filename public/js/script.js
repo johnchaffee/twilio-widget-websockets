@@ -164,14 +164,17 @@ function formatDate(date) {
 
 // Display phone number as (###) ###-####
 function formatMobile(mobile) {
-  if (mobile.slice(0, 9) === "messenger" || mobile.slice(0, 8) === "whatsapp") {
-    return `${mobile}`;
+  if (mobile.slice(0, 9) === "messenger") {
+    return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;${mobile.slice(10)}`;
+    // return "Messenger";
+  } else if (mobile.slice(0, 8) === "whatsapp") {
+    return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;${mobile.slice(9)}`;
     // return "Messenger";
   } else {
-    return `(${mobile.slice(2, 5)}) ${mobile.slice(5, 8)}-${mobile.slice(
-      8,
-      12
-    )}`;
+    return `<i class="far fa-comment"></i>&nbsp;&nbsp;(${mobile.slice(
+      2,
+      5
+    )}) ${mobile.slice(5, 8)}-${mobile.slice(8, 12)}`;
   }
 }
 
