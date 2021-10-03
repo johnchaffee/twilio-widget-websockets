@@ -1,22 +1,19 @@
-let mobile = "<%= mobile %>";
-console.log("DEFAULT MOBILE: " + mobile);
-// check for ?mobile=2065551212
 const urlParams = new URLSearchParams(window.location.search);
-console.log("URL PARAMS: " + urlParams);
+console.log(`urlParams: ${urlParams}`);
 const mobileParam = urlParams.get("mobile");
-console.log("mobileParam: " + mobileParam);
-if (urlParams.has("mobile")) {
-  if (mobileParam.slice(0, 9) === "messenger") {
-    mobile = mobileParam;
-  } else {
-    mobile = "+1" + mobileParam;
-  }
-  console.log(`MOBILE PARAM: ${mobile}`);
-}
+console.log(`mobileParam: ${mobileParam}`);
+const mobileParamEncoded = encodeURIComponent(urlParams.get("mobile")); // %2B12065551111
+console.log(`mobileParamEncoded: ${mobileParamEncoded}`);
+const mobileParamDecoded = decodeURIComponent(mobileParam);  // +12065551111
+console.log(`mobileParamDecoded: ${mobileParamDecoded}`);
+let mobile = mobileParamDecoded; 
+console.log(`MOBILE: ${mobile}`);
+
 const host = location.origin;
-console.log("HOST: " + host);
+console.log(`HOST: ${host}`);
+
 const wsHost = host.replace(/^http/, "ws");
-console.log("WSHOST: " + wsHost);
+console.log(`WSHOST: ${wsHost}`);
 const wsClient = new WebSocket(wsHost);
 
 wsClient.onopen = () => {
@@ -31,11 +28,8 @@ wsClient.onclose = () => {
 // Use Set() to extract unique mobile numbers from messages array
 // https://levelup.gitconnected.com/how-to-find-unique-values-by-property-in-an-array-of-objects-in-javascript-50ca23db8ccc
 const uniqueMobileNumbersSet = new Set();
-// uniqueMobileNumbersSet.add("+12067245169");
-// uniqueMobileNumbersSet.add("+12067245201");
 // uniqueMobileNumbersSet.add("+12063693826");
 // uniqueMobileNumbersSet.add("+12068163598");
-// uniqueMobileNumbersSet.add("+12068231284");
 // uniqueMobileNumbersSet.add("+12063996576");
 
 // MESSAGE RECEIVED FROM SERVER ->
@@ -74,13 +68,7 @@ wsClient.onmessage = (event) => {
     // console.log("APPEND CONVERSATION LIST:");
     // console.log(mobileNumber);
     formattedMobile = formatMobile(mobileNumber);
-    if (formattedMobile.slice(0, 9) === "messenger") {
-      conversationLink = `<a href="?mobile=${formattedMobile}">${formattedMobile}</a>`;
-    } else {
-      conversationLink = `<a href="?mobile=${mobileNumber.slice(
-        2
-      )}">${formattedMobile}</a>`;
-    }
+    conversationLink = `<a href="?mobile=${encodeURIComponent(mobileNumber)}">${formattedMobile}</a>`;
     if (mobile == mobileNumber) {
       // Set background color style for selectedConversation
       conversationListHTML += `
@@ -103,7 +91,7 @@ wsClient.onmessage = (event) => {
 
 function renderConversation(thisMessage) {
   if (thisMessage.direction == "inbound") {
-    // MESSAGE RECEIVE
+    // MESSAGE RECEIVED
     appendMessage(
       MOBILE_NAME,
       MOBILE_IMG,
@@ -112,7 +100,7 @@ function renderConversation(thisMessage) {
       formatDate(thisMessage.dateCreated)
     );
   } else if (thisMessage.body) {
-    // MESSAGE SEND
+    // MESSAGE SENT
     appendMessage(
       LANDLINE_NAME,
       LANDLINE_IMG,
@@ -128,7 +116,7 @@ const LANDLINE_IMG =
   "https://image.flaticon.com/icons/svg/327/327779.svg";
 const MOBILE_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
 const LANDLINE_NAME = "Twilio";
-const MOBILE_NAME = "Mobile";
+const MOBILE_NAME = "Customer";
 
 const msgerForm = get(".msger-inputarea");
 const msgerInput = get(".msger-input");
@@ -180,6 +168,7 @@ function formatDate(date) {
 function formatMobile(mobile) {
   if (mobile.slice(0, 9) === "messenger") {
     return `${mobile}`;
+    // return "Messenger";
   } else {
     return `(${mobile.slice(2, 5)}) ${mobile.slice(5, 8)}-${mobile.slice(
       8,
