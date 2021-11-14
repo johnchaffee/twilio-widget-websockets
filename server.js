@@ -23,13 +23,13 @@ let the_date = new Date(epoch).toISOString();
 let myObj = {};
 let messageObjects = [];
 let messages = [];
-let landline = "";
+let landline = twilio_number;
 const limit = 50;
 
-// TODO - refactor twilioGetMessages() to use Conversations API
-// On startup fetch messages from twilioGetMessages()
-landline = twilio_number;
 console.log("LANDLINE: " + landline);
+
+// TODO - refactor twilioGetMessages() to get single message
+// On startup fetch messages from twilioGetMessages()
 // twilioGetMessages();
 
 const server = http.createServer(app);
@@ -135,15 +135,7 @@ app.post("/messagesend", (req, res, next) => {
     body: body,
   };
   // Send message to Twilio API
-  // TODO Change twilioSend to use Conversations message create API
   twilioSend(body, mobile);
-  // Send message to Websocket server
-  try {
-    wsClient.send(JSON.stringify(myObj));
-  } catch (err) {
-    console.log("MESSAGE SEND CATCH:");
-    console.log(err);
-  }
   res.sendStatus(200);
 });
 
@@ -154,33 +146,46 @@ app.post("/twilio-event-streams", (req, res, next) => {
   console.log("TWILIO EVENT STREAMS WEBHOOK");
   // Get first array object in request body
   let requestBody = req.body[0];
+  console.log("BODY TYPE: " + requestBody.type);
   console.log(JSON.stringify(requestBody, undefined, 2));
-  // Check to see if it is an incoming webhook
+  epoch = Date.now();
+  the_date = new Date(epoch).toISOString();
+  let notifyWebClient = false;
+  // Check to see if it is a 'received' webhook
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
-    // console.log(req.body);
-    epoch = Date.now();
-    the_date = new Date(epoch).toISOString();
-    let mobile = requestBody.data.from;
-    let body = requestBody.data.body;
+    notifyWebClient = true,
+    body = requestBody.data.body;
     myObj = {
       dateCreated: the_date,
       direction: "inbound",
       landline: landline,
-      mobile: mobile,
-      body: body,
+      mobile: requestBody.data.from,
+      body: requestBody.data.body,
     };
-    // console.log(JSON.stringify(myObj));
-    // on webhook event, send message to websocket server
+  }
+  // Check to see if it is a 'sent' webhook
+  if (requestBody.type == "com.twilio.messaging.message.sent") {
+    notifyWebClient = true,
+    // TODO - Fetch message body
+    myObj = {
+      dateCreated: the_date,
+      direction: "outbound",
+      landline: landline,
+      mobile: requestBody.data.to,
+      body: "Generic body"
+    };
+  }
+  // SEND WEBSOCKET TO CLIENT
+  // If webhook is "received" or "sent", notifyWebClient will be set to true -- send to wsClient
+  if (notifyWebClient === true) {
     try {
       wsClient.send(JSON.stringify(myObj));
     } catch (err) {
       console.log("TWILIO WEBHOOK CATCH");
       console.log(err);
     }
-  }
-  // Reply with empty TWIML response no matter what
-  res.send("<Response></Response>");
-  // res.sendStatus(200);
+   }
+  res.sendStatus(200);
 });
 
 // ACK CATCHALL WEBHOOK
