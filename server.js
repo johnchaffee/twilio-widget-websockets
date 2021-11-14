@@ -3,12 +3,12 @@ const WebSocket = require("ws");
 const WebSocketServer = WebSocket.Server;
 const http = require("http");
 const express = require("express");
-const path = require("path");
+// const path = require("path");
 const fetch = require("node-fetch");
 const app = express();
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
-const mobile = process.env.MOBILE_NUMBER;
+// const mobile = process.env.MOBILE_NUMBER;
 const twilio_number = process.env.TWILIO_NUMBER;
 const facebook_messenger_id = process.env.FACEBOOK_MESSENGER_ID;
 const whatsapp_id = process.env.WHATSAPP_ID;
@@ -30,7 +30,7 @@ const limit = 50;
 // On startup fetch messages from twilioGetMessages()
 landline = twilio_number;
 console.log("LANDLINE: " + landline);
-twilioGetMessages();
+// twilioGetMessages();
 
 const server = http.createServer(app);
 server.listen(port);
@@ -104,7 +104,7 @@ wsServer.on("connection", (socketClient) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   res.render("index");
@@ -150,16 +150,13 @@ app.post("/messagesend", (req, res, next) => {
 // INCOMING MESSAGE VIA TWILIO EVENT STREAMS
 // Listen for incoming messages from mobile
 // Push message to websocket client
-app.post(/\/event-streams/, (req, res, next) => {
+app.post("/twilio-event-streams", (req, res, next) => {
   console.log("TWILIO EVENT STREAMS WEBHOOK");
   // Get first array object in request body
   let requestBody = req.body[0];
   console.log(JSON.stringify(requestBody, undefined, 2));
-  // Check to see if it an incoming webhook
-  if (
-    requestBody.dataschema ==
-    "https://events-schemas.twilio.com/Messaging.InboundMessage/1"
-  ) {
+  // Check to see if it is an incoming webhook
+  if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     // console.log(req.body);
     epoch = Date.now();
     the_date = new Date(epoch).toISOString();
