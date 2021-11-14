@@ -19,10 +19,6 @@
     "TWILIO_NUMBER": {
       "description": "Enter your Twilio phone number in E.164 format (+12065551212).",
       "value": ""
-    },
-    "MOBILE_NUMBER": {
-      "description": "Enter your mobile phone number in E.164 format (+12065551212).",
-      "value": ""
     }
   },
   "scripts": {

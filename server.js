@@ -126,7 +126,7 @@ app.post("/messagesend", (req, res, next) => {
   epoch = Date.now();
   the_date = new Date(epoch).toISOString();
   myObj = {
-    dateCreated: the_date,
+    dateSent: the_date,
     direction: "outbound",
     twilio_number: twilio_number,
     mobile: mobile,
@@ -151,7 +151,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     body = requestBody.data.body;
     myObj = {
-      dateCreated: the_date,
+      dateSent: the_date,
       direction: "inbound",
       twilio_number: twilio_number,
       mobile: requestBody.data.from,
@@ -242,7 +242,7 @@ function twilioGetMessageBody(messageSid) {
       console.log("GET MESSAGE BODY SUCCESS");
       console.log("result: " + JSON.stringify(result, undefined, 2));
       myObj = {
-        dateCreated: the_date,
+        dateSent: the_date,
         direction: "outbound",
         twilio_number: twilio_number,
         mobile: result.to,
@@ -310,7 +310,7 @@ function twilioGetMessageBody(messageSid) {
 //         the_date = new Date(message.date_created).toISOString();
 //         messages.push(
 //           JSON.stringify({
-//             dateCreated: the_date,
+//             dateSent: the_date,
 //             direction: direction,
 //             twilio_number: twilio_number,
 //             mobile: mobile,
