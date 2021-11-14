@@ -79,8 +79,21 @@ After the above requirements have been met:
 
 6. Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming messages. You'll need to point it to the ngrok and/or heroku url above.
 
-That's it! Now you can start sending and receiving messages text messages in the chat client.
+```
+twilio api:events:v1:sinks:create --description "twilio-messaging.herokuapp.com webhooks" \
+--sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
+--sink-type webhook
+```
 
+```
+twilio api:events:v1:subscriptions:create \
+  --description "Subscribe to 'sent' and 'received' messaging events" \
+  --sink-sid <EVENT STREAM SID> \
+  --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
+  --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
+```
+
+That's it! Now you can start sending and receiving messages text messages in the chat client.
 
 ## Cloud deployment
 

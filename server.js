@@ -113,7 +113,6 @@ app.get("/", (req, res) => {
 // OUTGOING MESSAGE
 // Chat client sends /messagesend request to this server
 // This server then posts request to Twilio API
-// Then sends message to Websocket server
 app.post("/messagesend", (req, res, next) => {
   let body = req.body.body;
   let mobile = req.body.mobile;
@@ -139,9 +138,8 @@ app.post("/messagesend", (req, res, next) => {
   res.sendStatus(200);
 });
 
-// INCOMING MESSAGE VIA TWILIO EVENT STREAMS
-// Listen for incoming messages from mobile
-// Push message to websocket client
+// TWILIO EVENT STREAMS WEBHOOKS
+// Listen for incoming and outgoing messages
 app.post("/twilio-event-streams", (req, res, next) => {
   console.log("TWILIO EVENT STREAMS WEBHOOK");
   // Get first array object in request body
@@ -150,10 +148,8 @@ app.post("/twilio-event-streams", (req, res, next) => {
   console.log(JSON.stringify(requestBody, undefined, 2));
   epoch = Date.now();
   the_date = new Date(epoch).toISOString();
-  let notifyWebClient = false;
   // Check to see if it is a 'received' webhook
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
-    notifyWebClient = true,
     body = requestBody.data.body;
     myObj = {
       dateCreated: the_date,
@@ -162,29 +158,15 @@ app.post("/twilio-event-streams", (req, res, next) => {
       mobile: requestBody.data.from,
       body: requestBody.data.body,
     };
+    // Send incoming messasge to websocket clients
+    updateWebsocketClient(myObj);
   }
-  // Check to see if it is a 'sent' webhook
-  if (requestBody.type == "com.twilio.messaging.message.sent") {
-    notifyWebClient = true,
-    // TODO - Fetch message body
-    myObj = {
-      dateCreated: the_date,
-      direction: "outbound",
-      landline: landline,
-      mobile: requestBody.data.to,
-      body: "Generic body"
-    };
+  // Else check to see if it is a 'sent' webhook
+  else if (requestBody.type == "com.twilio.messaging.message.sent") {
+    console.log("BEFORE MESSAGE BODY");
+    // fetch message body, then it will update websocket clients
+    twilioGetMessageBody(requestBody.data.messageSid);
   }
-  // SEND WEBSOCKET TO CLIENT
-  // If webhook is "received" or "sent", notifyWebClient will be set to true -- send to wsClient
-  if (notifyWebClient === true) {
-    try {
-      wsClient.send(JSON.stringify(myObj));
-    } catch (err) {
-      console.log("TWILIO WEBHOOK CATCH");
-      console.log(err);
-    }
-   }
   res.sendStatus(200);
 });
 
@@ -192,16 +174,23 @@ app.post("/twilio-event-streams", (req, res, next) => {
 // Catchall to acknowledge webhooks that don't match the paths above
 app.post(/.*/, (req, res, next) => {
   console.log("ACK WEBHOOK");
-  // res.sendStatus(200);
-  res.send("<Response></Response>");
+  res.sendStatus(200);
+  // res.send("<Response></Response>");
 });
+
+// UPDATE WEBSOCKET CLIENT
+function updateWebsocketClient(myObj) {
+  try {
+    wsClient.send(JSON.stringify(myObj));
+  } catch (err) {
+    console.log("UPDATE WEBSOCKET CLIENT CATCH");
+    console.log(err);
+  }
+}
 
 // TWILIO MESSAGE SEND API
 function twilioSend(body, mobile) {
-  const apiUrl =
-    "https://api.twilio.com/2010-04-01/Accounts/" +
-    twilio_account_sid +
-    "/Messages.json";
+  const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`;
   // url encode body params
   const bodyParams = new URLSearchParams({
     From: landline,
@@ -238,13 +227,9 @@ function twilioSend(body, mobile) {
 }
 // END TWILIO MESSAGE SEND API
 
-// TWILIO GET MESSAGES API
-function twilioGetMessages() {
-  const apiUrl =
-    "https://api.twilio.com/2010-04-01/Accounts/" +
-    twilio_account_sid +
-    "/Messages.json?PageSize=" +
-    limit;
+// TWILIO GET MESSAGE API
+function twilioGetMessageBody(messageSid) {
+  const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${messageSid}.json`;
   const requestOptions = {
     method: "GET",
     headers: {
@@ -255,9 +240,17 @@ function twilioGetMessages() {
     // .then((response) => response.text())
     .then((response) => response.json())
     .then((result) => {
-      console.log("GET MESSAGES SUCCESS");
-      // console.log("result: " + JSON.stringify(result, undefined, 2));
-      messageObjects = result.messages.reverse();
+      console.log("GET MESSAGE BODY SUCCESS");
+      console.log("result: " + JSON.stringify(result, undefined, 2));
+      myObj = {
+        dateCreated: the_date,
+        direction: "outbound",
+        landline: landline,
+        mobile: result.to,
+        body: result.body,
+      };
+      // Send outgoing messasge to websocket clients
+      updateWebsocketClient(myObj);
     })
     .catch((error) => {
       console.log("TWILIO GET MESSAGES CATCH:");
@@ -269,30 +262,65 @@ function twilioGetMessages() {
     })
     .finally(() => {
       console.log("FINALLY");
-      // console.log("MESSAGE OBJECTS:");
-      // console.log(messageObjects);
-      messageObjects.forEach((message) => {
-        let direction = "outbound";
-        let landline = message.from;
-        let mobile = message.to;
-        if (message.direction == "inbound") {
-          direction = "inbound";
-          landline = message.to;
-          mobile = message.from;
-        }
-        the_date = new Date(message.date_created).toISOString();
-        messages.push(
-          JSON.stringify({
-            dateCreated: the_date,
-            direction: direction,
-            landline: landline,
-            mobile: mobile,
-            body: message.body,
-          })
-        );
-      });
-      console.log("FETCHED MESSAGES");
-      console.log(messages);
     });
 }
-// END TWILIO GET MESSAGES API
+// END TWILIO GET MESSAGE API
+
+// // TWILIO GET MESSAGES API
+// function twilioGetMessages() {
+//   const apiUrl =
+//     "https://api.twilio.com/2010-04-01/Accounts/" +
+//     twilio_account_sid +
+//     "/Messages.json?PageSize=" +
+//     limit;
+//   const requestOptions = {
+//     method: "GET",
+//     headers: {
+//       Authorization: basic_auth,
+//     },
+//   };
+//   fetch(apiUrl, requestOptions)
+//     // .then((response) => response.text())
+//     .then((response) => response.json())
+//     .then((result) => {
+//       console.log("GET MESSAGES SUCCESS");
+//       // console.log("result: " + JSON.stringify(result, undefined, 2));
+//       messageObjects = result.messages.reverse();
+//     })
+//     .catch((error) => {
+//       console.log("TWILIO GET MESSAGES CATCH:");
+//       console.log(
+//         ".catch JSON.stringify(error, undefined, 2): \n" +
+//           JSON.stringify(error, undefined, 2)
+//       );
+//       console.log("error", error);
+//     })
+//     .finally(() => {
+//       console.log("FINALLY");
+//       // console.log("MESSAGE OBJECTS:");
+//       // console.log(messageObjects);
+//       messageObjects.forEach((message) => {
+//         let direction = "outbound";
+//         let landline = message.from;
+//         let mobile = message.to;
+//         if (message.direction == "inbound") {
+//           direction = "inbound";
+//           landline = message.to;
+//           mobile = message.from;
+//         }
+//         the_date = new Date(message.date_created).toISOString();
+//         messages.push(
+//           JSON.stringify({
+//             dateCreated: the_date,
+//             direction: direction,
+//             landline: landline,
+//             mobile: mobile,
+//             body: message.body,
+//           })
+//         );
+//       });
+//       console.log("FETCHED MESSAGES");
+//       console.log(messages);
+//     });
+// }
+// // END TWILIO GET MESSAGES API
