@@ -2,7 +2,7 @@
   
 ## How it works
 
-This application creates a chat interface for a Twilio text-enabled landline number to send and receive messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages, Event Streams Webhooks for incoming/outgoing messages, and Websockets to communicate with the chat client in the web browser.
+This application creates a chat interface for a Twilio text-enabled number to send and receive messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages, Event Streams Webhooks for incoming/outgoing messages, and Websockets to communicate with the chat client in the web browser.
 
 You can run locally or deploy to heroku.
 
@@ -47,7 +47,6 @@ After the above requirements have been met:
     PORT=3000
     NODE_ENV=development
     APP_HOST_NAME=localhost
-    MOBILE_NUMBER=<YOUR MOBILE PHONE NUMBER IN E.164 FORMAT>
     TWILIO_NUMBER=<Your Twilio Phone Number>
     TWILIO_ACCOUNT_SID=<Your Twilio Account SID>
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>

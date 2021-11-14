@@ -8,8 +8,7 @@ const fetch = require("node-fetch");
 const app = express();
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
-// const mobile = process.env.MOBILE_NUMBER;
-const twilio_number = process.env.TWILIO_NUMBER;
+let twilio_number = process.env.TWILIO_NUMBER;
 const facebook_messenger_id = process.env.FACEBOOK_MESSENGER_ID;
 const whatsapp_id = process.env.WHATSAPP_ID;
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
@@ -23,10 +22,9 @@ let the_date = new Date(epoch).toISOString();
 let myObj = {};
 let messageObjects = [];
 let messages = [];
-let landline = twilio_number;
 const limit = 50;
 
-console.log("LANDLINE: " + landline);
+console.log("twilio_number: " + twilio_number);
 
 // TODO - refactor twilioGetMessages() to get single message
 // On startup fetch messages from twilioGetMessages()
@@ -118,18 +116,19 @@ app.post("/messagesend", (req, res, next) => {
   let mobile = req.body.mobile;
   // If sending to messenger, send from facebook_messenger_id
   if (mobile.slice(0, 9) === "messenger") {
-    landline = facebook_messenger_id;
+    twilio_number = facebook_messenger_id;
   } else if (mobile.slice(0, 8) === "whatsapp") {
-    landline = whatsapp_id;
+    twilio_number = whatsapp_id;
   } else {
-    landline = twilio_number;
+    // this variable is already set
+    // twilio_number = twilio_number;
   }
   epoch = Date.now();
   the_date = new Date(epoch).toISOString();
   myObj = {
     dateCreated: the_date,
     direction: "outbound",
-    landline: landline,
+    twilio_number: twilio_number,
     mobile: mobile,
     body: body,
   };
@@ -154,7 +153,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
     myObj = {
       dateCreated: the_date,
       direction: "inbound",
-      landline: landline,
+      twilio_number: twilio_number,
       mobile: requestBody.data.from,
       body: requestBody.data.body,
     };
@@ -193,7 +192,7 @@ function twilioSend(body, mobile) {
   const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`;
   // url encode body params
   const bodyParams = new URLSearchParams({
-    From: landline,
+    From: twilio_number,
     To: mobile,
     Body: body,
   });
@@ -245,7 +244,7 @@ function twilioGetMessageBody(messageSid) {
       myObj = {
         dateCreated: the_date,
         direction: "outbound",
-        landline: landline,
+        twilio_number: twilio_number,
         mobile: result.to,
         body: result.body,
       };
@@ -301,11 +300,11 @@ function twilioGetMessageBody(messageSid) {
 //       // console.log(messageObjects);
 //       messageObjects.forEach((message) => {
 //         let direction = "outbound";
-//         let landline = message.from;
+//         let twilio_number = message.from;
 //         let mobile = message.to;
 //         if (message.direction == "inbound") {
 //           direction = "inbound";
-//           landline = message.to;
+//           twilio_number = message.to;
 //           mobile = message.from;
 //         }
 //         the_date = new Date(message.date_created).toISOString();
@@ -313,7 +312,7 @@ function twilioGetMessageBody(messageSid) {
 //           JSON.stringify({
 //             dateCreated: the_date,
 //             direction: direction,
-//             landline: landline,
+//             twilio_number: twilio_number,
 //             mobile: mobile,
 //             body: message.body,
 //           })

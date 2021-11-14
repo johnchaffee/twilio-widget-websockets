@@ -104,8 +104,8 @@ function renderConversation(thisMessage) {
   } else if (thisMessage.body) {
     // MESSAGE SENT
     appendMessage(
-      LANDLINE_NAME,
-      LANDLINE_IMG,
+      TWILIO_NAME,
+      TWILIO_IMG,
       "right",
       thisMessage.body,
       formatDate(thisMessage.dateCreated)
@@ -114,9 +114,9 @@ function renderConversation(thisMessage) {
 }
 
 // Icons made by Freepik from www.flaticon.com
-const LANDLINE_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
+const TWILIO_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
 const MOBILE_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
-const LANDLINE_NAME = "Twilio";
+const TWILIO_NAME = "Twilio";
 const MOBILE_NAME = "Customer";
 
 const msgerForm = get(".msger-inputarea");
