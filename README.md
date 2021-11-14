@@ -1,17 +1,18 @@
-# Twilio Conversations Widget
+# Twilio Widget
   
 ## How it works
 
-This application creates a chat interface for a Twilio text-enabled landline number to send and receive messages to/from on a mobile phone. It uses the Twilio Conversations API to send messages, Event Streams Webhooks for incoming incoming messages, and Websockets to communicate with the chat client in the web browser.
+This application creates a chat interface for a Twilio text-enabled landline number to send and receive messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages, Event Streams Webhooks for incoming/outgoing messages, and Websockets to communicate with the chat client in the web browser.
 
 You can run locally or deploy to heroku.
 
 ## Features
 
-- Chat client built in html/javascript based on this [Codepen sample UI](https://codepen.io/sajadhsm/pen/odaBdd)
+- Chat client built in vanilla html/javascript based on this [Codepen sample UI](https://codepen.io/sajadhsm/pen/odaBdd)
 - Chat client connects to [Websocket](https://npm.im/ws) server to receive messages
-- Chat client sends text messages via Twilio Conversations API
-- Node http server receives Twilio Event Streams Webhooks for incoming text messages
+- Chat client sends text messages via Twilio Programmable Messaging API
+- Chat client also supports Facebook Messenger and WhatsApp messages via Twilio Channels API
+- Node http server receives Twilio Event Streams Webhooks for incoming and outgoing text messages
 - Node http server forwards Webhook messages to Websocket server
 - Node Websocket server broadcasts messages to chat client(s)
 - One click deploy button for [Heroku](https://heroku.com)
