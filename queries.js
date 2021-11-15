@@ -8,23 +8,23 @@ const pool = new Pool({
   port: 5432,
 });
 
-// synchronous getMessages
-const getMessages = (request, response) => {
-  console.log("START getMessages");
-  pool.query(
-    "SELECT * FROM messages order by datesent asc",
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      console.log(results.rows);
-      response.status(200).json(results.rows);
-    }
-  );
-  console.log("END getMessages");
-};
+// // synchronous getMessages
+// const getMessages = (request, response) => {
+//   console.log("START getMessages");
+//   pool.query(
+//     "SELECT * FROM messages order by datesent asc",
+//     (error, results) => {
+//       if (error) {
+//         throw error;
+//       }
+//       console.log(results.rows);
+//       response.status(200).json(results.rows);
+//     }
+//   );
+//   console.log("END getMessages");
+// };
 
-// // async get Messages
+// // Promise.then getMessages
 // const getMessages = (request, response) => {
 //   console.log("START getMessages");
 //   pool
@@ -39,6 +39,19 @@ const getMessages = (request, response) => {
 //       console.log("FINALLY getMessages");
 //     });
 // };
+
+// async/await getMessages
+const getMessages = async function (request, response) {
+  try {
+    const result = await pool.query("SELECT * FROM messages order by datesent asc");
+    response.status(200).json(result.rows);
+    console.log(`rowCount: ${result.rowCount}`)
+    console.log(result.rows)
+  } catch (err) {
+    console.error(err);
+    res.send("Error " + err);
+  }
+};
 
 // // async getUsers -> promise .then
 // const getUsers = (request, response) => {
@@ -57,7 +70,7 @@ const getMessages = (request, response) => {
 // };
 
 // synchronous getUsers
-const getUsers = (request, response) => {
+function getUsers(request, response) {
   console.log("BEGIN getUsers");
   pool.query("SELECT * FROM users ORDER BY id ASC", (error, results) => {
     if (error) {
@@ -69,7 +82,7 @@ const getUsers = (request, response) => {
     response.status(200).json(results.rows);
   });
   console.log("END getUsers");
-};
+}
 
 const getUserById = (request, response) => {
   const id = parseInt(request.params.id);
