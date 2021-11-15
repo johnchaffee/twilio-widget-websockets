@@ -6,6 +6,7 @@ const express = require("express");
 // const path = require("path");
 const fetch = require("node-fetch");
 const app = express();
+const db = require('./queries');
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
 let twilio_number = process.env.TWILIO_NUMBER;
@@ -29,6 +30,9 @@ console.log("twilio_number: " + twilio_number);
 // TODO - refactor twilioGetMessages() to get single message
 // On startup fetch messages from twilioGetMessages()
 // twilioGetMessages();
+
+// Test fetching messages from pg db
+app.get('/messages', db.getMessages);
 
 const server = http.createServer(app);
 server.listen(port);

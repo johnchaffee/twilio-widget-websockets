@@ -94,6 +94,58 @@ twilio api:events:v1:subscriptions:create \
 
 That's it! Now you can start sending and receiving messages text messages in the chat client.
 
+## Data Model
+
+```json
+[
+  {
+    "dateCreated": "2021-11-14T22:34:13.204Z",
+    "direction": "outbound",
+    "twilio_number": "+18555080989",
+    "mobile": "+12063996576",
+    "body": "test"
+  },
+  {
+    "dateCreated": "2021-11-14T22:34:17.934Z",
+    "direction": "inbound",
+    "twilio_number": "+18555080989",
+    "mobile": "+12063996576",
+    "body": "yep"
+  }
+]
+```
+
+## Configure Postgres database on localhost
+
+```sql
+psql postgres
+
+CREATE DATABASE widget;
+
+\c widget
+
+CREATE TABLE messages (
+  ID SERIAL PRIMARY KEY,
+  dateSent VARCHAR(30),
+  direction VARCHAR(10),
+  twilio_number VARCHAR(30),
+  mobile VARCHAR(30),
+  body text
+);
+
+INSERT INTO messages (dateSent, direction, twilio_number, mobile, body)
+  VALUES ('2021-11-14T22:34:13.204Z', 'outbound', '+18555080989', '+12063996576', 'Outgoing message'), ('2021-11-14T22:34:17.934Z', 'inbound', '+18555080989', '+12063996576', 'Reply from mobile');
+
+SELECT * FROM messages;
+
+```
+
+## Configure Postgres database on heroku
+
+```sql
+// TBD
+```
+
 ## Cloud deployment
 
 As an alternative to running the app locally, you can deploy it to heroku by clicking the button below.
