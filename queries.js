@@ -1,4 +1,3 @@
-const wsc = require("./server");
 const Pool = require("pg").Pool;
 const pool = new Pool({
   // user: 'me',
@@ -12,7 +11,7 @@ const pool = new Pool({
 // const getMessages = (request, response) => {
 //   console.log("START getMessages");
 //   pool.query(
-//     "SELECT * FROM messages order by datesent asc",
+//     "SELECT * FROM messages order by date asc",
 //     (error, results) => {
 //       if (error) {
 //         throw error;
@@ -28,7 +27,7 @@ const pool = new Pool({
 // const getMessages = (request, response) => {
 //   console.log("START getMessages");
 //   pool
-//     .query("SELECT * FROM messages order by datesent asc")
+//     .query("SELECT * FROM messages order by date asc")
 //     .then((results) => {
 //       console.log(results.rows);
 //       response.status(200).json(results.rows);
@@ -43,7 +42,7 @@ const pool = new Pool({
 // async/await getMessages
 const getMessages = async function (request, response) {
   try {
-    const result = await pool.query("SELECT * FROM messages order by datesent asc");
+    const result = await pool.query("SELECT * FROM messages order by date asc");
     response.status(200).json(result.rows);
     console.log(`rowCount: ${result.rowCount}`)
     console.log(result.rows)

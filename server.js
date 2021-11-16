@@ -6,7 +6,7 @@ const express = require("express");
 // const path = require("path");
 const fetch = require("node-fetch");
 const app = express();
-const db = require('./queries');
+const db = require("./queries");
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
 let twilio_number = process.env.TWILIO_NUMBER;
@@ -25,14 +25,22 @@ let messageObjects = [];
 let messages = [];
 const limit = 50;
 
+const Pool = require("pg").Pool;
+const pool = new Pool({
+  // user: 'me',
+  // password: 'password',
+  host: "localhost",
+  database: "widget",
+  port: 5432,
+});
+
 console.log("twilio_number: " + twilio_number);
 
-// TODO - refactor twilioGetMessages() to get single message
-// On startup fetch messages from twilioGetMessages()
-// twilioGetMessages();
+// Fetch all messages from postgres db
+getMessages();
 
 // Test fetching messages from pg db
-app.get('/messages', db.getMessages);
+// app.get("/messages", db.getMessages);
 
 const server = http.createServer(app);
 server.listen(port);
@@ -130,7 +138,7 @@ app.post("/messagesend", (req, res, next) => {
   epoch = Date.now();
   the_date = new Date(epoch).toISOString();
   myObj = {
-    dateSent: the_date,
+    date: the_date,
     direction: "outbound",
     twilio_number: twilio_number,
     mobile: mobile,
@@ -155,7 +163,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     body = requestBody.data.body;
     myObj = {
-      dateSent: the_date,
+      date: the_date,
       direction: "inbound",
       twilio_number: twilio_number,
       mobile: requestBody.data.from,
@@ -246,7 +254,7 @@ function twilioGetMessageBody(messageSid) {
       console.log("GET MESSAGE BODY SUCCESS");
       console.log("result: " + JSON.stringify(result, undefined, 2));
       myObj = {
-        dateSent: the_date,
+        date: the_date,
         direction: "outbound",
         twilio_number: twilio_number,
         mobile: result.to,
@@ -268,6 +276,68 @@ function twilioGetMessageBody(messageSid) {
     });
 }
 // END TWILIO GET MESSAGE API
+
+// GET MESSAGES ASYNC/AWAIT
+async function getMessages() {
+  try {
+    const result = await pool.query("SELECT * FROM messages order by date asc");
+    messageObjects = result.rows;
+    console.log("MESSAGE OBJECTS:");
+    console.log(messageObjects);
+    messageObjects.forEach((message) => {
+      let date = message.date;
+      messages.push(
+        JSON.stringify({
+          date: date,
+          direction: message.direction,
+          twilio_number: message.twilio_number,
+          mobile: message.mobile,
+          body: message.body,
+        })
+      );
+    });
+    console.log("MESSAGES:");
+    console.log(messages);
+  } catch (err) {
+    console.error(err);
+    res.send("Error " + err);
+  }
+};
+// END GET MESSAGES ASYNC/AWAIT
+
+// // GET MESSAGES .THEN
+// function getMessages() {
+//   let messageObjects = [];
+//   console.log("INIT MESSAGE OBJECTS:");
+//   console.log(messageObjects);
+//   console.log("START getMessages");
+//   pool
+//     .query("SELECT * FROM messages order by date asc")
+//     .then((results) => {
+//       messageObjects = results.rows;
+//       console.log("GET MESSAGE OBJECTS:");
+//       console.log(messageObjects);
+//       // results.rows;
+//     })
+//     .catch((err) => console.error("Error executing query", err.stack))
+//     .finally(() => {
+//       console.log("FINALLY MESSAGE OBJECTS");
+//       messageObjects.forEach((message) => {
+//         let date = message.date;
+//         messages.push(
+//           JSON.stringify({
+//             date: date,
+//             direction: message.direction,
+//             twilio_number: message.twilio_number,
+//             mobile: message.mobile,
+//             body: message.body,
+//           })
+//         );
+//       });
+//       console.log(messages);
+//     });
+// }
+// // END GET MESSAGES .THEN
 
 // // TWILIO GET MESSAGES API
 // function twilioGetMessages() {
@@ -314,7 +384,7 @@ function twilioGetMessageBody(messageSid) {
 //         the_date = new Date(message.date_created).toISOString();
 //         messages.push(
 //           JSON.stringify({
-//             dateSent: the_date,
+//             date: the_date,
 //             direction: direction,
 //             twilio_number: twilio_number,
 //             mobile: mobile,

@@ -99,7 +99,7 @@ function renderConversation(thisMessage) {
       MOBILE_IMG,
       "left",
       thisMessage.body,
-      formatDate(thisMessage.dateSent)
+      formatDate(thisMessage.date)
     );
   } else if (thisMessage.body) {
     // MESSAGE SENT
@@ -108,7 +108,7 @@ function renderConversation(thisMessage) {
       TWILIO_IMG,
       "right",
       thisMessage.body,
-      formatDate(thisMessage.dateSent)
+      formatDate(thisMessage.date)
     );
   }
 }

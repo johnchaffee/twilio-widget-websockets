@@ -126,14 +126,14 @@ CREATE DATABASE widget;
 
 CREATE TABLE messages (
   ID SERIAL PRIMARY KEY,
-  dateSent VARCHAR(30),
+  date VARCHAR(30),
   direction VARCHAR(10),
   twilio_number VARCHAR(30),
   mobile VARCHAR(30),
   body text
 );
 
-INSERT INTO messages (dateSent, direction, twilio_number, mobile, body)
+INSERT INTO messages (date, direction, twilio_number, mobile, body)
   VALUES ('2021-11-14T22:34:13.204Z', 'outbound', '+18555080989', '+12063996576', 'Outgoing message'), ('2021-11-14T22:34:17.934Z', 'inbound', '+18555080989', '+12063996576', 'Reply from mobile');
 
 SELECT * FROM messages;
