@@ -157,13 +157,13 @@ app.post("/twilio-event-streams", (req, res, next) => {
   let requestBody = req.body[0];
   console.log("BODY TYPE: " + requestBody.type);
   console.log(JSON.stringify(requestBody, undefined, 2));
-  epoch = Date.now();
-  the_date = new Date(epoch).toISOString();
+  // epoch = Date.now();
+  // the_date = new Date(epoch).toISOString();
   // Check to see if it is a 'received' webhook
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     body = requestBody.data.body;
     myObj = {
-      date: the_date,
+      date: requestBody.data.timestamp,
       direction: "inbound",
       twilio_number: twilio_number,
       mobile: requestBody.data.from,
@@ -253,6 +253,7 @@ function twilioGetMessageBody(messageSid) {
     .then((result) => {
       console.log("GET MESSAGE BODY SUCCESS");
       console.log("result: " + JSON.stringify(result, undefined, 2));
+      the_date = new Date(result.date_sent).toISOString();
       myObj = {
         date: the_date,
         direction: "outbound",
