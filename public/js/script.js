@@ -159,7 +159,9 @@ function get(selector, root = document) {
 
 // Display date as hh:mm:ss
 function formatDate(date) {
-  return `${date.slice(11, 13)}:${date.slice(14, 16)}:${date.slice(17, 19)}`;
+  // return `${date.slice(11, 13)}:${date.slice(14, 16)}:${date.slice(17, 19)}`;
+  // return (new Date(date).toDateString())
+  return (new Date(date).toLocaleTimeString())
 }
 
 // Display phone number as (###) ###-####
