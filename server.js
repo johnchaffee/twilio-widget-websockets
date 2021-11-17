@@ -1,12 +1,11 @@
 require("dotenv").config();
 const WebSocket = require("ws");
 const WebSocketServer = WebSocket.Server;
-const http = require("http");
 const express = require("express");
 // const path = require("path");
 const fetch = require("node-fetch");
 const app = express();
-const db = require("./queries");
+// const db = require("./queries");
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
 let twilio_number = process.env.TWILIO_NUMBER;
@@ -219,10 +218,11 @@ function updateWebsocketClient(myObj) {
   }
 }
 
-// SERVER
-const server = http.createServer(app);
-server.listen(port);
-console.log(`server listening on port ${port}`);
+// EXPRESS SERVER
+const server = app.listen(port, function () {
+  console.log(`Express server listening on port ${port}`);
+});
+
 
 // WEBSOCKET CLIENT
 // The Websocket Client runs in the browser
