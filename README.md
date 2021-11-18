@@ -96,6 +96,7 @@ That's it! Now you can start sending and receiving messages text messages in the
 
 ## Data Model
 
+----+---------------------------+---------------+--------------+--------------------------+------------------------------
 ```json
 [
   {

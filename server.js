@@ -17,7 +17,8 @@ const buf = Buffer.from(twilio_account_sid + ":" + twilio_auth_token);
 const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
 let epoch = Date.now();
-let myObj = {};
+let messageObject = {};
+let conversationObject = {};
 let messageObjects = [];
 let messages = [];
 const limit = 6;
@@ -29,60 +30,6 @@ app.use(express.static("public"));
 app.get("/", (req, res) => {
   res.render("index");
 });
-
-// POSTGRES DATABASE QUERIES
-const Pool = require("pg").Pool;
-const pool = new Pool({
-  // user: 'me',
-  // password: 'password',
-  host: "localhost",
-  database: "widget",
-  port: 5432,
-});
-
-// GET ALL MESSAGES FROM DB
-// On startup, fetch all messages from postgres db
-getMessages();
-async function getMessages() {
-  try {
-    const result = await pool.query("SELECT * FROM messages order by date_created desc limit $1", [limit]);
-    messageObjects = result.rows.reverse();
-    console.log("MESSAGE OBJECTS:");
-    console.log(messageObjects);
-    messageObjects.forEach((message) => {
-      messages.push(
-        JSON.stringify({
-          date_created: message.date_created,
-          direction: message.direction,
-          twilio_number: message.twilio_number,
-          mobile: message.mobile,
-          body: message.body,
-        })
-      );
-    });
-    console.log("MESSAGES:");
-    console.log(messages);
-  } catch (err) {
-    console.error(err);
-    res.send("Error " + err);
-  }
-}
-
-// CREATE MESSAGE
-async function createMessage(request, response) {
-  try {
-    const { date_created, direction, twilio_number, mobile, body } = request;
-    const result = await pool.query(
-      "INSERT INTO messages (date_created, direction, twilio_number, mobile, body) VALUES ($1, $2, $3, $4, $5)",
-      [date_created, direction, twilio_number, mobile, body]
-    );
-    console.log("Message created");
-  } catch (err) {
-    console.error(err);
-    res.send("Error " + err);
-  }
-}
-
 
 // SEND OUTGOING MESSAGE
 // Web client sends '/messagesend' request to this server, which posts request to Twilio API
@@ -146,16 +93,25 @@ app.post("/twilio-event-streams", (req, res, next) => {
   console.log(JSON.stringify(requestBody, undefined, 2));
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
-    myObj = {
+    messageObject = {
       date_created: requestBody.data.timestamp,
       direction: "inbound",
       twilio_number: requestBody.data.to,
       mobile: requestBody.data.from,
+      conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       body: requestBody.data.body,
     };
+    conversationObject = {
+      date_updated: requestBody.data.timestamp,
+      conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
+      unread_count: 1,
+    };
     // Send incoming messasge to websocket clients
-    updateWebsocketClient(myObj);
-    createMessage(myObj);
+    updateWebsocketClient(messageObject);
+    // Create message in db
+    createMessage(messageObject);
+    // Create or update conversation in db
+    updateConversation(conversationObject);
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
@@ -174,17 +130,26 @@ app.post("/twilio-event-streams", (req, res, next) => {
       .then((result) => {
         console.log("GET MESSAGE BODY SUCCESS");
         console.log("result: " + JSON.stringify(result, undefined, 2));
-        myObj = {
+        messageObject = {
           date_created: new Date(result.date_created).toISOString(),
           direction: "outbound",
           twilio_number: result.from,
           mobile: result.to,
+          conversation_id: `${result.from};${result.to}`,
           body: result.body,
         };
+        conversationObject = {
+          date_updated: new Date(result.date_created).toISOString(),
+          conversation_id: `${result.from};${result.to}`,
+          unread_count: 0,
+        };
         // Send outgoing messasge to websocket clients
-        updateWebsocketClient(myObj);
-        createMessage(myObj);
-        updateConversation(myObj);
+        // TODO send conversation object to websocket clients
+        updateWebsocketClient(messageObject);
+        // Create messasge in db
+        createMessage(messageObject);
+        // Create or update conversation in db
+        updateConversation(conversationObject);
       })
       .catch((error) => {
         console.log("TWILIO GET MESSAGES CATCH:");
@@ -209,21 +174,116 @@ app.post(/.*/, (req, res, next) => {
   // res.send("<Response></Response>");
 });
 
-// UPDATE WEBSOCKET CLIENT
-function updateWebsocketClient(myObj) {
-  try {
-    wsClient.send(JSON.stringify(myObj));
-  } catch (err) {
-    console.log("UPDATE WEBSOCKET CLIENT CATCH");
-    console.log(err);
-  }
-}
-
 // EXPRESS SERVER
 const server = app.listen(port, function () {
   console.log(`Express server listening on port ${port}`);
 });
 
+// POSTGRES DATABASE QUERIES
+const Pool = require("pg").Pool;
+const pool = new Pool({
+  // user: 'me',
+  // password: 'password',
+  host: "localhost",
+  database: "widget",
+  port: 5432,
+});
+
+// GET ALL MESSAGES FROM DB
+// On startup, fetch all messages from postgres db
+getMessages();
+async function getMessages() {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM messages order by date_created desc limit $1",
+      [limit]
+    );
+    messageObjects = result.rows.reverse();
+    console.log("MESSAGE OBJECTS:");
+    console.log(messageObjects);
+    messageObjects.forEach((message) => {
+      messages.push(
+        JSON.stringify({
+          date_created: message.date_created,
+          direction: message.direction,
+          twilio_number: message.twilio_number,
+          mobile: message.mobile,
+          conversation_id: message.conversation_id,
+          body: message.body,
+        })
+      );
+    });
+    console.log("MESSAGES:");
+    console.log(messages);
+  } catch (err) {
+    console.error(err);
+    res.send("Error " + err);
+  }
+}
+
+// CREATE MESSAGE
+async function createMessage(request, response) {
+  try {
+    const {
+      date_created,
+      direction,
+      twilio_number,
+      mobile,
+      conversation_id,
+      body,
+    } = request;
+    const result = await pool.query(
+      "INSERT INTO messages (date_created, direction, twilio_number, mobile, conversation_id, body) VALUES ($1, $2, $3, $4, $5, $6)",
+      [date_created, direction, twilio_number, mobile, conversation_id, body]
+    );
+    console.log("Message created");
+  } catch (err) {
+    console.error(err);
+    // res.send("Error " + err);
+  }
+}
+
+// UPDATE CONVERSATION
+async function updateConversation(request, response) {
+  // Outgoing message or message read event, reset unread_count
+  if (request.unread_count === 0) {
+    try {
+      const { date_updated, conversation_id, unread_count } = request;
+      const result = await pool.query(
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count",
+        [date_updated, conversation_id, unread_count]
+      );
+      console.log("Conversation updated");
+    } catch (err) {
+      console.error(err);
+      // res.send("Error " + err);
+    }
+  }
+  // Incoming message, increment unread_count
+  else {
+    try {
+      const { date_updated, conversation_id, unread_count } = request;
+      const result = await pool.query(
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count",
+        [date_updated, conversation_id, unread_count]
+      );
+      console.log("Conversation updated");
+    } catch (err) {
+      console.error(err);
+      // res.send("Error " + err);
+    }
+  }
+}
+
+// UPDATE WEBSOCKET CLIENT
+function updateWebsocketClient(messageObject) {
+  try {
+    wsClient.send(JSON.stringify(messageObject));
+  } catch (err) {
+    console.log("UPDATE WEBSOCKET CLIENT CATCH");
+    console.log(err);
+  }
+}
 
 // WEBSOCKET CLIENT
 // The Websocket Client runs in the browser
