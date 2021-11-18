@@ -20,7 +20,7 @@ let epoch = Date.now();
 let myObj = {};
 let messageObjects = [];
 let messages = [];
-const limit = 4;
+const limit = 6;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-// POSTGRES DB
+// POSTGRES DATABASE QUERIES
 const Pool = require("pg").Pool;
 const pool = new Pool({
   // user: 'me',
@@ -45,14 +45,14 @@ const pool = new Pool({
 getMessages();
 async function getMessages() {
   try {
-    const result = await pool.query("SELECT * FROM messages order by date desc limit $1", [limit]);
+    const result = await pool.query("SELECT * FROM messages order by date_created desc limit $1", [limit]);
     messageObjects = result.rows.reverse();
     console.log("MESSAGE OBJECTS:");
     console.log(messageObjects);
     messageObjects.forEach((message) => {
       messages.push(
         JSON.stringify({
-          date: message.date,
+          date_created: message.date_created,
           direction: message.direction,
           twilio_number: message.twilio_number,
           mobile: message.mobile,
@@ -68,13 +68,13 @@ async function getMessages() {
   }
 }
 
-// STORE MESSAGE IN DB
+// CREATE MESSAGE
 async function createMessage(request, response) {
   try {
-    const { date, direction, twilio_number, mobile, body } = request;
+    const { date_created, direction, twilio_number, mobile, body } = request;
     const result = await pool.query(
-      "INSERT INTO messages (date, direction, twilio_number, mobile, body) VALUES ($1, $2, $3, $4, $5)",
-      [date, direction, twilio_number, mobile, body]
+      "INSERT INTO messages (date_created, direction, twilio_number, mobile, body) VALUES ($1, $2, $3, $4, $5)",
+      [date_created, direction, twilio_number, mobile, body]
     );
     console.log("Message created");
   } catch (err) {
@@ -83,9 +83,9 @@ async function createMessage(request, response) {
   }
 }
 
+
 // SEND OUTGOING MESSAGE
-// Chat client sends /messagesend request to this server
-// This server then posts request to Twilio API
+// Web client sends '/messagesend' request to this server, which posts request to Twilio API
 app.post("/messagesend", (req, res, next) => {
   let body = req.body.body;
   let mobile = req.body.mobile;
@@ -147,7 +147,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     myObj = {
-      date: requestBody.data.timestamp,
+      date_created: requestBody.data.timestamp,
       direction: "inbound",
       twilio_number: requestBody.data.to,
       mobile: requestBody.data.from,
@@ -175,7 +175,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
         console.log("GET MESSAGE BODY SUCCESS");
         console.log("result: " + JSON.stringify(result, undefined, 2));
         myObj = {
-          date: new Date(result.date_sent).toISOString(),
+          date_created: new Date(result.date_created).toISOString(),
           direction: "outbound",
           twilio_number: result.from,
           mobile: result.to,
@@ -184,6 +184,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
         // Send outgoing messasge to websocket clients
         updateWebsocketClient(myObj);
         createMessage(myObj);
+        updateConversation(myObj);
       })
       .catch((error) => {
         console.log("TWILIO GET MESSAGES CATCH:");

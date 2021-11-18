@@ -38,7 +38,8 @@ wsClient.onmessage = (event) => {
   console.log("CLIENT ONMESSAGE");
   console.log("EVENT.ORIGIN: " + event.origin);
   // console.log(event);
-  // console.log(messages);
+  // console.log(event.data);
+  console.log(messages);
   if (messages.length > 0) {
     console.log("MESSAGES.LENGTH: " + messages.length);
     messages.forEach((thisMessage) => {
@@ -99,7 +100,7 @@ function renderConversation(thisMessage) {
       MOBILE_IMG,
       "left",
       thisMessage.body,
-      formatDate(thisMessage.date)
+      formatDate(thisMessage.date_created)
     );
   } else if (thisMessage.body) {
     // MESSAGE SENT
@@ -108,7 +109,7 @@ function renderConversation(thisMessage) {
       TWILIO_IMG,
       "right",
       thisMessage.body,
-      formatDate(thisMessage.date)
+      formatDate(thisMessage.date_created)
     );
   }
 }
@@ -136,7 +137,7 @@ msgerForm.addEventListener("submit", (event) => {
 });
 
 // APPEND MESSAGE - Render last message
-function appendMessage(name, img, side, text, date) {
+function appendMessage(name, img, side, text, date_created) {
   //   Simple solution for small apps
   const msgHTML = `
   <div class="msg ${side}-msg">
@@ -145,7 +146,7 @@ function appendMessage(name, img, side, text, date) {
       <div class="msg-text">${text}</div>
     </div>
   </div>
-  <div class="msg-footer ${side}-msg">${name} • ${date}</div>
+  <div class="msg-footer ${side}-msg">${name} • ${date_created}</div>
 `;
 
   msgerChat.insertAdjacentHTML("beforeend", msgHTML);
@@ -157,11 +158,11 @@ function get(selector, root = document) {
   return root.querySelector(selector);
 }
 
-// Display date as hh:mm:ss
-function formatDate(date) {
-  // return `${date.slice(11, 13)}:${date.slice(14, 16)}:${date.slice(17, 19)}`;
-  // return (new Date(date).toDateString())
-  return (new Date(date).toLocaleTimeString())
+// Display date_created as hh:mm:ss
+function formatDate(date_created) {
+  // return `${date_created.slice(11, 13)}:${date_created.slice(14, 16)}:${date_created.slice(17, 19)}`;
+  // return (new Date(date_created).toDateString())
+  return (new Date(date_created).toLocaleTimeString())
 }
 
 // Display phone number as (###) ###-####
