@@ -1,24 +1,24 @@
 const urlParams = new URLSearchParams(window.location.search);
-console.log(`urlParams: ${urlParams}`);
+// console.log(`urlParams: ${urlParams}`);
 const mobileParam = urlParams.get("mobile");
-console.log(`mobileParam: ${mobileParam}`);
+// console.log(`mobileParam: ${mobileParam}`);
 const mobileParamEncoded = encodeURIComponent(urlParams.get("mobile")); // %2B12065551111
-console.log(`mobileParamEncoded: ${mobileParamEncoded}`);
+// console.log(`mobileParamEncoded: ${mobileParamEncoded}`);
 const mobileParamDecoded = decodeURIComponent(mobileParam); // +12065551111
-console.log(`mobileParamDecoded: ${mobileParamDecoded}`);
+// console.log(`mobileParamDecoded: ${mobileParamDecoded}`);
 let mobile_number = mobileParamDecoded;
-console.log(`MOBILE NUMBER: ${mobile_number}`);
+console.log(`URL PARAM MOBILE NUMBER: ${mobile_number}`);
 
 const host = location.origin;
-console.log(`HOST: ${host}`);
+// console.log(`HOST: ${host}`);
 
 const wsHost = host.replace(/^http/, "ws");
-console.log(`WSHOST: ${wsHost}`);
+// console.log(`WSHOST: ${wsHost}`);
 const wsClient = new WebSocket(wsHost);
 
 wsClient.onopen = () => {
   console.log("ON OPEN");
-  console.log("Websocket connected to: " + wsClient.url);
+  // console.log("Websocket connected to: " + wsClient.url);
 };
 
 wsClient.onclose = () => {
@@ -36,10 +36,12 @@ const uniqueMobileNumbersSet = new Set();
 wsClient.onmessage = (event) => {
   const messages = JSON.parse(event.data);
   console.log("CLIENT ONMESSAGE");
-  console.log("EVENT.ORIGIN: " + event.origin);
+  // console.log("EVENT.ORIGIN: " + event.origin);
   // console.log(event);
   // console.log(event.data);
   console.log(messages);
+  console.log(JSON.stringify(messages, undefined, 2));
+
   if (messages.length > 0) {
     console.log("MESSAGES.LENGTH: " + messages.length);
     messages.forEach((thisMessage) => {
@@ -62,6 +64,32 @@ wsClient.onmessage = (event) => {
   let uniqueMobileNumbers = Array.from(uniqueMobileNumbersSet).reverse();
   console.log("UNIQUE MOBILE NUMBERS:");
   console.log(uniqueMobileNumbers);
+  renderConversationList(uniqueMobileNumbers);
+};
+
+function renderConversation(thisMessage) {
+  if (thisMessage.direction == "inbound") {
+    // MESSAGE RECEIVED
+    appendMessage(
+      MOBILE_NAME,
+      MOBILE_IMG,
+      "left",
+      thisMessage.body,
+      formatDate(thisMessage.date_created)
+    );
+  } else if (thisMessage.body) {
+    // MESSAGE SENT
+    appendMessage(
+      TWILIO_NAME,
+      TWILIO_IMG,
+      "right",
+      thisMessage.body,
+      formatDate(thisMessage.date_created)
+    );
+  }
+}
+
+function renderConversationList(uniqueMobileNumbers) {
   let conversationListHTML = "";
   let formattedMobile = "";
   let conversationLink = "";
@@ -90,28 +118,6 @@ wsClient.onmessage = (event) => {
   // console.log("CONVERSATION LIST HTML:");
   // console.log(conversationListHTML);
   conversationList.innerHTML = conversationListHTML;
-};
-
-function renderConversation(thisMessage) {
-  if (thisMessage.direction == "inbound") {
-    // MESSAGE RECEIVED
-    appendMessage(
-      MOBILE_NAME,
-      MOBILE_IMG,
-      "left",
-      thisMessage.body,
-      formatDate(thisMessage.date_created)
-    );
-  } else if (thisMessage.body) {
-    // MESSAGE SENT
-    appendMessage(
-      TWILIO_NAME,
-      TWILIO_IMG,
-      "right",
-      thisMessage.body,
-      formatDate(thisMessage.date_created)
-    );
-  }
 }
 
 // Icons made by Freepik from www.flaticon.com
@@ -162,16 +168,20 @@ function get(selector, root = document) {
 function formatDate(date_created) {
   // return `${date_created.slice(11, 13)}:${date_created.slice(14, 16)}:${date_created.slice(17, 19)}`;
   // return (new Date(date_created).toDateString())
-  return (new Date(date_created).toLocaleTimeString())
+  return new Date(date_created).toLocaleTimeString();
 }
 
 // Display phone number as (###) ###-####
 function formatMobile(mobile_number) {
   if (mobile_number.slice(0, 9) === "messenger") {
-    return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;${mobile_number.slice(10)}`;
+    return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;${mobile_number.slice(
+      10
+    )}`;
     // return "Messenger";
   } else if (mobile_number.slice(0, 8) === "whatsapp") {
-    return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;${mobile_number.slice(9)}`;
+    return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;${mobile_number.slice(
+      9
+    )}`;
     // return "Messenger";
   } else {
     return `<i class="far fa-comment"></i>&nbsp;&nbsp;(${mobile_number.slice(
