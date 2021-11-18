@@ -117,7 +117,7 @@ function renderConversation(thisMessage) {
 const TWILIO_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
 const MOBILE_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
 const TWILIO_NAME = "Twilio";
-const MOBILE_NAME = "Customer";
+const MOBILE_NAME = "Mobile";
 
 const msgerForm = get(".msger-inputarea");
 const msgerInput = get(".msger-input");
