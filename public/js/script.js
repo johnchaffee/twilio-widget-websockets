@@ -40,13 +40,14 @@ wsClient.onmessage = (event) => {
   // console.log(event);
   // console.log(event.data);
   console.log(messages);
-  console.log(JSON.stringify(messages, undefined, 2));
+  // console.log(JSON.stringify(messages, undefined, 2));
 
   if (messages.length > 0) {
     console.log("MESSAGES.LENGTH: " + messages.length);
     messages.forEach((thisMessage) => {
-      // console.log(thisMessage);
-      thisMessage = JSON.parse(thisMessage);
+      console.log("THIS MESSAGE:")
+      console.log(thisMessage);
+      // thisMessage = JSON.parse(thisMessage);
       uniqueMobileNumbersSet.add(thisMessage.mobile_number);
       // console.log(thisMessage);
       // console.log(thisMessage.direction);
@@ -95,7 +96,7 @@ function renderConversationList(uniqueMobileNumbers) {
   let conversationLink = "";
   uniqueMobileNumbers.forEach((uniqueMobileNumer) => {
     // console.log("APPEND CONVERSATION LIST:");
-    // console.log(uniqueMobileNumer);
+    console.log(uniqueMobileNumer);
     formattedMobile = formatMobile(uniqueMobileNumer);
     conversationLink = `<a href="?mobile=${encodeURIComponent(
       uniqueMobileNumer

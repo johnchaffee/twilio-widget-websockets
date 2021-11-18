@@ -145,7 +145,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
           conversation_id: `${result.from};${result.to}`,
           unread_count: 0,
         };
-        // Send outgoing messasge to websocket clients
+        // Send outgoing messages to websocket clients
         // TODO send conversation object to websocket clients
         updateWebsocketClient(messageObject);
         // Create messasge in db
@@ -204,14 +204,12 @@ async function getConversations() {
     console.log("CONVERSATION OBJECTS:");
     console.log(conversationObjects);
     conversationObjects.forEach((conversation) => {
-      conversations.push(
-        JSON.stringify({
-          date_updated: conversation.date_updated,
-          conversation_id: conversation.conversation_id,
-          contact_name: conversation.contact_name,
-          unread_count: conversation.unread_count,
-        })
-      );
+      conversations.push({
+        date_updated: conversation.date_updated,
+        conversation_id: conversation.conversation_id,
+        contact_name: conversation.contact_name,
+        unread_count: conversation.unread_count,
+      });
     });
     console.log("CONVERSATIONS:");
     console.log(conversations);
@@ -234,16 +232,14 @@ async function getMessages() {
     console.log("MESSAGE OBJECTS:");
     console.log(messageObjects);
     messageObjects.forEach((message) => {
-      messages.push(
-        JSON.stringify({
-          date_created: message.date_created,
-          direction: message.direction,
-          twilio_number: message.twilio_number,
-          mobile_number: message.mobile_number,
-          conversation_id: message.conversation_id,
-          body: message.body,
-        })
-      );
+      messages.push({
+        date_created: message.date_created,
+        direction: message.direction,
+        twilio_number: message.twilio_number,
+        mobile_number: message.mobile_number,
+        conversation_id: message.conversation_id,
+        body: message.body,
+      });
     });
     console.log("MESSAGES:");
     console.log(messages);
@@ -266,7 +262,14 @@ async function createMessage(request, response) {
     } = request;
     const result = await pool.query(
       "INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body) VALUES ($1, $2, $3, $4, $5, $6)",
-      [date_created, direction, twilio_number, mobile_number, conversation_id, body]
+      [
+        date_created,
+        direction,
+        twilio_number,
+        mobile_number,
+        conversation_id,
+        body,
+      ]
     );
     console.log("Message created");
   } catch (err) {
@@ -309,6 +312,7 @@ async function updateConversation(request, response) {
 
 // UPDATE WEBSOCKET CLIENT
 function updateWebsocketClient(messageObject) {
+  console.log("UPDATE WEBSOCKET CLIENT");
   try {
     wsClient.send(JSON.stringify(messageObject));
   } catch (err) {
@@ -364,12 +368,15 @@ wsServer.on("connection", (socketClient) => {
   socketClient.on("message", (message) => {
     console.log("ON MESSAGE");
     console.log(message);
-    messages.push(message);
+    messages.push(JSON.parse(message));
     console.log("ON MESSAGE MESSAGES:");
     console.log(messages);
+    let lastMessage = [messages[messages.length - 1]]
+    console.log("LAST MESSAGE:");
+    console.log(lastMessage);
     wsServer.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify([message]));
+        client.send(JSON.stringify(lastMessage));
       }
     });
   });
