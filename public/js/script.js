@@ -27,7 +27,7 @@ wsClient.onclose = () => {
 
 // Use Set() to extract unique mobile numbers from messages array
 // https://levelup.gitconnected.com/how-to-find-unique-values-by-property-in-an-array-of-objects-in-javascript-50ca23db8ccc
-const uniqueMobileNumbersSet = new Set();
+// const uniqueMobileNumbersSet = new Set();
 // uniqueMobileNumbersSet.add("+12063693826");
 // uniqueMobileNumbersSet.add("+12068163598");
 // uniqueMobileNumbersSet.add("+12063996576");
@@ -45,27 +45,35 @@ wsClient.onmessage = (event) => {
   if (messages.length > 0) {
     console.log("MESSAGES.LENGTH: " + messages.length);
     messages.forEach((thisMessage) => {
-      console.log("THIS MESSAGE:")
+      console.log("THIS MESSAGE:");
       console.log(thisMessage);
+      console.log("THIS MESSAGE TYPE:");
+      console.log(thisMessage.type);
       // thisMessage = JSON.parse(thisMessage);
-      uniqueMobileNumbersSet.add(thisMessage.mobile_number);
+      // uniqueMobileNumbersSet.add(thisMessage.mobile_number);
       // console.log(thisMessage);
       // console.log(thisMessage.direction);
       // console.log(thisMessage.body);
       // Only render messages that are for the selected conversation mobile number
-      if (thisMessage.mobile_number == mobile_number) {
+      if (
+        thisMessage.type == "messageCreated" &&
+        thisMessage.mobile_number == mobile_number
+      ) {
+        console.log(
+          'thisMessage.type == "messageCreated" && thisMessage.mobile_number == mobile_number'
+        );
+        console.log("RENDER MESSAGE");
         renderMessage(thisMessage);
       }
     });
-    // msgerInput.value = "";
+    if (messages[0].type == "conversationUpdated") {
+      console.log('messages[0].type == "conversationUpdated"');
+      console.log("CONVERSATIONS:");
+      console.log(messages);
+      console.log("ON MESSAGE -> RENDER CONVERSATION LIST");
+      renderConversationList(messages);
+    }
   }
-  // console.log("UNIQUE MOBILE NUMBERS SET:");
-  // console.log(uniqueMobileNumbersSet);
-  console.log("MOBILE NUMBER: " + mobile_number);
-  let uniqueMobileNumbers = Array.from(uniqueMobileNumbersSet).reverse();
-  console.log("UNIQUE MOBILE NUMBERS:");
-  console.log(uniqueMobileNumbers);
-  renderConversationList(uniqueMobileNumbers);
 };
 
 function renderMessage(thisMessage) {
@@ -90,18 +98,26 @@ function renderMessage(thisMessage) {
   }
 }
 
-function renderConversationList(uniqueMobileNumbers) {
+function renderConversationList(messages) {
   let conversationListHTML = "";
   let formattedMobile = "";
   let conversationLink = "";
-  uniqueMobileNumbers.forEach((uniqueMobileNumer) => {
-    // console.log("APPEND CONVERSATION LIST:");
-    console.log(uniqueMobileNumer);
-    formattedMobile = formatMobile(uniqueMobileNumer);
+  console.log("RENDER CONVERSATION LIST MESSAGES:");
+  console.log(messages);
+  messages.forEach((message) => {
+    console.log("RENDER CONVERSATION LIST():");
+    console.log("MESSAGE:");
+    console.log(message);
+    console.log("CONVERSATION ID:");
+    console.log(message.conversation_id);
+    let thisMobileNumber = message.conversation_id.split(';')[1];
+    console.log("SPLIT:");
+    console.log(thisMobileNumber);
+    formattedMobile = formatMobile(thisMobileNumber);
     conversationLink = `<a href="?mobile=${encodeURIComponent(
-      uniqueMobileNumer
+      thisMobileNumber
     )}">${formattedMobile}</a>`;
-    if (mobile_number == uniqueMobileNumer) {
+    if (thisMobileNumber == mobile_number) {
       // Set background color style for selectedConversation
       conversationListHTML += `
       <div class="conversation-bubble selectedConversation">
@@ -116,8 +132,8 @@ function renderConversationList(uniqueMobileNumbers) {
     `;
     }
   });
-  // console.log("CONVERSATION LIST HTML:");
-  // console.log(conversationListHTML);
+  console.log("CONVERSATION LIST HTML:");
+  console.log(conversationListHTML);
   conversationList.innerHTML = conversationListHTML;
 }
 

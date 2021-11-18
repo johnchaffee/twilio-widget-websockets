@@ -23,7 +23,7 @@ let conversations = [];
 let messageObject = {};
 let messageObjects = [];
 let messages = [];
-const limit = 10;
+const limit = 4;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -96,6 +96,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     messageObject = {
+      type: "messageCreated",
       date_created: requestBody.data.timestamp,
       direction: "inbound",
       twilio_number: requestBody.data.to,
@@ -104,16 +105,19 @@ app.post("/twilio-event-streams", (req, res, next) => {
       body: requestBody.data.body,
     };
     conversationObject = {
+      type: "conversationUpdated",
       date_updated: requestBody.data.timestamp,
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       unread_count: 1,
     };
     // Send incoming messasge to websocket clients
     updateWebsocketClient(messageObject);
-    // Create message in db
-    createMessage(messageObject);
+    // Send conversation to websocket clients
+    updateWebsocketClient(conversationObject);
     // Create or update conversation in db
     updateConversation(conversationObject);
+    // Create message in db
+    createMessage(messageObject);
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
@@ -133,6 +137,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
         console.log("GET MESSAGE BODY SUCCESS");
         console.log("result: " + JSON.stringify(result, undefined, 2));
         messageObject = {
+          type: "messageCreated",
           date_created: new Date(result.date_created).toISOString(),
           direction: "outbound",
           twilio_number: result.from,
@@ -141,18 +146,19 @@ app.post("/twilio-event-streams", (req, res, next) => {
           body: result.body,
         };
         conversationObject = {
+          type: "conversationUpdated",
           date_updated: new Date(result.date_created).toISOString(),
           conversation_id: `${result.from};${result.to}`,
           unread_count: 0,
         };
-        // Send outgoing messages to websocket clients
-        // TODO send conversation object to websocket clients
+        // Send outgoing message to websocket clients
         updateWebsocketClient(messageObject);
+        // Send conversation list to websocket clients
         updateWebsocketClient(conversationObject);
-        // Create messasge in db
-        createMessage(messageObject);
         // Create or update conversation in db
         updateConversation(conversationObject);
+        // Create messasge in db
+        createMessage(messageObject);
       })
       .catch((error) => {
         console.log("TWILIO GET MESSAGES CATCH:");
@@ -314,10 +320,10 @@ async function updateConversation(request, response) {
 }
 
 // UPDATE WEBSOCKET CLIENT
-function updateWebsocketClient(messageObject) {
+function updateWebsocketClient(theObject) {
   console.log("UPDATE WEBSOCKET CLIENT");
   try {
-    wsClient.send(JSON.stringify(messageObject));
+    wsClient.send(JSON.stringify(theObject));
   } catch (err) {
     console.log("UPDATE WEBSOCKET CLIENT CATCH");
     console.log(err);
@@ -372,15 +378,25 @@ wsServer.on("connection", (socketClient) => {
   socketClient.on("message", (message) => {
     console.log("ON MESSAGE");
     console.log(message);
-    messages.push(JSON.parse(message));
-    console.log("ON MESSAGE MESSAGES:");
-    console.log(messages);
-    let lastMessage = [messages[messages.length - 1]]
-    console.log("LAST MESSAGE:");
-    console.log(lastMessage);
+    let messageObject = JSON.parse(message);
+    console.log("MESSAGE OBJECT");
+    let thisArray = [];
+    console.log(messageObject);
+    messages.push(messageObject);
+    let lastMessageArray = [messages[messages.length - 1]];
+    // TODO - manipulat the existing conversations array which is in memory and pass the whole thing in
+    console.log("ON MESSAGE CONVERSATION OBJECT");
+    console.log(conversationObject);
+    console.log("CONVERSATIONS");
+    console.log(conversations);
+    if (messageObject.type == "messageCreated") {
+      thisArray = lastMessageArray;
+    } else {
+      thisArray = conversations;
+    }
     wsServer.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(lastMessage));
+        client.send(JSON.stringify(thisArray));
       }
     });
   });
