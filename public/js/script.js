@@ -54,7 +54,7 @@ wsClient.onmessage = (event) => {
       // console.log(thisMessage.body);
       // Only render messages that are for the selected conversation mobile number
       if (thisMessage.mobile_number == mobile_number) {
-        renderConversation(thisMessage);
+        renderMessage(thisMessage);
       }
     });
     // msgerInput.value = "";
@@ -68,7 +68,7 @@ wsClient.onmessage = (event) => {
   renderConversationList(uniqueMobileNumbers);
 };
 
-function renderConversation(thisMessage) {
+function renderMessage(thisMessage) {
   if (thisMessage.direction == "inbound") {
     // MESSAGE RECEIVED
     appendMessage(

@@ -148,6 +148,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
         // Send outgoing messages to websocket clients
         // TODO send conversation object to websocket clients
         updateWebsocketClient(messageObject);
+        updateWebsocketClient(conversationObject);
         // Create messasge in db
         createMessage(messageObject);
         // Create or update conversation in db
@@ -205,6 +206,7 @@ async function getConversations() {
     console.log(conversationObjects);
     conversationObjects.forEach((conversation) => {
       conversations.push({
+        type: "conversationUpdated",
         date_updated: conversation.date_updated,
         conversation_id: conversation.conversation_id,
         contact_name: conversation.contact_name,
@@ -233,6 +235,7 @@ async function getMessages() {
     console.log(messageObjects);
     messageObjects.forEach((message) => {
       messages.push({
+        type: "messageCreated",
         date_created: message.date_created,
         direction: message.direction,
         twilio_number: message.twilio_number,
@@ -362,6 +365,7 @@ wsServer.on("connection", (socketClient) => {
   socketClient.isAlive = true;
   socketClient.on("pong", heartbeat);
   socketClient.send(JSON.stringify(messages));
+  socketClient.send(JSON.stringify(conversations));
 
   // ON MESSAGE
   // on new message, append message to array, then send message to all clients
