@@ -17,11 +17,13 @@ const buf = Buffer.from(twilio_account_sid + ":" + twilio_auth_token);
 const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
 let epoch = Date.now();
-let messageObject = {};
 let conversationObject = {};
+let conversationObjects = [];
+let conversations = [];
+let messageObject = {};
 let messageObjects = [];
 let messages = [];
-const limit = 6;
+const limit = 10;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -188,6 +190,36 @@ const pool = new Pool({
   database: "widget",
   port: 5432,
 });
+
+// GET ALL CONVERSATIONS FROM DB
+// On startup, fetch all conversations from postgres db
+getConversations();
+async function getConversations() {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM conversations order by date_updated desc limit $1",
+      [limit]
+    );
+    conversationObjects = result.rows;
+    console.log("CONVERSATION OBJECTS:");
+    console.log(conversationObjects);
+    conversationObjects.forEach((conversation) => {
+      conversations.push(
+        JSON.stringify({
+          date_updated: conversation.date_updated,
+          conversation_id: conversation.conversation_id,
+          contact_name: conversation.contact_name,
+          unread_count: conversation.unread_count,
+        })
+      );
+    });
+    console.log("CONVERSATIONS:");
+    console.log(conversations);
+  } catch (err) {
+    console.error(err);
+    res.send("Error " + err);
+  }
+}
 
 // GET ALL MESSAGES FROM DB
 // On startup, fetch all messages from postgres db
