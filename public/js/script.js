@@ -6,8 +6,8 @@ const mobileParamEncoded = encodeURIComponent(urlParams.get("mobile")); // %2B12
 console.log(`mobileParamEncoded: ${mobileParamEncoded}`);
 const mobileParamDecoded = decodeURIComponent(mobileParam); // +12065551111
 console.log(`mobileParamDecoded: ${mobileParamDecoded}`);
-let mobile = mobileParamDecoded;
-console.log(`MOBILE: ${mobile}`);
+let mobile_number = mobileParamDecoded;
+console.log(`MOBILE NUMBER: ${mobile_number}`);
 
 const host = location.origin;
 console.log(`HOST: ${host}`);
@@ -45,12 +45,12 @@ wsClient.onmessage = (event) => {
     messages.forEach((thisMessage) => {
       // console.log(thisMessage);
       thisMessage = JSON.parse(thisMessage);
-      uniqueMobileNumbersSet.add(thisMessage.mobile);
+      uniqueMobileNumbersSet.add(thisMessage.mobile_number);
       // console.log(thisMessage);
       // console.log(thisMessage.direction);
       // console.log(thisMessage.body);
       // Only render messages that are for the selected conversation mobile number
-      if (thisMessage.mobile == mobile) {
+      if (thisMessage.mobile_number == mobile_number) {
         renderConversation(thisMessage);
       }
     });
@@ -58,21 +58,21 @@ wsClient.onmessage = (event) => {
   }
   // console.log("UNIQUE MOBILE NUMBERS SET:");
   // console.log(uniqueMobileNumbersSet);
-  console.log("MOBILE: " + mobile);
+  console.log("MOBILE NUMBER: " + mobile_number);
   let uniqueMobileNumbers = Array.from(uniqueMobileNumbersSet).reverse();
   console.log("UNIQUE MOBILE NUMBERS:");
   console.log(uniqueMobileNumbers);
   let conversationListHTML = "";
   let formattedMobile = "";
   let conversationLink = "";
-  uniqueMobileNumbers.forEach((mobileNumber) => {
+  uniqueMobileNumbers.forEach((uniqueMobileNumer) => {
     // console.log("APPEND CONVERSATION LIST:");
-    // console.log(mobileNumber);
-    formattedMobile = formatMobile(mobileNumber);
+    // console.log(uniqueMobileNumer);
+    formattedMobile = formatMobile(uniqueMobileNumer);
     conversationLink = `<a href="?mobile=${encodeURIComponent(
-      mobileNumber
+      uniqueMobileNumer
     )}">${formattedMobile}</a>`;
-    if (mobile == mobileNumber) {
+    if (mobile_number == uniqueMobileNumer) {
       // Set background color style for selectedConversation
       conversationListHTML += `
       <div class="conversation-bubble selectedConversation">
@@ -133,7 +133,7 @@ msgerForm.addEventListener("submit", (event) => {
   msgerInput.value = "";
 
   // MESSAGE/SEND
-  messageSend(body, mobile);
+  messageSend(body, mobile_number);
 });
 
 // APPEND MESSAGE - Render last message
@@ -166,30 +166,30 @@ function formatDate(date_created) {
 }
 
 // Display phone number as (###) ###-####
-function formatMobile(mobile) {
-  if (mobile.slice(0, 9) === "messenger") {
-    return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;${mobile.slice(10)}`;
+function formatMobile(mobile_number) {
+  if (mobile_number.slice(0, 9) === "messenger") {
+    return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;${mobile_number.slice(10)}`;
     // return "Messenger";
-  } else if (mobile.slice(0, 8) === "whatsapp") {
-    return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;${mobile.slice(9)}`;
+  } else if (mobile_number.slice(0, 8) === "whatsapp") {
+    return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;${mobile_number.slice(9)}`;
     // return "Messenger";
   } else {
-    return `<i class="far fa-comment"></i>&nbsp;&nbsp;(${mobile.slice(
+    return `<i class="far fa-comment"></i>&nbsp;&nbsp;(${mobile_number.slice(
       2,
       5
-    )}) ${mobile.slice(5, 8)}-${mobile.slice(8, 12)}`;
+    )}) ${mobile_number.slice(5, 8)}-${mobile_number.slice(8, 12)}`;
   }
 }
 
 // MESSAGE SEND
-function messageSend(body, mobile) {
+function messageSend(body, mobile_number) {
   // FETCH
   const apiUrl = host + "/messagesend";
   console.log("APIURL: " + apiUrl);
   // url encode body params
   const bodyParams = new URLSearchParams({
     body: body,
-    mobile: mobile,
+    mobile_number: mobile_number,
   });
   const requestOptions = {
     method: "POST",

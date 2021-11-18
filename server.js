@@ -35,11 +35,11 @@ app.get("/", (req, res) => {
 // Web client sends '/messagesend' request to this server, which posts request to Twilio API
 app.post("/messagesend", (req, res, next) => {
   let body = req.body.body;
-  let mobile = req.body.mobile;
+  let mobile_number = req.body.mobile_number;
   // If sending to messenger, send from facebook_messenger_id
-  if (mobile.slice(0, 9) === "messenger") {
+  if (mobile_number.slice(0, 9) === "messenger") {
     twilio_number = facebook_messenger_id;
-  } else if (mobile.slice(0, 8) === "whatsapp") {
+  } else if (mobile_number.slice(0, 8) === "whatsapp") {
     twilio_number = whatsapp_id;
   } else {
     // this variable is already set
@@ -50,7 +50,7 @@ app.post("/messagesend", (req, res, next) => {
   // url encode body params
   const bodyParams = new URLSearchParams({
     From: twilio_number,
-    To: mobile,
+    To: mobile_number,
     Body: body,
   });
   const requestOptions = {
@@ -97,7 +97,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
       date_created: requestBody.data.timestamp,
       direction: "inbound",
       twilio_number: requestBody.data.to,
-      mobile: requestBody.data.from,
+      mobile_number: requestBody.data.from,
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       body: requestBody.data.body,
     };
@@ -134,7 +134,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
           date_created: new Date(result.date_created).toISOString(),
           direction: "outbound",
           twilio_number: result.from,
-          mobile: result.to,
+          mobile_number: result.to,
           conversation_id: `${result.from};${result.to}`,
           body: result.body,
         };
@@ -207,7 +207,7 @@ async function getMessages() {
           date_created: message.date_created,
           direction: message.direction,
           twilio_number: message.twilio_number,
-          mobile: message.mobile,
+          mobile_number: message.mobile_number,
           conversation_id: message.conversation_id,
           body: message.body,
         })
@@ -228,13 +228,13 @@ async function createMessage(request, response) {
       date_created,
       direction,
       twilio_number,
-      mobile,
+      mobile_number,
       conversation_id,
       body,
     } = request;
     const result = await pool.query(
-      "INSERT INTO messages (date_created, direction, twilio_number, mobile, conversation_id, body) VALUES ($1, $2, $3, $4, $5, $6)",
-      [date_created, direction, twilio_number, mobile, conversation_id, body]
+      "INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body) VALUES ($1, $2, $3, $4, $5, $6)",
+      [date_created, direction, twilio_number, mobile_number, conversation_id, body]
     );
     console.log("Message created");
   } catch (err) {
