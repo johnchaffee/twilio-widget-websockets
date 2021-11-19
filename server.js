@@ -397,7 +397,7 @@ wsServer.on("connection", (socketClient) => {
   console.log("Number of clients: ", wsServer.clients.size);
   socketClient.isAlive = true;
   socketClient.on("pong", heartbeat);
-  // socketClient.send(JSON.stringify(messages));
+  socketClient.send(JSON.stringify(messages));
   socketClient.send(JSON.stringify(conversations));
 
   // ON MESSAGE
