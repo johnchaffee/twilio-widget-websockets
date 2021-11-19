@@ -2,7 +2,8 @@ require("dotenv").config();
 const WebSocket = require("ws");
 const WebSocketServer = WebSocket.Server;
 const express = require("express");
-// const path = require("path");
+const path = require("path");
+const ejs = require("ejs");
 const fetch = require("node-fetch");
 const app = express();
 // const db = require("./queries");
@@ -25,12 +26,33 @@ let messageObjects = [];
 let messages = [];
 const limit = 4;
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.resolve(__dirname, "public")));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-  res.render("index");
+app.get("/", async function (req, res) {
+  console.log("FOO CONVERSATIONS BEFORE");
+  console.log(conversations);
+  const data = await getConversations();
+  console.log("FOO CONVERSATIONS AFTER");
+  console.log(conversations);
+  // res.json(conversations);
+  res.render("index", { conversations });
+  // res.render("index", {});
+});
+
+app.get("/foo", async function (req, res) {
+  console.log("FOO CONVERSATIONS BEFORE");
+  console.log(conversations);
+  const data = await getConversations();
+  console.log("FOO CONVERSATIONS AFTER");
+  console.log(conversations);
+  // res.json(conversations);
+  res.render("index", { conversations });
 });
 
 // SEND OUTGOING MESSAGE
@@ -210,6 +232,7 @@ async function getConversations() {
     conversationObjects = result.rows;
     console.log("CONVERSATION OBJECTS:");
     console.log(conversationObjects);
+    conversations = [];
     conversationObjects.forEach((conversation) => {
       conversations.push({
         type: "conversationUpdated",
@@ -387,18 +410,24 @@ wsServer.on("connection", (socketClient) => {
     // TODO - manipulat the existing conversations array which is in memory and pass the whole thing in
     console.log("ON MESSAGE CONVERSATION OBJECT");
     console.log(conversationObject);
-    console.log("CONVERSATIONS");
+    console.log("CONVERSATIONS BEFORE");
     console.log(conversations);
-    if (messageObject.type == "messageCreated") {
-      thisArray = lastMessageArray;
-    } else {
-      thisArray = conversations;
-    }
-    wsServer.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(thisArray));
+    myConversations();
+    async function myConversations(req, res) {
+      await getConversations();
+      console.log("CONVERSATIONS AFTER");
+      console.log(conversations);
+      if (messageObject.type == "messageCreated") {
+        thisArray = lastMessageArray;
+      } else {
+        thisArray = conversations;
       }
-    });
+      wsServer.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(thisArray));
+        }
+      });
+    }
   });
 
   // ON CLOSE
