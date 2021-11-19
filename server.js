@@ -47,16 +47,12 @@ app.get("/", (req, res) => {
       messages = [];
       console.log("BEFORE getMessages!!!");
       console.log(messages);
-      getMessages()
-        .then(function () {
-          console.log("AFTER getMessages!!!");
-          console.log(messages);
-          console.log("RENDER");
-          res.render("index", { conversations, messages });
-        })
-        .catch(function (err) {
-          res.status(500).send({ error: "we done homie" });
-        });
+      getMessages().then(function () {
+        console.log("AFTER getMessages!!!");
+        console.log(messages);
+        console.log("RENDER");
+        res.render("index", { conversations, messages });
+      });
     })
     .catch(function (err) {
       res.status(500).send({ error: "we done homie" });
