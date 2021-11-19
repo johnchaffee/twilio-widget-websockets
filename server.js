@@ -51,7 +51,8 @@ app.get("/", (req, res) => {
         console.log("AFTER getMessages!!!");
         console.log(messages);
         console.log("RENDER");
-        res.render("index", { conversations, messages });
+        // res.render("index", { conversations, messages });
+        res.render("index");
       });
     })
     .catch(function (err) {
