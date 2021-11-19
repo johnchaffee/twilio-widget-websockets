@@ -34,25 +34,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
-app.get("/", async function (req, res) {
-  console.log("FOO CONVERSATIONS BEFORE");
+app.get("/", (req, res) => {
+  conversations = [];
+  console.log("BEFORE getConversations!!!");
   console.log(conversations);
-  const data = await getConversations();
-  console.log("FOO CONVERSATIONS AFTER");
-  console.log(conversations);
-  // res.json(conversations);
-  res.render("index", { conversations });
-  // res.render("index", {});
-});
-
-app.get("/foo", async function (req, res) {
-  console.log("FOO CONVERSATIONS BEFORE");
-  console.log(conversations);
-  const data = await getConversations();
-  console.log("FOO CONVERSATIONS AFTER");
-  console.log(conversations);
-  // res.json(conversations);
-  res.render("index", { conversations });
+  getConversations()
+    .then(function () {
+      console.log("AFTER getConversations!!!");
+      console.log(conversations);
+    })
+    .then(function () {
+      messages = [];
+      console.log("BEFORE getMessages!!!");
+      console.log(messages);
+      getMessages()
+        .then(function () {
+          console.log("AFTER getMessages!!!");
+          console.log(messages);
+          console.log("RENDER");
+          res.render("index", { conversations, messages });
+        })
+        .catch(function (err) {
+          res.status(500).send({ error: "we done homie" });
+        });
+    })
+    .catch(function (err) {
+      res.status(500).send({ error: "we done homie" });
+    });
 });
 
 // SEND OUTGOING MESSAGE
@@ -222,7 +230,7 @@ const pool = new Pool({
 
 // GET ALL CONVERSATIONS FROM DB
 // On startup, fetch all conversations from postgres db
-getConversations();
+// getConversations();
 async function getConversations() {
   try {
     const result = await pool.query(
@@ -230,7 +238,7 @@ async function getConversations() {
       [limit]
     );
     conversationObjects = result.rows;
-    console.log("CONVERSATION OBJECTS:");
+    console.log("getConversations CONVERSATION OBJECTS:");
     console.log(conversationObjects);
     conversations = [];
     conversationObjects.forEach((conversation) => {
@@ -242,7 +250,7 @@ async function getConversations() {
         unread_count: conversation.unread_count,
       });
     });
-    console.log("CONVERSATIONS:");
+    console.log("getConversations CONVERSATIONS:");
     console.log(conversations);
   } catch (err) {
     console.error(err);
@@ -252,7 +260,7 @@ async function getConversations() {
 
 // GET ALL MESSAGES FROM DB
 // On startup, fetch all messages from postgres db
-getMessages();
+// getMessages();
 async function getMessages() {
   try {
     const result = await pool.query(
@@ -260,7 +268,7 @@ async function getMessages() {
       [limit]
     );
     messageObjects = result.rows.reverse();
-    console.log("MESSAGE OBJECTS:");
+    console.log("getMessages MESSAGE OBJECTS:");
     console.log(messageObjects);
     messageObjects.forEach((message) => {
       messages.push({
@@ -273,7 +281,7 @@ async function getMessages() {
         body: message.body,
       });
     });
-    console.log("MESSAGES:");
+    console.log("getMessages MESSAGES:");
     console.log(messages);
   } catch (err) {
     console.error(err);
@@ -393,7 +401,7 @@ wsServer.on("connection", (socketClient) => {
   console.log("Number of clients: ", wsServer.clients.size);
   socketClient.isAlive = true;
   socketClient.on("pong", heartbeat);
-  socketClient.send(JSON.stringify(messages));
+  // socketClient.send(JSON.stringify(messages));
   socketClient.send(JSON.stringify(conversations));
 
   // ON MESSAGE
@@ -412,22 +420,25 @@ wsServer.on("connection", (socketClient) => {
     console.log(conversationObject);
     console.log("CONVERSATIONS BEFORE");
     console.log(conversations);
-    myConversations();
-    async function myConversations(req, res) {
-      await getConversations();
-      console.log("CONVERSATIONS AFTER");
-      console.log(conversations);
-      if (messageObject.type == "messageCreated") {
-        thisArray = lastMessageArray;
-      } else {
-        thisArray = conversations;
-      }
-      wsServer.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(thisArray));
+    getConversations()
+      .then(function () {
+        console.log("AFTER getConversations!!!");
+        console.log(conversations);
+        if (messageObject.type == "messageCreated") {
+          thisArray = lastMessageArray;
+        } else {
+          thisArray = conversations;
         }
+        wsServer.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            console.log("SEND wsServer.clients.forEach((client)");
+            client.send(JSON.stringify(thisArray));
+          }
+        });
+      })
+      .catch(function (err) {
+        res.status(500).send({ error: "we done homie" });
       });
-    }
   });
 
   // ON CLOSE
