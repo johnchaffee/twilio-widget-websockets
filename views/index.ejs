@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" type="text/css" href="/css/stylesheet.css" />
-    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"></script>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.0.13/js/all.js"
+    ></script>
   </head>
   <body>
     <div class="sidebar">
@@ -34,7 +37,11 @@
       </header>
 
       <!-- Append msgerChat message history here -->
-      <main class="msger-chat"></main>
+      <main class="msger-chat">
+        <% messages.forEach(function(message) {%>
+        <p><%= message.body %></p>
+        <% }); %>
+      </main>
 
       <form class="msger-inputarea">
         <input
@@ -48,8 +55,5 @@
       </form>
     </section>
     <script src="/js/script.js"></script>
-    <script>
-      renderConversationList(<% conversations %>)
-    </script>
-  </body>
+</body>
 </html>
