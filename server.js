@@ -19,12 +19,12 @@ const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
 let epoch = Date.now();
 let conversationObject = {};
-let conversationObjects = [];
+// let conversationObjects = [];
 let conversations = [];
 let messageObject = {};
-let messageObjects = [];
+// let messageObjects = [];
 let messages = [];
-const limit = 20;
+const limit = 2;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -248,20 +248,14 @@ async function getConversations() {
       "SELECT * FROM conversations order by date_updated desc limit $1",
       [limit]
     );
-    conversationObjects = result.rows;
-    console.log("getConversations CONVERSATION OBJECTS:");
-    console.log(conversationObjects);
-    conversations = [];
-    conversationObjects.forEach((conversation) => {
-      conversations.push({
-        type: "conversationUpdated",
-        date_updated: conversation.date_updated,
-        conversation_id: conversation.conversation_id,
-        contact_name: conversation.contact_name,
-        unread_count: conversation.unread_count,
-      });
+    conversations = result.rows;
+    console.log("getConversations:");
+    console.log(conversations);
+    // conversations = [];
+    conversations.forEach((conversation) => {
+      conversation.type = "conversationUpdated"
     });
-    console.log("getConversations CONVERSATIONS:");
+    console.log("getConversations after append type:");
     console.log(conversations);
   } catch (err) {
     console.error(err);
@@ -279,21 +273,13 @@ async function getMessages(mobileNumberQuery) {
       [mobileNumberQuery, limit]
     );
     
-    messageObjects = result.rows.reverse();
-    console.log("getMessages MESSAGE OBJECTS:");
-    console.log(messageObjects);
-    messageObjects.forEach((message) => {
-      messages.push({
-        type: "messageCreated",
-        date_created: message.date_created,
-        direction: message.direction,
-        twilio_number: message.twilio_number,
-        mobile_number: message.mobile_number,
-        conversation_id: message.conversation_id,
-        body: message.body,
-      });
+    messages = result.rows.reverse();
+    console.log("getMessages:");
+    console.log(messages);
+    messages.forEach((message) => {
+      message.type = "messageCreated"
     });
-    console.log("getMessages MESSAGES:");
+    console.log("getMessages after append type:");
     console.log(messages);
   } catch (err) {
     console.error(err);
