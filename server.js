@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
   console.log(queryObjSize);
   console.log("REQ.QUERY.MOBILE");
   console.log(req.query.mobile);
-  let mobileNumberQuery = '';
+  let mobileNumberQuery = "";
   if (queryObjSize > 2) {
     mobileNumberQuery = req.query.mobile;
   }
@@ -150,13 +150,13 @@ app.post("/twilio-event-streams", (req, res, next) => {
       unread_count: 1,
     };
     // Send incoming messasge to websocket clients
-    updateWebsocketClient(messageObject);
+    // updateWebsocketClient(messageObject);
     // Send conversation to websocket clients
-    updateWebsocketClient(conversationObject);
-    // Create or update conversation in db
-    updateConversation(conversationObject);
+    // updateWebsocketClient(conversationObject);
     // Create message in db
     createMessage(messageObject);
+    // Create or update conversation in db
+    updateConversation(conversationObject);
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
@@ -191,13 +191,13 @@ app.post("/twilio-event-streams", (req, res, next) => {
           unread_count: 0,
         };
         // Send outgoing message to websocket clients
-        updateWebsocketClient(messageObject);
+        // updateWebsocketClient(messageObject);
         // Send conversation list to websocket clients
-        updateWebsocketClient(conversationObject);
-        // Create or update conversation in db
-        updateConversation(conversationObject);
+        // updateWebsocketClient(conversationObject);
         // Create messasge in db
         createMessage(messageObject);
+        // Create or update conversation in db
+        updateConversation(conversationObject);
       })
       .catch((error) => {
         console.log("TWILIO GET MESSAGES CATCH:");
@@ -251,7 +251,7 @@ async function getConversations() {
     console.log(conversations);
     // conversations = [];
     conversations.forEach((conversation) => {
-      conversation.type = "conversationUpdated"
+      conversation.type = "conversationUpdated";
     });
   } catch (err) {
     console.error(err);
@@ -268,12 +268,12 @@ async function getMessages(mobileNumberQuery) {
       "SELECT * FROM messages WHERE mobile_number = $1 order by date_created desc limit $2",
       [mobileNumberQuery, limit]
     );
-    
+
     messages = result.rows.reverse();
     console.log("getMessages():");
     console.log(messages);
     messages.forEach((message) => {
-      message.type = "messageCreated"
+      message.type = "messageCreated";
     });
   } catch (err) {
     console.error(err);
@@ -308,6 +308,8 @@ async function createMessage(request, response) {
     console.error(err);
     // res.send("Error " + err);
   }
+  // Send incoming messasge to websocket clients
+  updateWebsocketClient(messageObject);
 }
 
 // UPDATE CONVERSATION
@@ -340,6 +342,8 @@ async function updateConversation(request, response) {
       // res.send("Error " + err);
     }
   }
+  // Send conversation to websocket clients
+  updateWebsocketClient(conversationObject);
 }
 
 // UPDATE WEBSOCKET CLIENT
