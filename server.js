@@ -17,12 +17,12 @@ const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
 const buf = Buffer.from(twilio_account_sid + ":" + twilio_auth_token);
 const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
-let epoch = Date.now();
+// let epoch = Date.now();
 let conversationObject = {};
 let conversations = [];
 let messageObject = {};
 let messages = [];
-const limit = 2;
+const limit = 20;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -33,7 +33,6 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  // Build query string
   console.log("REQ.QUERY");
   console.log(req.query);
   let queryObjSize = JSON.stringify(req.query).length;
@@ -45,6 +44,7 @@ app.get("/", (req, res) => {
     mobileNumberQuery = req.query.mobile;
   }
   // TODO Add better error checking for existence of mobile query param
+  // Currenty I'm checking for an empty object {} length of 2
 
   conversations = [];
   messages = [];
