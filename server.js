@@ -22,7 +22,7 @@ let conversationObject = {};
 let conversations = [];
 let messageObject = {};
 let messages = [];
-const limit = 20;
+const limit = 10;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -54,6 +54,9 @@ app.get("/", (req, res) => {
     .then(function () {
       console.log("AFTER getConversations");
       // console.log(conversations);
+    })
+    .then(function () {
+      resetConversationCount(`${twilio_number};${mobileNumberQuery}`).then(function () {});
     })
     .then(function () {
       messages = [];
@@ -341,6 +344,21 @@ async function updateConversation(request, response) {
       console.error(err);
       // res.send("Error " + err);
     }
+  }
+  // Send conversation to websocket clients
+  updateWebsocketClient(conversationObject);
+}
+
+// RESET CONVERSATION COUNT
+async function resetConversationCount(conversation_id) {
+  try {
+    const result = await pool.query(
+      "UPDATE conversations SET unread_count = $1 WHERE conversation_id = $2",
+      [0, conversation_id]
+    );
+  } catch (err) {
+    console.error(err);
+    // res.send("Error " + err);
   }
   // Send conversation to websocket clients
   updateWebsocketClient(conversationObject);
