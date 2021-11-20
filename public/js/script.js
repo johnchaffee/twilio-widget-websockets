@@ -112,12 +112,16 @@ window.onload = function () {
       console.log("CONVERSATION ID:");
       console.log(message.conversation_id);
       let thisMobileNumber = message.conversation_id.split(";")[1];
+      let badge = "";
+      if (message.unread_count > 0) {
+        badge = `(${message.unread_count})`
+      }
       console.log("SPLIT:");
       console.log(thisMobileNumber);
       formattedMobile = formatMobile(thisMobileNumber);
       conversationLink = `<a href="?mobile=${encodeURIComponent(
         thisMobileNumber
-      )}">${formattedMobile}</a>`;
+      )}">${formattedMobile} ${badge}</a>`;
       if (thisMobileNumber == mobile_number) {
         // Set background color style for selectedConversation
         conversationListHTML += `
