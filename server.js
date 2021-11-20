@@ -24,7 +24,7 @@ let conversations = [];
 let messageObject = {};
 let messageObjects = [];
 let messages = [];
-const limit = 4;
+const limit = 20;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -35,7 +35,21 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
 app.get("/", (req, res) => {
+  // Build query string
+  console.log("REQ.QUERY");
+  console.log(req.query);
+  let queryObjSize = JSON.stringify(req.query).length;
+  console.log(queryObjSize);
+  console.log("REQ.QUERY.MOBILE");
+  console.log(req.query.mobile);
+  let mobileNumberQuery = '';
+  if (queryObjSize > 2) {
+    mobileNumberQuery = req.query.mobile;
+  }
+  // TODO Add better error checking for existence of mobile query param
+
   conversations = [];
+  messages = [];
   console.log("BEFORE getConversations!!!");
   console.log(conversations);
   getConversations()
@@ -47,7 +61,7 @@ app.get("/", (req, res) => {
       messages = [];
       console.log("BEFORE getMessages!!!");
       console.log(messages);
-      getMessages().then(function () {
+      getMessages(mobileNumberQuery).then(function () {
         console.log("AFTER getMessages!!!");
         console.log(messages);
         console.log("RENDER");
@@ -258,12 +272,13 @@ async function getConversations() {
 // GET ALL MESSAGES FROM DB
 // On startup, fetch all messages from postgres db
 // getMessages();
-async function getMessages() {
+async function getMessages(mobileNumberQuery) {
   try {
     const result = await pool.query(
-      "SELECT * FROM messages order by date_created desc limit $1",
-      [limit]
+      "SELECT * FROM messages WHERE mobile_number = $1 order by date_created desc limit $2",
+      [mobileNumberQuery, limit]
     );
+    
     messageObjects = result.rows.reverse();
     console.log("getMessages MESSAGE OBJECTS:");
     console.log(messageObjects);
