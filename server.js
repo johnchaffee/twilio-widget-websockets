@@ -19,10 +19,8 @@ const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
 let epoch = Date.now();
 let conversationObject = {};
-// let conversationObjects = [];
 let conversations = [];
 let messageObject = {};
-// let messageObjects = [];
 let messages = [];
 const limit = 2;
 
@@ -50,20 +48,20 @@ app.get("/", (req, res) => {
 
   conversations = [];
   messages = [];
-  console.log("BEFORE getConversations!!!");
-  console.log(conversations);
+  console.log("BEFORE getConversations");
+  // console.log(conversations);
   getConversations()
     .then(function () {
-      console.log("AFTER getConversations!!!");
-      console.log(conversations);
+      console.log("AFTER getConversations");
+      // console.log(conversations);
     })
     .then(function () {
       messages = [];
-      console.log("BEFORE getMessages!!!");
-      console.log(messages);
+      console.log("BEFORE getMessages");
+      // console.log(messages);
       getMessages(mobileNumberQuery).then(function () {
-        console.log("AFTER getMessages!!!");
-        console.log(messages);
+        console.log("AFTER getMessages");
+        // console.log(messages);
         console.log("RENDER");
         // res.render("index", { conversations, messages });
         res.render("index");
@@ -249,14 +247,12 @@ async function getConversations() {
       [limit]
     );
     conversations = result.rows;
-    console.log("getConversations:");
+    console.log("getConversations():");
     console.log(conversations);
     // conversations = [];
     conversations.forEach((conversation) => {
       conversation.type = "conversationUpdated"
     });
-    console.log("getConversations after append type:");
-    console.log(conversations);
   } catch (err) {
     console.error(err);
     res.send("Error " + err);
@@ -274,13 +270,11 @@ async function getMessages(mobileNumberQuery) {
     );
     
     messages = result.rows.reverse();
-    console.log("getMessages:");
+    console.log("getMessages():");
     console.log(messages);
     messages.forEach((message) => {
       message.type = "messageCreated"
     });
-    console.log("getMessages after append type:");
-    console.log(messages);
   } catch (err) {
     console.error(err);
     res.send("Error " + err);
@@ -420,7 +414,7 @@ wsServer.on("connection", (socketClient) => {
     console.log(conversations);
     getConversations()
       .then(function () {
-        console.log("AFTER getConversations!!!");
+        console.log("AFTER getConversations");
         console.log(conversations);
         if (messageObject.type == "messageCreated") {
           thisArray = lastMessageArray;
