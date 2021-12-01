@@ -22,7 +22,7 @@ let conversationObject = {};
 let conversations = [];
 let messageObject = {};
 let messages = [];
-const limit = 10;
+const limit = 4;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -32,42 +32,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
+// When client connects or clicks on a conversation, reset conversation count and fetch messages for selected conversation
+// conversations array and messages array will each be sent via socketClient.send();
 app.get("/", (req, res) => {
-  console.log("REQ.QUERY");
+  console.log("REQ.QUERY:");
   console.log(req.query);
   let queryObjSize = JSON.stringify(req.query).length;
-  console.log(queryObjSize);
   console.log("REQ.QUERY.MOBILE");
   console.log(req.query.mobile);
   let mobileNumberQuery = "";
+  // Check if query param object is greater than empty object {} length of 2
   if (queryObjSize > 2) {
     mobileNumberQuery = req.query.mobile;
   }
-  // TODO Add better error checking for existence of mobile query param
-  // Currenty I'm checking for an empty object {} length of 2
-
   conversations = [];
   messages = [];
-  console.log("BEFORE getConversations");
-  // console.log(conversations);
-  getConversations()
-    .then(function () {
-      console.log("AFTER getConversations");
-      // console.log(conversations);
-    })
-    .then(function () {
-      resetConversationCount(`${twilio_number};${mobileNumberQuery}`).then(function () {});
-    })
+  resetConversationCount(`${twilio_number};${mobileNumberQuery}`)
     .then(function () {
       messages = [];
-      console.log("BEFORE getMessages");
-      // console.log(messages);
+      // Get array of messages for this mobile number
       getMessages(mobileNumberQuery).then(function () {
-        console.log("AFTER getMessages");
-        // console.log(messages);
-        console.log("RENDER");
-        // res.render("index", { conversations, messages });
+        console.log("RENDER INDEX");
         res.render("index");
+        // res.render("index", { conversations, messages });
       });
     })
     .catch(function (err) {
@@ -76,17 +63,19 @@ app.get("/", (req, res) => {
 });
 
 // SEND OUTGOING MESSAGE
-// Web client sends '/messagesend' request to this server, which posts request to Twilio API
+// Web client posts '/messagesend' request to this server, which posts request to Twilio API
 app.post("/messagesend", (req, res, next) => {
+  console.log("/messagesend");
   let body = req.body.body;
   let mobile_number = req.body.mobile_number;
-  // If sending to messenger, send from facebook_messenger_id
   if (mobile_number.slice(0, 9) === "messenger") {
+    // If sending to messenger, send from facebook_messenger_id
     twilio_number = facebook_messenger_id;
   } else if (mobile_number.slice(0, 8) === "whatsapp") {
+    // If sending to whatsapp, send from whats_app_id
     twilio_number = whatsapp_id;
   } else {
-    // this variable is already set
+    // else, send from twilio SMS number -- its variable is already set
     // twilio_number = twilio_number;
   }
   // Send message via Twilio API
@@ -106,23 +95,17 @@ app.post("/messagesend", (req, res, next) => {
     body: bodyParams,
   };
   fetch(apiUrl, requestOptions)
-    // .then((response) => response.text())
     .then((response) => response.json())
     .then((result) => {
-      console.log("SEND MESSAGE SUCCESS");
-      console.log("Message sent");
+      console.log("/messagesend SUCCESS");
       // console.log("result: " + JSON.stringify(result, undefined, 2));
     })
     .catch((error) => {
-      console.log("TWILIO MESSAGE SEND CATCH:");
-      console.log(
-        ".catch JSON.stringify(error, undefined, 2): \n" +
-          JSON.stringify(error, undefined, 2)
-      );
+      console.log("/messagesend CATCH");
       console.log("error", error);
     })
     .finally(() => {
-      console.log("FINALLY");
+      console.log("/messagesend FINALLY");
     });
   res.sendStatus(200);
 });
@@ -130,13 +113,15 @@ app.post("/messagesend", (req, res, next) => {
 // TWILIO EVENT STREAMS WEBHOOKS
 // Listen for incoming and outgoing messages
 app.post("/twilio-event-streams", (req, res, next) => {
-  console.log("TWILIO EVENT STREAMS WEBHOOK");
+  console.log("/twilio-event-streams WEBHOOK");
   // Get first array object in request body
   let requestBody = req.body[0];
-  console.log("BODY TYPE: " + requestBody.type);
   console.log(JSON.stringify(requestBody, undefined, 2));
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
+    // If incoming message, the body already exists in payload
+    // Set messageObject properties, direction: inbound, etc.
+    // Set conversationObject properties, unread_count: 1, etc.
     messageObject = {
       type: "messageCreated",
       date_created: requestBody.data.timestamp,
@@ -152,10 +137,6 @@ app.post("/twilio-event-streams", (req, res, next) => {
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       unread_count: 1,
     };
-    // Send incoming messasge to websocket clients
-    // updateWebsocketClient(messageObject);
-    // Send conversation to websocket clients
-    // updateWebsocketClient(conversationObject);
     // Create message in db
     createMessage(messageObject);
     // Create or update conversation in db
@@ -163,8 +144,10 @@ app.post("/twilio-event-streams", (req, res, next) => {
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
-    console.log("BEFORE MESSAGE BODY");
-    // fetch message body
+    // If outgoing message, the body does not exist in payload and must be fetched
+    // Set messageObject properties, direction: outbound, etc.
+    // Set conversationObject properties, reset unread_count: 0, etc.
+    console.log("fetch() outbound message body");
     const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}.json`;
     const requestOptions = {
       method: "GET",
@@ -173,10 +156,9 @@ app.post("/twilio-event-streams", (req, res, next) => {
       },
     };
     fetch(apiUrl, requestOptions)
-      // .then((response) => response.text())
       .then((response) => response.json())
       .then((result) => {
-        console.log("GET MESSAGE BODY SUCCESS");
+        console.log("fetch() outbound message body SUCCESS");
         console.log("result: " + JSON.stringify(result, undefined, 2));
         messageObject = {
           type: "messageCreated",
@@ -193,25 +175,17 @@ app.post("/twilio-event-streams", (req, res, next) => {
           conversation_id: `${result.from};${result.to}`,
           unread_count: 0,
         };
-        // Send outgoing message to websocket clients
-        // updateWebsocketClient(messageObject);
-        // Send conversation list to websocket clients
-        // updateWebsocketClient(conversationObject);
         // Create messasge in db
         createMessage(messageObject);
         // Create or update conversation in db
         updateConversation(conversationObject);
       })
       .catch((error) => {
-        console.log("TWILIO GET MESSAGES CATCH:");
-        console.log(
-          ".catch JSON.stringify(error, undefined, 2): \n" +
-            JSON.stringify(error, undefined, 2)
-        );
+        console.log("fetch() outbound message body CATCH:");
         console.log("error", error);
       })
       .finally(() => {
-        console.log("FINALLY");
+        console.log("fetch() outbound message body FINALLY");
       });
   }
   res.sendStatus(200);
@@ -241,18 +215,14 @@ const pool = new Pool({
 });
 
 // GET ALL CONVERSATIONS FROM DB
-// On startup, fetch all conversations from postgres db
-// getConversations();
 async function getConversations() {
+  console.log("getConversations():");
   try {
     const result = await pool.query(
       "SELECT * FROM conversations order by date_updated desc limit $1",
       [limit]
     );
     conversations = result.rows;
-    console.log("getConversations():");
-    console.log(conversations);
-    // conversations = [];
     conversations.forEach((conversation) => {
       conversation.type = "conversationUpdated";
     });
@@ -263,9 +233,9 @@ async function getConversations() {
 }
 
 // GET ALL MESSAGES FROM DB
-// On startup, fetch all messages from postgres db
-// getMessages();
+// Fetch all messages for selected conversation from postgres db
 async function getMessages(mobileNumberQuery) {
+  console.log("getMessages():");
   try {
     const result = await pool.query(
       "SELECT * FROM messages WHERE mobile_number = $1 order by date_created desc limit $2",
@@ -273,8 +243,6 @@ async function getMessages(mobileNumberQuery) {
     );
 
     messages = result.rows.reverse();
-    console.log("getMessages():");
-    console.log(messages);
     messages.forEach((message) => {
       message.type = "messageCreated";
     });
@@ -286,6 +254,7 @@ async function getMessages(mobileNumberQuery) {
 
 // CREATE MESSAGE
 async function createMessage(request, response) {
+  console.log("createMessage()");
   try {
     const {
       date_created,
@@ -306,7 +275,6 @@ async function createMessage(request, response) {
         body,
       ]
     );
-    console.log("Message created");
   } catch (err) {
     console.error(err);
     // res.send("Error " + err);
@@ -317,6 +285,7 @@ async function createMessage(request, response) {
 
 // UPDATE CONVERSATION
 async function updateConversation(request, response) {
+  console.log("updateConversation()");
   // Outgoing message or message read event, reset unread_count
   if (request.unread_count === 0) {
     try {
@@ -325,7 +294,6 @@ async function updateConversation(request, response) {
         "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count",
         [date_updated, conversation_id, unread_count]
       );
-      console.log("Conversation updated");
     } catch (err) {
       console.error(err);
       // res.send("Error " + err);
@@ -339,7 +307,6 @@ async function updateConversation(request, response) {
         "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count",
         [date_updated, conversation_id, unread_count]
       );
-      console.log("Conversation updated");
     } catch (err) {
       console.error(err);
       // res.send("Error " + err);
@@ -351,6 +318,7 @@ async function updateConversation(request, response) {
 
 // RESET CONVERSATION COUNT
 async function resetConversationCount(conversation_id) {
+  console.log("resetConversationCount()");
   try {
     const result = await pool.query(
       "UPDATE conversations SET unread_count = $1 WHERE conversation_id = $2",
@@ -366,11 +334,11 @@ async function resetConversationCount(conversation_id) {
 
 // UPDATE WEBSOCKET CLIENT
 function updateWebsocketClient(theObject) {
-  console.log("UPDATE WEBSOCKET CLIENT");
+  console.log("updateWebsocketClient()");
   try {
     wsClient.send(JSON.stringify(theObject));
   } catch (err) {
-    console.log("UPDATE WEBSOCKET CLIENT CATCH");
+    console.log("updateWebsocketClient() CATCH");
     console.log(err);
   }
 }
@@ -409,7 +377,7 @@ const interval = setInterval(function ping() {
 }, 45000);
 
 // ON CONNECTION
-// On new connection, send array of stored messages
+// On new client connection, send array of stored messages and conversations
 wsServer.on("connection", (socketClient) => {
   console.log("ON CONNECTION");
   console.log("Number of clients: ", wsServer.clients.size);
@@ -419,39 +387,30 @@ wsServer.on("connection", (socketClient) => {
   socketClient.send(JSON.stringify(conversations));
 
   // ON MESSAGE
-  // on new message, append message to array, then send message to all clients
+  // on new message, send messageObject as array or conversations array
   socketClient.on("message", (message) => {
-    console.log("ON MESSAGE");
+    console.log("socketClient.on(message)");
     console.log(message);
     let messageObject = JSON.parse(message);
-    console.log("MESSAGE OBJECT");
     let thisArray = [];
-    console.log(messageObject);
-    messages.push(messageObject);
-    let lastMessageArray = [messages[messages.length - 1]];
-    // TODO - manipulat the existing conversations array which is in memory and pass the whole thing in
-    console.log("ON MESSAGE CONVERSATION OBJECT");
-    console.log(conversationObject);
-    console.log("CONVERSATIONS BEFORE");
-    console.log(conversations);
     getConversations()
       .then(function () {
-        console.log("AFTER getConversations");
-        console.log(conversations);
         if (messageObject.type == "messageCreated") {
-          thisArray = lastMessageArray;
+          // If message is messageCreated, push single messsageObject as an array
+          thisArray = [messageObject];
         } else {
+          // If message is conversationUpdated, push entire conversations array
           thisArray = conversations;
         }
+        console.log("forEach => client.send()");
         wsServer.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
-            console.log("SEND wsServer.clients.forEach((client)");
             client.send(JSON.stringify(thisArray));
           }
         });
       })
       .catch(function (err) {
-        res.status(500).send({ error: "we done homie" });
+        res.status(500).send({ error: "Error getting conversations" });
       });
   });
 

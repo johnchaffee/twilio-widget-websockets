@@ -102,8 +102,6 @@ window.onload = function () {
     `;
       }
     });
-    // console.log("CONVERSATION LIST HTML:");
-    // console.log(conversationListHTML);
     conversationList.innerHTML = conversationListHTML;
   }
 
@@ -180,7 +178,6 @@ window.onload = function () {
 
   // MESSAGE SEND
   function messageSend(body, mobile_number) {
-    // FETCH
     const apiUrl = host + "/messagesend";
     // console.log("APIURL: " + apiUrl);
     // url encode body params
@@ -199,20 +196,16 @@ window.onload = function () {
       .then((response) => response.text())
       // .then((response) => response.json())
       .then((result) => {
-        console.log("MESSAGE SEND SUCCESS RESULT:");
-        console.log("result: " + result);
+        console.log("MESSAGE SEND SUCCESS:");
+        console.log(result);
       })
       .catch((error) => {
         console.log("MESSAGE SEND CATCH:");
         console.log(error);
-        // $("#failed-alert").fadeIn("slow");
-        // displayJsonResponse(error);
       })
       .finally(() => {
         console.log("MESSAGE SEND FINALLY");
-        // $("#submit").attr("disabled", false);
       });
-    // END FETCH
   }
-  // END MESSAGE SEND
+
 };
