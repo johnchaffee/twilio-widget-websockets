@@ -26,52 +26,24 @@ window.onload = function () {
     console.log("ON CLOSE");
   };
 
-  // Use Set() to extract unique mobile numbers from messages array
-  // https://levelup.gitconnected.com/how-to-find-unique-values-by-property-in-an-array-of-objects-in-javascript-50ca23db8ccc
-  // const uniqueMobileNumbersSet = new Set();
-  // uniqueMobileNumbersSet.add("+12063693826");
-  // uniqueMobileNumbersSet.add("+12068163598");
-  // uniqueMobileNumbersSet.add("+12063996576");
-
   // MESSAGE RECEIVED FROM SERVER ->
   wsClient.onmessage = (event) => {
     const messages = JSON.parse(event.data);
     console.log("CLIENT ONMESSAGE");
-    // console.log("EVENT.ORIGIN: " + event.origin);
-    // console.log(event);
-    // console.log(event.data);
     console.log(messages);
-    // console.log(JSON.stringify(messages, undefined, 2));
 
     if (messages.length > 0) {
-      console.log("MESSAGES.LENGTH: " + messages.length);
       messages.forEach((thisMessage) => {
-        console.log("THIS MESSAGE:");
-        console.log(thisMessage);
-        console.log("THIS MESSAGE TYPE:");
-        console.log(thisMessage.type);
-        // thisMessage = JSON.parse(thisMessage);
-        // uniqueMobileNumbersSet.add(thisMessage.mobile_number);
-        // console.log(thisMessage);
-        // console.log(thisMessage.direction);
-        // console.log(thisMessage.body);
-        // Only render messages that are for the selected conversation mobile number
+        // If item is messagecreated and matches selected conversation, render message
         if (
           thisMessage.type == "messageCreated" &&
           thisMessage.mobile_number == mobile_number
         ) {
-          console.log(
-            'thisMessage.type == "messageCreated" && thisMessage.mobile_number == mobile_number'
-          );
-          console.log("RENDER MESSAGE");
           renderMessage(thisMessage);
         }
       });
+      // If first array item is conversationUpdated, render conversation list from entire array
       if (messages[0].type == "conversationUpdated") {
-        console.log('messages[0].type == "conversationUpdated"');
-        console.log("CONVERSATIONS:");
-        console.log(messages);
-        console.log("ON MESSAGE -> RENDER CONVERSATION LIST");
         renderConversationList(messages);
       }
     }
@@ -103,21 +75,14 @@ window.onload = function () {
     let conversationListHTML = "";
     let formattedMobile = "";
     let conversationLink = "";
-    console.log("RENDER CONVERSATION LIST MESSAGES:");
-    console.log(messages);
     messages.forEach((message) => {
-      console.log("RENDER CONVERSATION LIST():");
-      console.log("MESSAGE:");
-      console.log(message);
-      console.log("CONVERSATION ID:");
-      console.log(message.conversation_id);
+      // Extract mobile number from conversation_id
       let thisMobileNumber = message.conversation_id.split(";")[1];
       let badge = "";
+      // Display badge count if > 0
       if (message.unread_count > 0) {
-        badge = `(${message.unread_count})`
+        badge = `(${message.unread_count})`;
       }
-      console.log("SPLIT:");
-      console.log(thisMobileNumber);
       formattedMobile = formatMobile(thisMobileNumber);
       conversationLink = `<a href="?mobile=${encodeURIComponent(
         thisMobileNumber
@@ -137,8 +102,8 @@ window.onload = function () {
     `;
       }
     });
-    console.log("CONVERSATION LIST HTML:");
-    console.log(conversationListHTML);
+    // console.log("CONVERSATION LIST HTML:");
+    // console.log(conversationListHTML);
     conversationList.innerHTML = conversationListHTML;
   }
 
@@ -217,7 +182,7 @@ window.onload = function () {
   function messageSend(body, mobile_number) {
     // FETCH
     const apiUrl = host + "/messagesend";
-    console.log("APIURL: " + apiUrl);
+    // console.log("APIURL: " + apiUrl);
     // url encode body params
     const bodyParams = new URLSearchParams({
       body: body,
@@ -234,17 +199,17 @@ window.onload = function () {
       .then((response) => response.text())
       // .then((response) => response.json())
       .then((result) => {
-        console.log("SUCCESS");
+        console.log("MESSAGE SEND SUCCESS RESULT:");
         console.log("result: " + result);
       })
       .catch((error) => {
-        console.log("INDEX MESSAGE SEND CATCH:");
+        console.log("MESSAGE SEND CATCH:");
         console.log(error);
         // $("#failed-alert").fadeIn("slow");
         // displayJsonResponse(error);
       })
       .finally(() => {
-        console.log("FINALLY");
+        console.log("MESSAGE SEND FINALLY");
         // $("#submit").attr("disabled", false);
       });
     // END FETCH
