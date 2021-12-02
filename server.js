@@ -118,8 +118,8 @@ app.post("/twilio-event-streams", (req, res, next) => {
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     // If incoming message, the body already exists in payload
-    // Set messageObject properties, direction: inbound, etc.
-    // Set conversationObject properties, unread_count: 1, etc.
+    // Set default messageObject properties, direction: inbound, etc.
+    // Set default conversationObject properties, unread_count: 1, etc.
     messageObject = {
       type: "messageCreated",
       date_created: requestBody.data.timestamp,
@@ -135,10 +135,34 @@ app.post("/twilio-event-streams", (req, res, next) => {
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       unread_count: 1,
     };
-    // Create message in db
-    createMessage(messageObject);
-    // Create or update conversation in db
-    updateConversation(conversationObject);
+    if (requestBody.data.numMedia > 0) {
+      // if nuMedia > 0, fetch the mediaUrl and update the messageObject
+      const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}/Media.json`;
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          Authorization: basic_auth,
+        },
+      };
+      // getMediaUrl(apiUrl, requestOptions);
+      getMediaUrl(apiUrl, requestOptions)
+        .then(function () {
+          // Create messasge in db
+          createMessage(messageObject);
+          // Create or update conversation in db
+          updateConversation(conversationObject);
+        })
+        .catch(function (err) {
+          console.log("CATCH getMessageBody()");
+          console.log(err);
+        });
+    } else {
+      // Just send the messageObject and conversationObject with default settings
+      // Create message in db
+      createMessage(messageObject);
+      // Create or update conversation in db
+      updateConversation(conversationObject);
+    }
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
@@ -150,12 +174,49 @@ app.post("/twilio-event-streams", (req, res, next) => {
         Authorization: basic_auth,
       },
     };
-    getMessageBody(apiUrl, requestOptions);
+    // getMessageBody(apiUrl, requestOptions);
+    getMessageBody(apiUrl, requestOptions)
+      .then(function () {
+        console.log("THEN getMessageBody()");
+        // Create messasge in db
+        createMessage(messageObject);
+        // Create or update conversation in db
+        updateConversation(conversationObject);
+      })
+      .catch(function (err) {
+        console.log("CATCH getMessageBody()");
+        console.log(err);
+      });
   }
   res.sendStatus(200);
 });
 
-// Fetch message body
+// Fetch mediaUrl, then
+// Update messageObject mediaUrl property
+async function getMediaUrl(apiUrl, requestOptions) {
+  console.log("getMediaUrl()");
+  await fetch(apiUrl, requestOptions)
+    .then((response) => response.json())
+    .then((result) => {
+      console.log("getMediaUrl() SUCCESS");
+      console.log("result: " + JSON.stringify(result, undefined, 2));
+      console.log("GET MEDIA URL MESSAGE OBJECT BEFORE");
+      console.log(messageObject);
+      mediaUrl = `https://api.twilio.com${result.media_list[0].uri}`.replace(
+        ".json",
+        ""
+      );
+      messageObject.mediaUrl = mediaUrl;
+      console.log("GET MEDIA URL MESSAGE OBJECT AFTER");
+      console.log(messageObject);
+    })
+    .catch((error) => {
+      console.log("getMediaUrl() CATCH:");
+      console.log("error", error);
+    });
+}
+
+// Fetch message body, then
 // Set messageObject properties, direction: outbound, etc.
 // Set conversationObject properties, reset unread_count: 0, etc.
 async function getMessageBody(apiUrl, requestOptions) {
@@ -180,10 +241,6 @@ async function getMessageBody(apiUrl, requestOptions) {
         conversation_id: `${result.from};${result.to}`,
         unread_count: 0,
       };
-      // Create messasge in db
-      createMessage(messageObject);
-      // Create or update conversation in db
-      updateConversation(conversationObject);
     })
     .catch((error) => {
       console.log("getMessageBody() CATCH:");
