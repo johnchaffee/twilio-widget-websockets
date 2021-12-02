@@ -54,7 +54,7 @@ window.onload = function () {
       // MESSAGE RECEIVED
       appendMessage(
         MOBILE_NAME,
-        MOBILE_IMG,
+        thisMessage.mediaUrl,
         "left",
         thisMessage.body,
         formatDate(thisMessage.date_created)
@@ -63,7 +63,7 @@ window.onload = function () {
       // MESSAGE SENT
       appendMessage(
         TWILIO_NAME,
-        TWILIO_IMG,
+        thisMessage.mediaUrl,
         "right",
         thisMessage.body,
         formatDate(thisMessage.date_created)
@@ -106,8 +106,8 @@ window.onload = function () {
   }
 
   // Icons made by Freepik from www.flaticon.com
-  const TWILIO_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
-  const MOBILE_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
+  // const TWILIO_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
+  // const MOBILE_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
   const TWILIO_NAME = "Twilio";
   const MOBILE_NAME = "Mobile";
 
@@ -129,11 +129,15 @@ window.onload = function () {
 
   // APPEND MESSAGE - Render last message
   function appendMessage(name, img, side, text, date_created) {
-    //   Simple solution for small apps
+    let imgElement = "";
+    if (img !== undefined) {
+      imgElement = `<div class=""><img src="${img}" alt="${img}" width="100%"></div>`
+    }
     const msgHTML = `
   <div class="msg ${side}-msg">
     <!-- <div class="msg-img" style="background-image: url(${img})"></div> -->
     <div class="msg-bubble">
+      ${imgElement}
       <div class="msg-text">${text}</div>
     </div>
   </div>
