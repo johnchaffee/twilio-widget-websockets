@@ -143,9 +143,6 @@ app.post("/twilio-event-streams", (req, res, next) => {
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
     // If outgoing message, the body does not exist in payload and must be fetched
-    // Set messageObject properties, direction: outbound, etc.
-    // Set conversationObject properties, reset unread_count: 0, etc.
-    console.log("fetch() outbound message body");
     const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}.json`;
     const requestOptions = {
       method: "GET",
@@ -153,41 +150,46 @@ app.post("/twilio-event-streams", (req, res, next) => {
         Authorization: basic_auth,
       },
     };
-    fetch(apiUrl, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("fetch() outbound message body SUCCESS");
-        console.log("result: " + JSON.stringify(result, undefined, 2));
-        messageObject = {
-          type: "messageCreated",
-          date_created: new Date(result.date_created).toISOString(),
-          direction: "outbound",
-          twilio_number: result.from,
-          mobile_number: result.to,
-          conversation_id: `${result.from};${result.to}`,
-          body: result.body,
-        };
-        conversationObject = {
-          type: "conversationUpdated",
-          date_updated: new Date(result.date_created).toISOString(),
-          conversation_id: `${result.from};${result.to}`,
-          unread_count: 0,
-        };
-        // Create messasge in db
-        createMessage(messageObject);
-        // Create or update conversation in db
-        updateConversation(conversationObject);
-      })
-      .catch((error) => {
-        console.log("fetch() outbound message body CATCH:");
-        console.log("error", error);
-      })
-      .finally(() => {
-        console.log("fetch() outbound message body FINALLY");
-      });
+    getMessageBody(apiUrl, requestOptions);
   }
   res.sendStatus(200);
 });
+
+// Fetch message body
+// Set messageObject properties, direction: outbound, etc.
+// Set conversationObject properties, reset unread_count: 0, etc.
+async function getMessageBody(apiUrl, requestOptions) {
+  console.log("getMessageBody()");
+  await fetch(apiUrl, requestOptions)
+    .then((response) => response.json())
+    .then((result) => {
+      console.log("getMessageBody() SUCCESS");
+      // console.log("result: " + JSON.stringify(result, undefined, 2));
+      messageObject = {
+        type: "messageCreated",
+        date_created: new Date(result.date_created).toISOString(),
+        direction: "outbound",
+        twilio_number: result.from,
+        mobile_number: result.to,
+        conversation_id: `${result.from};${result.to}`,
+        body: result.body,
+      };
+      conversationObject = {
+        type: "conversationUpdated",
+        date_updated: new Date(result.date_created).toISOString(),
+        conversation_id: `${result.from};${result.to}`,
+        unread_count: 0,
+      };
+      // Create messasge in db
+      createMessage(messageObject);
+      // Create or update conversation in db
+      updateConversation(conversationObject);
+    })
+    .catch((error) => {
+      console.log("getMessageBody() CATCH:");
+      console.log("error", error);
+    });
+}
 
 // ACK CATCHALL WEBHOOK
 // Catchall to acknowledge webhooks that don't match the paths above
