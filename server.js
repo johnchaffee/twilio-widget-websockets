@@ -9,7 +9,6 @@ const db = require("./database");
 const client = require("./client");
 const port = process.env.PORT || 3000;
 let twilio_number = process.env.TWILIO_NUMBER;
-let conversationObject = {};
 let conversations = [];
 let messages = [];
 const limit = process.env.LIMIT || 8;
@@ -55,7 +54,7 @@ app.get("/", (req, res) => {
       });
     })
     .catch(function (err) {
-      res.status(500).send({ error: "we done homie" });
+      res.status(500).send({ error: err });
     });
   // Mark messages as read when clicking on conversation
   async function resetConversationCount(conversation_id) {
@@ -66,11 +65,12 @@ app.get("/", (req, res) => {
         [0, conversation_id]
       );
     } catch (err) {
+      console.log("resetConversationCount() CATCH");
       console.error(err);
-      // res.send("Error " + err);
     }
-    // Send conversation to websocket clients
-    client.updateWebsocketClient(conversationObject);
+    // Send empty object to websocket clients after resetting the count for selected conversation
+    // This will cause the websocket server to run the getConversations() function and update all clients
+    client.updateWebsocketClient({});
   }
   // Fetch all messages for selected conversation
   async function getMessages(mobileNumberQuery) {
@@ -161,7 +161,8 @@ wsServer.on("connection", (socketClient) => {
         });
       })
       .catch(function (err) {
-        res.status(500).send({ error: "Error getting conversations" });
+        console.log("getConversations() CATCH")
+        console.log(err);
       });
     // GET ALL CONVERSATIONS FROM DB
     async function getConversations() {
@@ -176,8 +177,8 @@ wsServer.on("connection", (socketClient) => {
           conversation.type = "conversationUpdated";
         });
       } catch (err) {
+        console.log("getConversations() CATCH")
         console.error(err);
-        res.send("Error " + err);
       }
     }
   });
