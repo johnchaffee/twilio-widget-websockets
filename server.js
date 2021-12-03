@@ -317,24 +317,6 @@ const pool = new Pool({
   port: 5432,
 });
 
-// GET ALL CONVERSATIONS FROM DB
-async function getConversations() {
-  console.log("getConversations():");
-  try {
-    const result = await pool.query(
-      "SELECT * FROM conversations order by date_updated desc limit $1",
-      [limit]
-    );
-    conversations = result.rows;
-    conversations.forEach((conversation) => {
-      conversation.type = "conversationUpdated";
-    });
-  } catch (err) {
-    console.error(err);
-    res.send("Error " + err);
-  }
-}
-
 // CREATE MESSAGE
 async function createMessage(request, response) {
   console.log("createMessage()");
@@ -479,6 +461,23 @@ wsServer.on("connection", (socketClient) => {
       .catch(function (err) {
         res.status(500).send({ error: "Error getting conversations" });
       });
+    // GET ALL CONVERSATIONS FROM DB
+    async function getConversations() {
+      console.log("getConversations():");
+      try {
+        const result = await pool.query(
+          "SELECT * FROM conversations order by date_updated desc limit $1",
+          [limit]
+        );
+        conversations = result.rows;
+        conversations.forEach((conversation) => {
+          conversation.type = "conversationUpdated";
+        });
+      } catch (err) {
+        console.error(err);
+        res.send("Error " + err);
+      }
+    }
   });
 
   // ON CLOSE
