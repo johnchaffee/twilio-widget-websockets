@@ -130,7 +130,7 @@ window.onload = function () {
   // APPEND MESSAGE - Render last message
   function appendMessage(name, img, side, text, date_created) {
     let imgElement = "";
-    if (img !== null) {
+    if (img !== undefined && img !== null) {
       imgElement = `<div class=""><img src="${img}" alt="${img}" width="100%"></div>`
     }
     const msgHTML = `
