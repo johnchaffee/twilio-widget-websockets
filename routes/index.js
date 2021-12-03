@@ -46,14 +46,18 @@ router.get("/", (req, res) => {
   async function resetConversationCount(conversation_id) {
     console.log("resetConversationCount()");
     try {
+      console.log("TRY")
       const result = await db.pool.query(
         "UPDATE conversations SET unread_count = $1 WHERE conversation_id = $2",
         [0, conversation_id]
       );
+      console.log("END TRY")
     } catch (err) {
+      console.log("CATCH")
       console.error(err);
       // res.send("Error " + err);
     }
+    console.log("END")
     // Send conversation to websocket clients
     // TODO Uncomment line below once websocket client is in a module
     // updateWebsocketClient(conversationObject);
