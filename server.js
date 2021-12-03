@@ -199,7 +199,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
           updateConversation(conversationObject);
         })
         .catch(function (err) {
-          console.log("CATCH getMessageBody()");
+          console.log("CATCH getMediaUrl()");
           console.log(err);
         });
     } else {
@@ -233,6 +233,38 @@ app.post("/twilio-event-streams", (req, res, next) => {
         console.log("CATCH getMessageBody()");
         console.log(err);
       });
+
+    // Fetch message body, then
+    // Set messageObject properties, direction: outbound, etc.
+    // Set conversationObject properties, reset unread_count: 0, etc.
+    async function getMessageBody(apiUrl, requestOptions) {
+      console.log("getMessageBody()");
+      await fetch(apiUrl, requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("getMessageBody() SUCCESS");
+          // console.log("result: " + JSON.stringify(result, undefined, 2));
+          messageObject = {
+            type: "messageCreated",
+            date_created: new Date(result.date_created).toISOString(),
+            direction: "outbound",
+            twilio_number: result.from,
+            mobile_number: result.to,
+            conversation_id: `${result.from};${result.to}`,
+            body: result.body,
+          };
+          conversationObject = {
+            type: "conversationUpdated",
+            date_updated: new Date(result.date_created).toISOString(),
+            conversation_id: `${result.from};${result.to}`,
+            unread_count: 0,
+          };
+        })
+        .catch((error) => {
+          console.log("getMessageBody() CATCH:");
+          console.log("error", error);
+        });
+    }
   }
   res.sendStatus(200);
 });
@@ -258,38 +290,6 @@ async function getMediaUrl(apiUrl, requestOptions) {
     })
     .catch((error) => {
       console.log("getMediaUrl() CATCH:");
-      console.log("error", error);
-    });
-}
-
-// Fetch message body, then
-// Set messageObject properties, direction: outbound, etc.
-// Set conversationObject properties, reset unread_count: 0, etc.
-async function getMessageBody(apiUrl, requestOptions) {
-  console.log("getMessageBody()");
-  await fetch(apiUrl, requestOptions)
-    .then((response) => response.json())
-    .then((result) => {
-      console.log("getMessageBody() SUCCESS");
-      // console.log("result: " + JSON.stringify(result, undefined, 2));
-      messageObject = {
-        type: "messageCreated",
-        date_created: new Date(result.date_created).toISOString(),
-        direction: "outbound",
-        twilio_number: result.from,
-        mobile_number: result.to,
-        conversation_id: `${result.from};${result.to}`,
-        body: result.body,
-      };
-      conversationObject = {
-        type: "conversationUpdated",
-        date_updated: new Date(result.date_created).toISOString(),
-        conversation_id: `${result.from};${result.to}`,
-        unread_count: 0,
-      };
-    })
-    .catch((error) => {
-      console.log("getMessageBody() CATCH:");
       console.log("error", error);
     });
 }
