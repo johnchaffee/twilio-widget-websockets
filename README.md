@@ -63,19 +63,16 @@ After the above requirements have been met:
 
 3.  Create a `.env` file in your root directory and enter the environment variables below.
 
-        ```
-        PORT=3000
-        NODE_ENV=development
-        APP_HOST_NAME=localhost
-        TWILIO_NUMBER=<Your Twilio Phone Number>
-        TWILIO_ACCOUNT_SID=<Your Twilio Account SID>
-        TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
-        FACEBOOK_MESSENGER_ID=<Your messenger ID>
-        WHATSAPP_ID=<Your WhatsApp ID>
-        LIMIT=8
-
     ```
-
+    PORT=3000
+    NODE_ENV=development
+    APP_HOST_NAME=localhost
+    TWILIO_NUMBER=<Your Twilio Phone Number>
+    TWILIO_ACCOUNT_SID=<Your Twilio Account SID>
+    TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
+    FACEBOOK_MESSENGER_ID=<Your messenger ID>
+    WHATSAPP_ID=<Your WhatsApp ID>
+    LIMIT=8
     ```
 
 4.  Run the application
