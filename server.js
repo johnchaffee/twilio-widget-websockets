@@ -202,6 +202,31 @@ app.post("/twilio-event-streams", (req, res, next) => {
           console.log("CATCH getMediaUrl()");
           console.log(err);
         });
+      // Fetch mediaUrl, then
+      // Update messageObject mediaUrl property
+      async function getMediaUrl(apiUrl, requestOptions) {
+        console.log("getMediaUrl()");
+        await fetch(apiUrl, requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("getMediaUrl() SUCCESS");
+            console.log("result: " + JSON.stringify(result, undefined, 2));
+            console.log("GET MEDIA URL MESSAGE OBJECT BEFORE");
+            console.log(messageObject);
+            mediaUrl =
+              `https://api.twilio.com${result.media_list[0].uri}`.replace(
+                ".json",
+                ""
+              );
+            messageObject.mediaUrl = mediaUrl;
+            console.log("GET MEDIA URL MESSAGE OBJECT AFTER");
+            console.log(messageObject);
+          })
+          .catch((error) => {
+            console.log("getMediaUrl() CATCH:");
+            console.log("error", error);
+          });
+      }
     } else {
       // Just send the messageObject and conversationObject with default settings
       // Create message in db
@@ -268,31 +293,6 @@ app.post("/twilio-event-streams", (req, res, next) => {
   }
   res.sendStatus(200);
 });
-
-// Fetch mediaUrl, then
-// Update messageObject mediaUrl property
-async function getMediaUrl(apiUrl, requestOptions) {
-  console.log("getMediaUrl()");
-  await fetch(apiUrl, requestOptions)
-    .then((response) => response.json())
-    .then((result) => {
-      console.log("getMediaUrl() SUCCESS");
-      console.log("result: " + JSON.stringify(result, undefined, 2));
-      console.log("GET MEDIA URL MESSAGE OBJECT BEFORE");
-      console.log(messageObject);
-      mediaUrl = `https://api.twilio.com${result.media_list[0].uri}`.replace(
-        ".json",
-        ""
-      );
-      messageObject.mediaUrl = mediaUrl;
-      console.log("GET MEDIA URL MESSAGE OBJECT AFTER");
-      console.log(messageObject);
-    })
-    .catch((error) => {
-      console.log("getMediaUrl() CATCH:");
-      console.log("error", error);
-    });
-}
 
 // ACK CATCHALL WEBHOOK
 // Catchall to acknowledge webhooks that don't match the paths above
