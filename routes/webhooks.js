@@ -50,8 +50,8 @@ router.post("/", (req, res, next) => {
       };
       getMediaUrl(apiUrl, requestOptions)
         .then((result) => {
-          // console.log("getMediaUrl() THEN -> RESULT");
-          // console.log(result);
+          console.log("getMediaUrl() THEN -> RESULT");
+          console.log(result);
           // Set messageObject mediaUrl property
           const media_url =
             `https://api.twilio.com${result.media_list[0].uri}`.replace(
@@ -73,6 +73,8 @@ router.post("/", (req, res, next) => {
         console.log("getMediaUrl()");
         const response = await fetch(apiUrl, requestOptions);
         const result = await response.json();
+        console.log("const result = await response.json()");
+        console.log(result);
         return result;
       }
     } else {
