@@ -109,7 +109,7 @@ twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com web
 --sink-type webhook
 ```
 
-Subscribe to sent and received messages using the SID returned from above:
+Subscribe to `sent` and `received` messages using the SID returned from above:
 
 ```
 twilio api:events:v1:subscriptions:create \
