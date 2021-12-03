@@ -189,12 +189,12 @@ app.post("/twilio-event-streams", (req, res, next) => {
           // console.log("getMediaUrl() THEN -> RESULT");
           // console.log(result);
           // Set messageObject mediaUrl property
-          const mediaUrl =
+          const media_url =
             `https://api.twilio.com${result.media_list[0].uri}`.replace(
               ".json",
               ""
             );
-          messageObject.mediaUrl = mediaUrl;
+          messageObject.media_url = media_url;
           createMessage(messageObject);
           updateConversation(conversationObject);
         })
@@ -294,6 +294,7 @@ const pool = new Pool({
 // CREATE MESSAGE
 async function createMessage(request, response) {
   console.log("createMessage()");
+  console.log(request);
   try {
     const {
       date_created,
@@ -302,9 +303,10 @@ async function createMessage(request, response) {
       mobile_number,
       conversation_id,
       body,
+      media_url,
     } = request;
     const result = await pool.query(
-      "INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body) VALUES ($1, $2, $3, $4, $5, $6)",
+      "INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body, media_url) VALUES ($1, $2, $3, $4, $5, $6, $7)",
       [
         date_created,
         direction,
@@ -312,6 +314,7 @@ async function createMessage(request, response) {
         mobile_number,
         conversation_id,
         body,
+        media_url,
       ]
     );
   } catch (err) {

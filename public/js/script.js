@@ -54,7 +54,7 @@ window.onload = function () {
       // MESSAGE RECEIVED
       appendMessage(
         MOBILE_NAME,
-        thisMessage.mediaUrl,
+        thisMessage.media_url,
         "left",
         thisMessage.body,
         formatDate(thisMessage.date_created)
@@ -63,7 +63,7 @@ window.onload = function () {
       // MESSAGE SENT
       appendMessage(
         TWILIO_NAME,
-        thisMessage.mediaUrl,
+        thisMessage.media_url,
         "right",
         thisMessage.body,
         formatDate(thisMessage.date_created)
@@ -130,7 +130,7 @@ window.onload = function () {
   // APPEND MESSAGE - Render last message
   function appendMessage(name, img, side, text, date_created) {
     let imgElement = "";
-    if (img !== undefined) {
+    if (img !== null) {
       imgElement = `<div class=""><img src="${img}" alt="${img}" width="100%"></div>`
     }
     const msgHTML = `
