@@ -1,14 +1,26 @@
 const client = require("./client");
+const app_host_name = process.env.APP_HOST_NAME || "localhost";
+
 
 // POSTGRES DATABASE QUERIES
-const Pool = require("pg").Pool;
-const pool = new Pool({
-  // user: 'me',
-  // password: 'password',
-  host: "localhost",
-  database: "widget",
-  port: 5432,
-});
+const { Pool } = require("pg");
+let pool;
+if (app_host_name === "localhost") {
+  // App is hosted locally, connect to localhost
+  pool = new Pool({
+    host: "localhost",
+    database: "widget",
+    port: 5432,
+  });
+} else {
+  // App is hosted on heroku, connect to heroku DATABASE_URL env variable
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+}
 
 // CREATE MESSAGE
 async function createMessage(request, response) {
@@ -78,7 +90,7 @@ async function updateConversation(request, response) {
 }
 
 module.exports = {
-createMessage,
-updateConversation,
-pool,
+  createMessage,
+  updateConversation,
+  pool,
 };

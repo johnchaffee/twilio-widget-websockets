@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 let twilio_number = process.env.TWILIO_NUMBER;
 let conversations = [];
 let messages = [];
-const limit = process.env.LIMIT || 8;
+const limit = process.env.LIMIT || 20;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
