@@ -22,8 +22,7 @@ let conversationObject = {};
 let conversations = [];
 let messageObject = {};
 let messages = [];
-const limit = process.env.LIMIT;
-
+const limit = 4;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -33,10 +32,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
-// Import and use ./routes/index module
-const indexRouter = require("./routes/index");
-app.use("/", indexRouter);
-
 // Import and use ./routes/messagesend module
 const messagesendRouter = require("./routes/messagesend");
 app.use("/messagesend", messagesendRouter);
@@ -44,6 +39,69 @@ app.use("/messagesend", messagesendRouter);
 // Import and use ./routes/webhooks module
 const webhooksRouter = require("./routes/webhooks");
 app.use("/twilio-event-streams", webhooksRouter);
+
+// When client connects or clicks on a conversation, reset conversation count and fetch messages for selected conversation
+// conversations array and messages array will each be sent via socketClient.send();
+app.get("/", (req, res) => {
+  console.log("REQ.QUERY:");
+  console.log(req.query);
+  let queryObjSize = JSON.stringify(req.query).length;
+  console.log("REQ.QUERY.MOBILE");
+  console.log(req.query.mobile);
+  let mobileNumberQuery = "";
+  // Check if query param object is greater than empty object {} length of 2
+  if (queryObjSize > 2) {
+    mobileNumberQuery = req.query.mobile;
+  }
+  conversations = [];
+  messages = [];
+  resetConversationCount(`${twilio_number};${mobileNumberQuery}`)
+    .then(function () {
+      messages = [];
+      // Get array of messages for this mobile number
+      getMessages(mobileNumberQuery).then(function () {
+        console.log("RENDER INDEX");
+        res.render("index");
+        // res.render("index", { conversations, messages });
+      });
+    })
+    .catch(function (err) {
+      res.status(500).send({ error: "we done homie" });
+    });
+  // Mark messages as read when clicking on conversation
+  async function resetConversationCount(conversation_id) {
+    console.log("resetConversationCount()");
+    try {
+      const result = await db.pool.query(
+        "UPDATE conversations SET unread_count = $1 WHERE conversation_id = $2",
+        [0, conversation_id]
+      );
+    } catch (err) {
+      console.error(err);
+      // res.send("Error " + err);
+    }
+    // Send conversation to websocket clients
+    updateWebsocketClient(conversationObject);
+  }
+  // Fetch all messages for selected conversation
+  async function getMessages(mobileNumberQuery) {
+    console.log("getMessages():");
+    try {
+      const result = await db.pool.query(
+        "SELECT * FROM messages WHERE mobile_number = $1 order by date_created desc limit $2",
+        [mobileNumberQuery, limit]
+      );
+
+      messages = result.rows.reverse();
+      messages.forEach((message) => {
+        message.type = "messageCreated";
+      });
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  }
+});
 
 // ACK CATCHALL WEBHOOK
 // Catchall to acknowledge webhooks that don't match the paths above
