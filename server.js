@@ -94,19 +94,30 @@ app.post("/messagesend", (req, res, next) => {
     },
     body: bodyParams,
   };
-  sendMessage(apiUrl, requestOptions);
-  res.sendStatus(200);
-});
-
-async function sendMessage(apiUrl, requestOptions) {
-  console.log("sendMessage()");
-  await fetch(apiUrl, requestOptions)
-    .then((response) => response.json())
+  
+  sendMessage(apiUrl, requestOptions)
+    .then((result) => {
+      console.log("SEND MESSAGE THEN -> SUCCESS");
+      console.log(result);
+      res.sendStatus(200);
+    })
     .catch((error) => {
-      console.log("sendMessage() CATCH");
-      console.log("error", error);
+      console.log("SEND MESSAGE .CATCH -> ERROR");
+      console.log(error.message);
+      // error.message;
+    })
+    .finally(() => {
+      console.log("SEND MESSAGE FINALLY");
     });
-}
+
+    async function sendMessage(apiUrl, requestOptions) {
+    console.log("sendMessage()");
+    const response = await fetch(apiUrl, requestOptions);
+    const result = await response.json();
+    return result;
+  }
+  // res.sendStatus(200);
+});
 
 // TWILIO EVENT STREAMS WEBHOOKS
 // Listen for incoming and outgoing messages
