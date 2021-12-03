@@ -6,7 +6,7 @@ const path = require("path");
 const ejs = require("ejs");
 const fetch = require("node-fetch");
 const app = express();
-// const db = require("./queries");
+const db = require("./database");
 const port = process.env.PORT || 3000;
 const app_host_name = process.env.APP_HOST_NAME || "localhost";
 let twilio_number = process.env.TWILIO_NUMBER;
@@ -35,6 +35,10 @@ app.use(express.urlencoded({ extended: true }));
 // Import and use ./routes/messagesend module
 const messagesendRouter = require("./routes/messagesend");
 app.use("/messagesend", messagesendRouter);
+
+// // Import and use ./routes/webhooks module
+// const webhooksRouter = require("./routes/webhooks");
+// app.use("/twilio-event-streams", webhooksRouter);
 
 // When client connects or clicks on a conversation, reset conversation count and fetch messages for selected conversation
 // conversations array and messages array will each be sent via socketClient.send();
@@ -68,7 +72,7 @@ app.get("/", (req, res) => {
   async function resetConversationCount(conversation_id) {
     console.log("resetConversationCount()");
     try {
-      const result = await pool.query(
+      const result = await db.pool.query(
         "UPDATE conversations SET unread_count = $1 WHERE conversation_id = $2",
         [0, conversation_id]
       );
@@ -83,7 +87,7 @@ app.get("/", (req, res) => {
   async function getMessages(mobileNumberQuery) {
     console.log("getMessages():");
     try {
-      const result = await pool.query(
+      const result = await db.pool.query(
         "SELECT * FROM messages WHERE mobile_number = $1 order by date_created desc limit $2",
         [mobileNumberQuery, limit]
       );
@@ -146,8 +150,8 @@ app.post("/twilio-event-streams", (req, res, next) => {
               ""
             );
           messageObject.media_url = media_url;
-          createMessage(messageObject);
-          updateConversation(conversationObject);
+          db.createMessage(messageObject);
+          db.updateConversation(conversationObject);
         })
         .catch((error) => {
           console.log("getMediaUrl() CATCH");
@@ -164,8 +168,8 @@ app.post("/twilio-event-streams", (req, res, next) => {
       }
     } else {
       // There is no medialUrl, send the default messageObject and conversationObject
-      createMessage(messageObject);
-      updateConversation(conversationObject);
+      db.createMessage(messageObject);
+      db.updateConversation(conversationObject);
     }
   }
   // OUTGOING WEBHOOK
@@ -199,8 +203,8 @@ app.post("/twilio-event-streams", (req, res, next) => {
           conversation_id: `${result.from};${result.to}`,
           unread_count: 0,
         };
-        createMessage(messageObject);
-        updateConversation(conversationObject);
+        db.createMessage(messageObject);
+        db.updateConversation(conversationObject);
       })
       .catch((error) => {
         console.log("getMessageBody() CATCH");
@@ -219,95 +223,18 @@ app.post("/twilio-event-streams", (req, res, next) => {
   res.sendStatus(200);
 });
 
-// // ACK CATCHALL WEBHOOK
-// // Catchall to acknowledge webhooks that don't match the paths above
-// app.post(/.*/, (req, res, next) => {
-//   console.log("ACK WEBHOOK");
-//   res.sendStatus(200);
-//   // res.send("<Response></Response>");
-// });
+// ACK CATCHALL WEBHOOK
+// Catchall to acknowledge webhooks that don't match the paths above
+app.post(/.*/, (req, res, next) => {
+  console.log("ACK WEBHOOK");
+  res.sendStatus(200);
+  // res.send("<Response></Response>");
+});
 
 // EXPRESS SERVER
 const server = app.listen(port, function () {
   console.log(`Express server listening on port ${port}`);
 });
-
-// POSTGRES DATABASE QUERIES
-const Pool = require("pg").Pool;
-const pool = new Pool({
-  // user: 'me',
-  // password: 'password',
-  host: "localhost",
-  database: "widget",
-  port: 5432,
-});
-
-// CREATE MESSAGE
-async function createMessage(request, response) {
-  console.log("createMessage()");
-  console.log(request);
-  try {
-    const {
-      date_created,
-      direction,
-      twilio_number,
-      mobile_number,
-      conversation_id,
-      body,
-      media_url,
-    } = request;
-    const result = await pool.query(
-      "INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body, media_url) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-      [
-        date_created,
-        direction,
-        twilio_number,
-        mobile_number,
-        conversation_id,
-        body,
-        media_url,
-      ]
-    );
-  } catch (err) {
-    console.error(err);
-    // res.send("Error " + err);
-  }
-  // Send messasge to websocket clients
-  updateWebsocketClient(messageObject);
-}
-
-// UPDATE CONVERSATION
-async function updateConversation(request, response) {
-  console.log("updateConversation()");
-  // Outgoing message or message read event, reset unread_count
-  if (request.unread_count === 0) {
-    try {
-      const { date_updated, conversation_id, unread_count } = request;
-      const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count",
-        [date_updated, conversation_id, unread_count]
-      );
-    } catch (err) {
-      console.error(err);
-      // res.send("Error " + err);
-    }
-  }
-  // Incoming message, increment unread_count
-  else {
-    try {
-      const { date_updated, conversation_id, unread_count } = request;
-      const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count",
-        [date_updated, conversation_id, unread_count]
-      );
-    } catch (err) {
-      console.error(err);
-      // res.send("Error " + err);
-    }
-  }
-  // Send conversation to websocket clients
-  updateWebsocketClient(conversationObject);
-}
 
 // UPDATE WEBSOCKET CLIENT
 function updateWebsocketClient(theObject) {
@@ -393,7 +320,7 @@ wsServer.on("connection", (socketClient) => {
     async function getConversations() {
       console.log("getConversations():");
       try {
-        const result = await pool.query(
+        const result = await db.pool.query(
           "SELECT * FROM conversations order by date_updated desc limit $1",
           [limit]
         );
