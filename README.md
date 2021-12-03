@@ -1,5 +1,5 @@
 # Twilio Widget
-  
+
 ## How it works
 
 This application creates a chat interface for a Twilio text-enabled number to send and receive messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages, Event Streams Webhooks for incoming/outgoing messages, and Websockets to communicate with the chat client in the web browser.
@@ -52,31 +52,31 @@ After the above requirements have been met:
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
     ```
 
-4. Run the application
+4.  Run the application
 
-   ```bash
-   npm start
-   ```
+    ```bash
+    npm start
+    ```
 
-   Your application is now accessible at [http://localhost:3000](http://localhost:3000/)
+    Your application is now accessible at [http://localhost:3000](http://localhost:3000/)
 
-5. Make the application visible to the outside world.
+5.  Make the application visible to the outside world.
 
-   Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#cloud-deployment) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
+    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#cloud-deployment) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
 
-   If you have ngrok installed, you can open a tunnel to your local server by running the following command:
+    If you have ngrok installed, you can open a tunnel to your local server by running the following command:
 
-   ```
-   ngrok http 3000
-   ```
+    ```
+    ngrok http 3000
+    ```
 
-   Now your application should be available at a url like:
+    Now your application should be available at a url like:
 
-   ```
-   https://<unique_id>.ngrok.io/
-   ```
+    ```
+    https://<unique_id>.ngrok.io/
+    ```
 
-6. Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming messages. You'll need to point it to the ngrok and/or heroku url above.
+6.  Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming messages. You'll need to point it to the ngrok and/or heroku url above.
 
 ```
 twilio api:events:v1:sinks:create --description "twilio-messaging.herokuapp.com webhooks" \
@@ -96,22 +96,46 @@ That's it! Now you can start sending and receiving messages text messages in the
 
 ## Data Model
 
-----+---------------------------+---------------+--------------+--------------------------+------------------------------
+### messages table
+
+```
+ id | conversation_id           | twilio_number | mobile_number |       date_created       | direction | body
+----+---------------------------+---------------+---------------+--------------------------+------------------------------
+ 53 | +18555080989;+12063996576 | +18555080989  | +12063996576  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?
+ 54 | +18555080989;+12063996576 | +18555080989  | +12063996576  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?
+ 55 | +18555080989;+12063996576 | +18555080989  | +12063996576  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking.
+```
+
 ```json
 [
   {
+    "conversation_id": "+18555080989;+12063996576",
     "dateCreated": "2021-11-14T22:34:13.204Z",
     "direction": "outbound",
     "twilio_number": "+18555080989",
-    "mobile": "+12063996576",
-    "body": "test"
-  },
+    "mobile_number": "+12063996576",
+    "body": "hey, how's it going?"
+  }
+]
+```
+
+### conversations table
+
+```
+ id |conversation_id            |           date_updated           |     name     | unread_count
+----+---------------------------+--------------------------+--------------+-------------
+ 53 | +18555080989;+12063996576 | 2021-11-16T23:27:23.000Z | John Chaffee | 2
+ 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Lani Gray    | 0
+ 55 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Bob Smith    | 1
+```
+
+```json
+[
   {
-    "dateCreated": "2021-11-14T22:34:17.934Z",
-    "direction": "inbound",
-    "twilio_number": "+18555080989",
-    "mobile": "+12063996576",
-    "body": "yep"
+    "conversation_id": "+18555080989;+12063996576",
+    "date_updated": "2021-11-16T23:27:23.000Z",
+    "name": "John Chaffee",
+    "unread_count": 2
   }
 ]
 ```
@@ -119,26 +143,94 @@ That's it! Now you can start sending and receiving messages text messages in the
 ## Configure Postgres database on localhost
 
 ```sql
+
+-- launch postgres
 psql postgres
 
+-- List databases
+postgres-# \l
+
+                                         List of databases
+          Name           |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
+-------------------------+----------+----------+-------------+-------------+-----------------------
+ api                     | me       | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ bookie_development      | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ node_getting_started    | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ postgres                | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ textblaster_development | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ widget                  | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+(6 rows)
+
+-- Create widget database
 CREATE DATABASE widget;
 
-\c widget
+-- Connect to widget database
+\c widget;
 
+-- Create messages table
 CREATE TABLE messages (
   ID SERIAL PRIMARY KEY,
-  date VARCHAR(30),
+  date_created VARCHAR(30),
   direction VARCHAR(10),
-  twilio_number VARCHAR(30),
-  mobile VARCHAR(30),
+  twilio_number VARCHAR(40),
+  mobile_number VARCHAR(40),
+  conversation_id VARCHAR,
   body text
 );
 
-INSERT INTO messages (date, direction, twilio_number, mobile, body)
+-- Create message
+INSERT INTO messages (date_created, direction, twilio_number, mobile_number, body)
   VALUES ('2021-11-14T22:34:13.204Z', 'outbound', '+18555080989', '+12063996576', 'Outgoing message'), ('2021-11-14T22:34:17.934Z', 'inbound', '+18555080989', '+12063996576', 'Reply from mobile');
 
-SELECT * FROM messages;
+-- Fetch all messages
+SELECT * FROM messages order by date_created desc;
 
+ id  |       date_created       | direction | twilio_number | mobile_number |  body  |    conversation_id
+-----+--------------------------+-----------+---------------+---------------+--------+--------------------------
+ 203 | 2021-11-18T22:10:47.000Z | outbound  | +18555080989  | +12068163598  | hello  | +18555080989;+12068163598
+ 205 | 2021-11-18T22:14:00.000Z | outbound  | +18555080989  | +12068163598  | five   | +18555080989;+12068163598
+ 207 | 2021-11-18T22:18:14.000Z | outbound  | +18555080989  | +12068163598  | seven  | +18555080989;+12068163598
+
+
+-- Create conversations table
+CREATE TABLE conversations (
+  ID SERIAL PRIMARY KEY,
+  date_updated VARCHAR(30),
+  conversation_id VARCHAR UNIQUE,
+  contact_name VARCHAR,
+  unread_count SMALLINT
+);
+
+-- Create conversation
+INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count)
+  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2), ('2021-11-14T22:35:13.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0), ('2021-11-14T22:33:13.204Z', '+18555080989;+12065551212', 'Bob Smith', 1);
+
+-- Fetch all conversations
+SELECT * FROM conversations order by date_updated desc;
+
+ id |     date_updated         |      conversation_id      | contact_name | unread_count
+----+--------------------------+---------------------------+--------------+--------------
+  2 | 2021-11-14T22:35:13.204Z | +18555080989;+12063693826 | Lani Chaffee |            0
+  1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2
+  3 | 2021-11-14T22:33:13.204Z | +18555080989;+12065551212 | Bob Smith    |            1
+
+
+-- Sample queries
+
+INSERT INTO conversations (conversation_id, date_updated, unread_count)
+VALUES ('+18555080989;+12068881235','2021-11-14T22:34:15.204Z', 1)
+ON CONFLICT (conversation_id)
+DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + 1;
+
+ALTER TABLE messages ADD COLUMN conversation_id VARCHAR;
+
+ALTER TABLE messages ADD COLUMN media_url VARCHAR;
+
+ALTER TABLE conversations ADD UNIQUE (conversation_id);
+
+ALTER TABLE conversations RENAME COLUMN updated_at TO date_updated;
+
+ALTER TABLE messages RENAME COLUMN mobile TO mobile_number;
 ```
 
 ## Configure Postgres database on heroku
@@ -155,14 +247,13 @@ As an alternative to running the app locally, you can deploy it to heroku by cli
   <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
 </a>
 
-Note: When deploying to heroku, you will be prompted to enter several environment variables as described below. 
+Note: When deploying to heroku, you will be prompted to enter several environment variables as described below.
 
-* `APP_HOST_NAME` - The subdomain for your app on heroku. For example, enter `my-cool-app` to create an app hosted at `https://my-cool-app.herokuapp.com`.
-* `MOBILE` - A default mobile phone number to send messages to in E.164 format (e.g. `+12065551212`).
- * `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
- * `TWILIO_ACCOUNT_SID`
- * `TWILIO_AUTH_TOKEN`
-
+- `APP_HOST_NAME` - The subdomain for your app on heroku. For example, enter `my-cool-app` to create an app hosted at `https://my-cool-app.herokuapp.com`.
+- `MOBILE` - A default mobile phone number to send messages to in E.164 format (e.g. `+12065551212`).
+- `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
 
 <!-- ### Requirements
 
