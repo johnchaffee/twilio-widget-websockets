@@ -71,6 +71,10 @@ router.post("/", (req, res, next) => {
       // Fetch message body
       async function getMediaUrl(apiUrl, requestOptions) {
         console.log("getMediaUrl()");
+        // Wait 2 seconds before fetching media list
+        console.log("start timer");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        console.log("after 2 seconds");
         const response = await fetch(apiUrl, requestOptions);
         const result = await response.json();
         console.log("const result = await response.json()");
