@@ -134,7 +134,6 @@ The `conversations_id` is unique and concats the twilio number and mobile number
 ----+---------------------------+--------------------------+--------------+-------------
  53 | +18555080989;+12063996576 | 2021-11-16T23:27:23.000Z | John Chaffee | 2
  54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Lani Gray    | 0
- 55 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Bob Smith    | 1
 ```
 
 ```json
@@ -205,7 +204,8 @@ CREATE TABLE messages (
   twilio_number VARCHAR(40),
   mobile_number VARCHAR(40),
   conversation_id VARCHAR,
-  body text
+  body text,
+  media_url VARCHAR
 );
 
 -- Create a sample message
@@ -232,7 +232,7 @@ CREATE TABLE conversations (
 
 -- Create conversation
 INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count)
-  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2), ('2021-11-14T22:35:13.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0), ('2021-11-14T22:33:13.204Z', '+18555080989;+12065551212', 'Bob Smith', 1);
+  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2), ('2021-11-14T22:35:13.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0);
 
 -- Fetch all conversations
 SELECT * FROM conversations order by date_updated desc;
@@ -241,7 +241,6 @@ SELECT * FROM conversations order by date_updated desc;
 ----+--------------------------+---------------------------+--------------+--------------
   2 | 2021-11-14T22:35:13.204Z | +18555080989;+12063693826 | Lani Chaffee |            0
   1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2
-  3 | 2021-11-14T22:33:13.204Z | +18555080989;+12065551212 | Bob Smith    |            1
 
 
 -- Sample db config changes to help in the future
@@ -249,13 +248,58 @@ ALTER TABLE messages RENAME COLUMN mobile TO mobile_number;
 ALTER TABLE messages ADD COLUMN conversation_id VARCHAR;
 ALTER TABLE conversations ADD UNIQUE (conversation_id);
 ALTER TABLE conversations RENAME COLUMN updated_at TO date_updated;
-
+DELETE FROM conversations WHERE id = 3;
 ```
 
 ## Configure Postgres database on heroku
 
 ```sql
-// TODO
+-- Connect to heroku postgres
+heroku pg:psql
+--> Connecting to postgresql-crystalline-12737
+
+-- Create messages table
+twilio-widget::DATABASE=> CREATE TABLE messages (
+  ID SERIAL PRIMARY KEY,
+  date_created VARCHAR(30),
+  direction VARCHAR(10),
+  twilio_number VARCHAR(40),
+  mobile_number VARCHAR(40),
+  conversation_id VARCHAR,
+  body text
+);
+
+-- Insert sample records
+twilio-widget::DATABASE=> INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body)
+  VALUES ('2021-11-14T22:34:13.204Z', 'outbound', '+18555080989', '+12063996576', '+18555080989;+12063996576', 'Outgoing message'), ('2021-11-14T22:34:17.934Z', 'inbound', '+18555080989', '+12063996576', '+18555080989;+12063996576', 'Reply from mobile');
+
+-- Fetch sample records
+twilio-widget::DATABASE=> SELECT * FROM messages order by date_created desc;
+ id |       date_created       | direction | twilio_number | mobile_number |      conversation_id      |       body        | media_url
+----+--------------------------+-----------+---------------+---------------+---------------------------+-------------------+-----------
+  2 | 2021-11-14T22:34:17.934Z | inbound   | +18555080989  | +12063996576  | +18555080989;+12063996576 | Reply from mobile |
+  1 | 2021-11-14T22:34:13.204Z | outbound  | +18555080989  | +12063996576  | +18555080989;+12063996576 | Outgoing message  |
+
+
+-- Create conversations table
+twilio-widget::DATABASE=> CREATE TABLE conversations (
+  ID SERIAL PRIMARY KEY,
+  date_updated VARCHAR(30),
+  conversation_id VARCHAR UNIQUE,
+  contact_name VARCHAR,
+  unread_count SMALLINT
+);
+
+-- Insert sample records
+twilio-widget::DATABASE=> INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count)
+  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2), ('2021-11-14T22:35:13.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0);
+
+-- Fetch sample records
+twilio-widget::DATABASE=> SELECT * FROM conversations order by date_updated desc;
+ id |       date_updated       |      conversation_id      | contact_name | unread_count
+----+--------------------------+---------------------------+--------------+--------------
+  2 | 2021-11-14T22:35:13.204Z | +18555080989;+12063693826 | Lani Chaffee |            0
+  1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2
 ```
 
 ## Cloud deployment - TODO
