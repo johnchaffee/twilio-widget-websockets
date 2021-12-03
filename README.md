@@ -2,27 +2,27 @@
 
 ## Features left to implement
 
-| Feature                 | Description                                                                            | Who   |
-| ----------------------- | -------------------------------------------------------------------------------------- | ----- |
-| Badge design            | CSS to display unread count with red badge                                             | Chris |
-| Heroku                  | Configure db and host on heroku                                                        | John  |
-| WhatsApp                | Support WhatsApp Channel                                                               | John  |
-| FB Messenger            | Support Facebook Messenger Channels                                                    | John  |
-| Node SDK                | Use Node SDK instead of fetch for API calls?                                           | John  |
-| New Conversation        | UI, route and db query for creating a new conversation                                 | John  |
-| Deploy to heroku button | One-click deploy to heroku button                                                      | John  |
-| API Key/Secret          | Use API Key and Secret rather than Acct SID and Auth Token                             | John  |
-| Outgoing MMS            | Ability to add/send MMS images (already support receiving displaying MMS images)       | ?     |
-| Contacts                | UI, route and db query for editing `contact_name` in conversations object              | ?     |
-| Templates (Content API) | UI, route and db query for editing/using templates                                     | ?     |
-| Auto-Replies?           | Webhook after-hour auto-replies                                                        | ?     |
-| Keywords?               | Webhook keyword auto-replies                                                           | ?     |
-| Authentication?         | Authenticate users and associate to Twilio Acct SID, API Key, Secret and phone numbers | ?     |
-| Chrome Extension?       | Display T icon next to phone numbers on any page, launch Widget when clicked           | ?     |
+| Feature                 | Description                                                                      | Who   |
+| ----------------------- | -------------------------------------------------------------------------------- | ----- |
+| Badge design            | CSS to display unread count with red badge                                       | Chris |
+| Heroku                  | Configure db and host on heroku                                                  | John  |
+| WhatsApp                | Support WhatsApp Channel                                                         | John  |
+| FB Messenger            | Support Facebook Messenger Channels                                              | John  |
+| Node SDK                | Use Node SDK instead of fetch for API calls?                                     | John  |
+| New Conversation        | UI, route and db query for creating a new conversation                           | John  |
+| Deploy to heroku button | One-click deploy to heroku button                                                | John  |
+| Outgoing MMS            | Ability to add/send MMS images (already support receiving displaying MMS images) | ?     |
+| API Key/Secret          | Use API Key and Secret rather than Acct SID and Auth Token                       | ?     |
+| Authentication          | Authenticate users and associate with Twilio Acct phone number                   | ?     |
+| Contacts                | UI, route and db query for editing `contact_name` in conversations object        | ?     |
+| Templates (Content API) | UI, route and db query for editing/using templates                               | ?     |
+| Auto-Replies?           | Webhook after-hour auto-replies                                                  | ?     |
+| Keywords?               | Webhook keyword auto-replies                                                     | ?     |
+| Chrome Extension?       | Display T icon next to phone numbers on any page, launch Widget when clicked     | ?     |
 
 ## How it works
 
-This app creates a Zipwhip-like interface for a Twilio phone number to send/receive text messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages via SMS, MMS, WhatsApp and Facebook Messenger; Twilio Event Streams Webhooks for incoming/outgoing messages; Websockets for real-time communicate with the web clients; Twilio Functions/Assets for hosting MMS images, Twilio Content API for Templates; Twilio Authy(?) for authentication.
+This app creates a Zipwhip-like interface for a Twilio phone number to send/receive text messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages via SMS, MMS, WhatsApp and Facebook Messenger; Twilio Event Streams Webhooks for incoming/outgoing messages; Websockets for real-time communicate with the web clients; Twilio Functions/Assets for hosting MMS images, Twilio Content API for Templates; Twilio Verify(?) for authentication.
 
 You can run locally or deploy to heroku.
 
@@ -273,4 +273,3 @@ Note: When deploying to heroku, you will be prompted to enter several environmen
 - `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
 - `TWILIO_ACCOUNT_SID`
 - `TWILIO_AUTH_TOKEN`
-

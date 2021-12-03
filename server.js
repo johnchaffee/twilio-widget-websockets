@@ -138,7 +138,7 @@ wsServer.on("connection", (socketClient) => {
   socketClient.send(JSON.stringify(conversations));
 
   // ON MESSAGE
-  // on new message, send messageObject as array or conversations array
+  // on new message (either messageCreated or conversationUpdated), package the message as an array and send to clients
   socketClient.on("message", (message) => {
     console.log("socketClient.on(message)");
     console.log(message);
