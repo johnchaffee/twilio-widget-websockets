@@ -85,7 +85,7 @@ After the above requirements have been met:
 
 5.  Make the application visible to the outside world.
 
-    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#cloud-deployment) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
+    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, deploying the app to [heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
 
     If you have ngrok installed, you can open a tunnel to your local server by running the following command:
 
