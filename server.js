@@ -32,6 +32,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
+// Import and use ./routes/messagesend module
+const messagesendRouter = require("./routes/messagesend");
+app.use("/messagesend", messagesendRouter);
+
 // When client connects or clicks on a conversation, reset conversation count and fetch messages for selected conversation
 // conversations array and messages array will each be sent via socketClient.send();
 app.get("/", (req, res) => {
@@ -93,59 +97,6 @@ app.get("/", (req, res) => {
       res.send("Error " + err);
     }
   }
-});
-
-// SEND OUTGOING MESSAGE
-// Web client posts '/messagesend' request to this server, which posts request to Twilio API
-app.post("/messagesend", (req, res, next) => {
-  console.log("/messagesend");
-  let body = req.body.body;
-  let mobile_number = req.body.mobile_number;
-  if (mobile_number.slice(0, 9) === "messenger") {
-    // If sending to messenger, send from facebook_messenger_id
-    twilio_number = facebook_messenger_id;
-  } else if (mobile_number.slice(0, 8) === "whatsapp") {
-    // If sending to whatsapp, send from whats_app_id
-    twilio_number = whatsapp_id;
-  } else {
-    // else, send from twilio SMS number -- its variable is already set
-    // twilio_number = twilio_number;
-  }
-  // Send message via Twilio API
-  const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`;
-  // url encode body params
-  const bodyParams = new URLSearchParams({
-    From: twilio_number,
-    To: mobile_number,
-    Body: body,
-  });
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: basic_auth,
-    },
-    body: bodyParams,
-  };
-  sendMessage(apiUrl, requestOptions)
-    .then((result) => {
-      // console.log("sendMessage() THEN -> RESULT");
-      // console.log(result);
-      res.sendStatus(200);
-    })
-    .catch((error) => {
-      console.log("sendMessage() CATCH");
-      console.log(error.message);
-      // error.message;
-    });
-
-  async function sendMessage(apiUrl, requestOptions) {
-    console.log("sendMessage()");
-    const response = await fetch(apiUrl, requestOptions);
-    const result = await response.json();
-    return result;
-  }
-  // res.sendStatus(200);
 });
 
 // TWILIO EVENT STREAMS WEBHOOKS
@@ -268,13 +219,13 @@ app.post("/twilio-event-streams", (req, res, next) => {
   res.sendStatus(200);
 });
 
-// ACK CATCHALL WEBHOOK
-// Catchall to acknowledge webhooks that don't match the paths above
-app.post(/.*/, (req, res, next) => {
-  console.log("ACK WEBHOOK");
-  res.sendStatus(200);
-  // res.send("<Response></Response>");
-});
+// // ACK CATCHALL WEBHOOK
+// // Catchall to acknowledge webhooks that don't match the paths above
+// app.post(/.*/, (req, res, next) => {
+//   console.log("ACK WEBHOOK");
+//   res.sendStatus(200);
+//   // res.send("<Response></Response>");
+// });
 
 // EXPRESS SERVER
 const server = app.listen(port, function () {
