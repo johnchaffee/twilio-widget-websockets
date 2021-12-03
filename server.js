@@ -157,9 +157,10 @@ app.post("/twilio-event-streams", (req, res, next) => {
   console.log("/twilio-event-streams WEBHOOK");
   // Get first array object in request body
   let requestBody = req.body[0];
-  console.log(JSON.stringify(requestBody, undefined, 2));
+  // console.log(JSON.stringify(requestBody, undefined, 2));
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
+    console.log("INBOUND WEBHOOK");
     // If incoming message, the body already exists in payload
     // Set default messageObject and conversationObject properties, unread_count: 1
     messageObject = {
@@ -189,9 +190,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
       // getMediaUrl(apiUrl, requestOptions);
       getMediaUrl(apiUrl, requestOptions)
         .then(function () {
-          // Create messasge in db
           createMessage(messageObject);
-          // Create or update conversation in db
           updateConversation(conversationObject);
         })
         .catch(function (err) {
@@ -225,14 +224,13 @@ app.post("/twilio-event-streams", (req, res, next) => {
       }
     } else {
       // Just send the messageObject and conversationObject with default settings
-      // Create message in db
       createMessage(messageObject);
-      // Create or update conversation in db
       updateConversation(conversationObject);
     }
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
+    console.log("OUTBOUND WEBHOOK");
     // If outgoing message, the body does not exist in payload and must be fetched
     const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}.json`;
     const requestOptions = {
@@ -241,47 +239,44 @@ app.post("/twilio-event-streams", (req, res, next) => {
         Authorization: basic_auth,
       },
     };
-    // getMessageBody(apiUrl, requestOptions);
     getMessageBody(apiUrl, requestOptions)
-      .then(function () {
-        console.log("THEN getMessageBody()");
-        // Create messasge in db
+      .then((result) => {
+        console.log("THEN getMessageBody() SUCCESS");
+        console.log(result);
+        // Set messageObject and conversationObject properties, reset unread_count: 0
+        messageObject = {
+          type: "messageCreated",
+          date_created: new Date(result.date_created).toISOString(),
+          direction: "outbound",
+          twilio_number: result.from,
+          mobile_number: result.to,
+          conversation_id: `${result.from};${result.to}`,
+          body: result.body,
+        };
+        conversationObject = {
+          type: "conversationUpdated",
+          date_updated: new Date(result.date_created).toISOString(),
+          conversation_id: `${result.from};${result.to}`,
+          unread_count: 0,
+        };
         createMessage(messageObject);
-        // Create or update conversation in db
         updateConversation(conversationObject);
       })
-      .catch(function (err) {
-        console.log("CATCH getMessageBody()");
-        console.log(err);
+      .catch((error) => {
+        console.log("CATCH getMessageBody ERROR");
+        console.log(error.message);
+        // error.message;
+      })
+      .finally(() => {
+        console.log("getMessageBody FINALLY");
       });
-    // Fetch message body, then set messageObject and conversationObject properties, reset unread_count: 0
+
+    // Fetch message body
     async function getMessageBody(apiUrl, requestOptions) {
       console.log("getMessageBody()");
-      await fetch(apiUrl, requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          console.log("getMessageBody() SUCCESS");
-          // console.log("result: " + JSON.stringify(result, undefined, 2));
-          messageObject = {
-            type: "messageCreated",
-            date_created: new Date(result.date_created).toISOString(),
-            direction: "outbound",
-            twilio_number: result.from,
-            mobile_number: result.to,
-            conversation_id: `${result.from};${result.to}`,
-            body: result.body,
-          };
-          conversationObject = {
-            type: "conversationUpdated",
-            date_updated: new Date(result.date_created).toISOString(),
-            conversation_id: `${result.from};${result.to}`,
-            unread_count: 0,
-          };
-        })
-        .catch((error) => {
-          console.log("getMessageBody() CATCH:");
-          console.log("error", error);
-        });
+      const response = await fetch(apiUrl, requestOptions);
+      const result = await response.json();
+      return result;
     }
   }
   res.sendStatus(200);
