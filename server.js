@@ -129,17 +129,14 @@ app.post("/messagesend", (req, res, next) => {
   };
   sendMessage(apiUrl, requestOptions)
     .then((result) => {
-      console.log("SEND MESSAGE THEN -> SUCCESS");
-      console.log(result);
+      // console.log("sendMessage() THEN -> RESULT");
+      // console.log(result);
       res.sendStatus(200);
     })
     .catch((error) => {
-      console.log("SEND MESSAGE .CATCH -> ERROR");
+      console.log("sendMessage() CATCH");
       console.log(error.message);
       // error.message;
-    })
-    .finally(() => {
-      console.log("SEND MESSAGE FINALLY");
     });
 
   async function sendMessage(apiUrl, requestOptions) {
@@ -179,7 +176,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
       unread_count: 1,
     };
     if (requestBody.data.numMedia > 0) {
-      // if nuMedia > 0, fetch the mediaUrl and update the messageObject
+      // if nuMedia > 0, fetch the mediaUrl and add  it to the messageObject
       const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}/Media.json`;
       const requestOptions = {
         method: "GET",
@@ -187,43 +184,35 @@ app.post("/twilio-event-streams", (req, res, next) => {
           Authorization: basic_auth,
         },
       };
-      // getMediaUrl(apiUrl, requestOptions);
       getMediaUrl(apiUrl, requestOptions)
-        .then(function () {
+        .then((result) => {
+          // console.log("getMediaUrl() THEN -> RESULT");
+          // console.log(result);
+          // Set messageObject mediaUrl property
+          const mediaUrl =
+            `https://api.twilio.com${result.media_list[0].uri}`.replace(
+              ".json",
+              ""
+            );
+          messageObject.mediaUrl = mediaUrl;
           createMessage(messageObject);
           updateConversation(conversationObject);
         })
-        .catch(function (err) {
-          console.log("CATCH getMediaUrl()");
-          console.log(err);
+        .catch((error) => {
+          console.log("getMediaUrl() CATCH");
+          console.log(error.message);
+          // error.message;
         });
-      // Fetch mediaUrl, then
-      // Update messageObject mediaUrl property
+
+      // Fetch message body
       async function getMediaUrl(apiUrl, requestOptions) {
         console.log("getMediaUrl()");
-        await fetch(apiUrl, requestOptions)
-          .then((response) => response.json())
-          .then((result) => {
-            console.log("getMediaUrl() SUCCESS");
-            console.log("result: " + JSON.stringify(result, undefined, 2));
-            console.log("GET MEDIA URL MESSAGE OBJECT BEFORE");
-            console.log(messageObject);
-            mediaUrl =
-              `https://api.twilio.com${result.media_list[0].uri}`.replace(
-                ".json",
-                ""
-              );
-            messageObject.mediaUrl = mediaUrl;
-            console.log("GET MEDIA URL MESSAGE OBJECT AFTER");
-            console.log(messageObject);
-          })
-          .catch((error) => {
-            console.log("getMediaUrl() CATCH:");
-            console.log("error", error);
-          });
+        const response = await fetch(apiUrl, requestOptions);
+        const result = await response.json();
+        return result;
       }
     } else {
-      // Just send the messageObject and conversationObject with default settings
+      // There is no medialUrl, send the default messageObject and conversationObject
       createMessage(messageObject);
       updateConversation(conversationObject);
     }
@@ -241,8 +230,8 @@ app.post("/twilio-event-streams", (req, res, next) => {
     };
     getMessageBody(apiUrl, requestOptions)
       .then((result) => {
-        console.log("THEN getMessageBody() SUCCESS");
-        console.log(result);
+        // console.log("getMessageBody() THEN -> RESULT");
+        // console.log(result);
         // Set messageObject and conversationObject properties, reset unread_count: 0
         messageObject = {
           type: "messageCreated",
@@ -263,12 +252,9 @@ app.post("/twilio-event-streams", (req, res, next) => {
         updateConversation(conversationObject);
       })
       .catch((error) => {
-        console.log("CATCH getMessageBody ERROR");
+        console.log("getMessageBody() CATCH");
         console.log(error.message);
         // error.message;
-      })
-      .finally(() => {
-        console.log("getMessageBody FINALLY");
       });
 
     // Fetch message body
