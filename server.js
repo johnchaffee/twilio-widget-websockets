@@ -60,7 +60,6 @@ app.get("/", (req, res) => {
     .catch(function (err) {
       res.status(500).send({ error: "we done homie" });
     });
-
   // Mark messages as read when clicking on conversation
   async function resetConversationCount(conversation_id) {
     console.log("resetConversationCount()");
@@ -76,7 +75,6 @@ app.get("/", (req, res) => {
     // Send conversation to websocket clients
     updateWebsocketClient(conversationObject);
   }
-
   // Fetch all messages for selected conversation
   async function getMessages(mobileNumberQuery) {
     console.log("getMessages():");
@@ -129,7 +127,6 @@ app.post("/messagesend", (req, res, next) => {
     },
     body: bodyParams,
   };
-
   sendMessage(apiUrl, requestOptions)
     .then((result) => {
       console.log("SEND MESSAGE THEN -> SUCCESS");
@@ -164,8 +161,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
     // If incoming message, the body already exists in payload
-    // Set default messageObject properties, direction: inbound, etc.
-    // Set default conversationObject properties, unread_count: 1, etc.
+    // Set default messageObject and conversationObject properties, unread_count: 1
     messageObject = {
       type: "messageCreated",
       date_created: requestBody.data.timestamp,
@@ -258,10 +254,7 @@ app.post("/twilio-event-streams", (req, res, next) => {
         console.log("CATCH getMessageBody()");
         console.log(err);
       });
-
-    // Fetch message body, then
-    // Set messageObject properties, direction: outbound, etc.
-    // Set conversationObject properties, reset unread_count: 0, etc.
+    // Fetch message body, then set messageObject and conversationObject properties, reset unread_count: 0
     async function getMessageBody(apiUrl, requestOptions) {
       console.log("getMessageBody()");
       await fetch(apiUrl, requestOptions)
@@ -344,7 +337,7 @@ async function createMessage(request, response) {
     console.error(err);
     // res.send("Error " + err);
   }
-  // Send incoming messasge to websocket clients
+  // Send messasge to websocket clients
   updateWebsocketClient(messageObject);
 }
 
@@ -401,7 +394,7 @@ if (process.env.NODE_ENV === "development") {
 } else {
   wsClient = new WebSocket(`ws://${app_host_name}.herokuapp.com`);
 }
-console.log("WSCLIENT TARGET SERVER: " + wsClient.url);
+console.log("WSCLIENT SERVER: " + wsClient.url);
 
 // WEBSOCKET SERVER
 // The Websocket server is running on this node server
