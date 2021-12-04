@@ -50,8 +50,8 @@ router.post("/", (req, res, next) => {
       };
       getMediaUrl(apiUrl, requestOptions)
         .then((result) => {
-          console.log("getMediaUrl() THEN -> RESULT");
-          console.log(result);
+          // console.log("getMediaUrl() THEN -> RESULT");
+          // console.log(result);
           // Set messageObject mediaUrl property
           const media_url =
             `https://api.twilio.com${result.media_list[0].uri}`.replace(
@@ -68,17 +68,17 @@ router.post("/", (req, res, next) => {
           // error.message;
         });
 
-      // Fetch message body
+      // Fetch media url
       async function getMediaUrl(apiUrl, requestOptions) {
         console.log("getMediaUrl()");
         // Wait 1 second before fetching media list to avoid race condition
         console.log("start 1 second timer");
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log("after 1 second");
         const response = await fetch(apiUrl, requestOptions);
         const result = await response.json();
-        console.log("const result = await response.json()");
-        console.log(result);
+        // console.log("const result = await response.json()");
+        // console.log(result);
         return result;
       }
     } else {

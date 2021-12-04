@@ -72,7 +72,7 @@ After the above requirements have been met:
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
     FACEBOOK_MESSENGER_ID=<Your messenger ID>
     WHATSAPP_ID=<Your WhatsApp ID>
-    LIMIT=8
+    LIMIT=20
     ```
 
 4.  Run the application

@@ -31,7 +31,6 @@ window.onload = function () {
     const messages = JSON.parse(event.data);
     console.log("CLIENT ONMESSAGE");
     console.log(messages);
-
     if (messages.length > 0) {
       messages.forEach((thisMessage) => {
         // If item is messagecreated and matches selected conversation, render message
@@ -39,6 +38,7 @@ window.onload = function () {
           thisMessage.type == "messageCreated" &&
           thisMessage.mobile_number == mobile_number
         ) {
+          console.log("APPEND MESSAGE");
           renderMessage(thisMessage);
         }
       });
@@ -46,6 +46,9 @@ window.onload = function () {
       if (messages[0].type == "conversationUpdated") {
         renderConversationList(messages);
       }
+    } else {
+      console.log("EMPTY MESSAGE, DO NOTHING");
+      console.log(messages.length);
     }
   };
 
@@ -75,9 +78,10 @@ window.onload = function () {
     let conversationListHTML = "";
     let formattedMobile = "";
     let conversationLink = "";
+    let thisMobileNumber = "";
     messages.forEach((message) => {
       // Extract mobile number from conversation_id
-      let thisMobileNumber = message.conversation_id.split(";")[1];
+      thisMobileNumber = message.conversation_id.split(";")[1];
       let badge = "";
       // Display badge count if > 0
       if (message.unread_count > 0) {
@@ -90,19 +94,27 @@ window.onload = function () {
       if (thisMobileNumber == mobile_number) {
         // Set background color style for selectedConversation
         conversationListHTML += `
-      <div class="conversation-bubble selectedConversation">
+      <div id="${thisMobileNumber}" class="conversation-bubble selectedConversation">
         ${conversationLink}
       </div>
     `;
       } else {
         conversationListHTML += `
-      <div class="conversation-bubble">
+      <div id="${thisMobileNumber}" class="conversation-bubble">
         ${conversationLink}
       </div>
     `;
       }
     });
-    conversationList.innerHTML = conversationListHTML;
+    if (messages.length === 1) {
+      console.log("CONVERSATIONS = 1: DELETE AND INSERT");
+      let existingConversation = document.getElementById(thisMobileNumber);
+      existingConversation.remove();
+      conversationList.insertAdjacentHTML("afterbegin", conversationListHTML);
+    } else {
+      console.log("CONVERSATIONS > 1: UPDATE ALL");
+      conversationList.innerHTML = conversationListHTML;
+    }
   }
 
   // Icons made by Freepik from www.flaticon.com

@@ -138,7 +138,8 @@ wsServer.on("connection", (socketClient) => {
   socketClient.send(JSON.stringify(conversations));
 
   // ON MESSAGE
-  // on new message (either messageCreated or conversationUpdated), package the message as an array and send to clients
+  // This is triggered by the client.updateWebsocketClient() function, it sends a single item array
+  // containing either a messageCreated or conversationUpdated object to each connected client
   socketClient.on("message", (message) => {
     console.log("socketClient.on(message)");
     console.log(message);
@@ -146,17 +147,10 @@ wsServer.on("connection", (socketClient) => {
     let thisArray = [];
     getConversations()
       .then(function () {
-        if (messageObject.type == "messageCreated") {
-          // If message is messageCreated, push single messsageObject as an array
-          thisArray = [messageObject];
-        } else {
-          // If message is conversationUpdated, push entire conversations array
-          thisArray = conversations;
-        }
         console.log("forEach => client.send()");
         wsServer.clients.forEach((client) => {
           if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(thisArray));
+            client.send(JSON.stringify([messageObject]));
           }
         });
       })
