@@ -4,12 +4,11 @@
 
 | Feature                     | Description                                                                  | Who  |
 | --------------------------- | ---------------------------------------------------------------------------- | ---- |
+| Archive/Delete Conversation | Ability to close a conversation or delete a conversation (and its messages)  | John |
 | WhatsApp                    | Support WhatsApp Channel                                                     | John |
 | FB Messenger                | Support Facebook Messenger Channel                                           | John |
 | Node SDK                    | Use Node SDK instead of fetch for API calls?                                 | John |
 | Deploy to heroku button     | One-click deploy to heroku button                                            | John |
-| New Conversation            | UI, route and db query for creating a new conversation                       | ?    |
-| Archive/Delete Conversation | UI, route and db query for closing/deleting a conversation?                  | ?    |
 | Badge design                | CSS to display unread count with red badge                                   | ?    |
 | Outgoing MMS                | Upload/send MMS images (already supports receiving/displaying MMS images)    | ?    |
 | Contacts                    | UI, route and db query for editing `contact_name` in conversations object    | ?    |
