@@ -92,6 +92,20 @@ app.get("/", (req, res) => {
   }
 });
 
+// CREATE CONVERSATION
+// Catchall to acknowledge webhooks that don't match the paths above
+app.post("/create-conversation", (req, res, next) => {
+  console.log("CREATE CONVERSATION");
+  conversationObject = {
+    type: "conversationUpdated",
+    date_updated: (new Date().toISOString()),
+    conversation_id: `${twilio_number};${req.body.mobile_number}`,
+    unread_count: 0,
+  };
+  db.updateConversation(conversationObject);
+  res.sendStatus(200);
+});
+
 // ACK CATCHALL WEBHOOK
 // Catchall to acknowledge webhooks that don't match the paths above
 app.post(/.*/, (req, res, next) => {

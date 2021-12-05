@@ -109,7 +109,9 @@ window.onload = function () {
     if (messages.length === 1) {
       console.log("CONVERSATIONS = 1: DELETE AND INSERT");
       let existingConversation = document.getElementById(thisMobileNumber);
-      existingConversation.remove();
+      if (existingConversation != null) {
+        existingConversation.remove();  
+      }
       conversationList.insertAdjacentHTML("afterbegin", conversationListHTML);
     } else {
       console.log("CONVERSATIONS > 1: UPDATE ALL");

@@ -17,6 +17,8 @@
         <div class="msger-header-title">
           <i class="fas fa-inbox"></i>&nbsp;&nbsp;CONVERSATIONS
         </div>
+        &nbsp;
+        <button onclick="conversationPrompt()">&nbsp;+&nbsp;</button>
         <!-- <div class="msger-header-options">
           <span><i class="fas fa-phone"></i></span>
         </div> -->
@@ -55,5 +57,44 @@
       </form>
     </section>
     <script src="/js/script.js"></script>
-</body>
+    <script>
+      function conversationPrompt() {
+        const mobile_number = prompt(
+          "Enter Mobile Number in E.164 format",
+          "+12063996576"
+        );
+        if (mobile_number != null) {
+          console.log("CREATE CONVERSATION: " + mobile_number);
+          // Send POST request to create conversation
+          window.location = "./?mobile=" + encodeURIComponent(mobile_number);
+          createConversation(mobile_number);
+
+          function createConversation(mobile_number) {
+            const apiUrl = "./create-conversation";
+            const bodyParams = new URLSearchParams({
+              mobile_number: mobile_number,
+            });
+            const requestOptions = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: bodyParams,
+            };
+            fetch(apiUrl, requestOptions)
+              .then((response) => response.text())
+              // .then((response) => response.json())
+              .then((result) => {
+                console.log("CREATE CONVERSATION SUCCESS:");
+                console.log(result);
+              })
+              .catch((error) => {
+                console.log("CREATE CONVERSATION CATCH:");
+                console.log(error);
+              });
+          }
+        }
+      }
+    </script>
+  </body>
 </html>
