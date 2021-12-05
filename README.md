@@ -2,23 +2,23 @@
 
 ## Features left to implement
 
-| Feature                 | Description                                                                      | Who   |
-| ----------------------- | -------------------------------------------------------------------------------- | ----- |
-| Badge design            | CSS to display unread count with red badge                                       | Chris |
-| Heroku                  | Configure db and host on heroku                                                  | John  |
-| WhatsApp                | Support WhatsApp Channel                                                         | John  |
-| FB Messenger            | Support Facebook Messenger Channels                                              | John  |
-| Node SDK                | Use Node SDK instead of fetch for API calls?                                     | John  |
-| New Conversation        | UI, route and db query for creating a new conversation                           | John  |
-| Deploy to heroku button | One-click deploy to heroku button                                                | John  |
-| Outgoing MMS            | Ability to add/send MMS images (already support receiving displaying MMS images) | ?     |
-| API Key/Secret          | Use API Key and Secret rather than Acct SID and Auth Token                       | ?     |
-| Authentication          | Authenticate users and associate with Twilio Acct phone number                   | ?     |
-| Contacts                | UI, route and db query for editing `contact_name` in conversations object        | ?     |
-| Templates (Content API) | UI, route and db query for editing/using templates                               | ?     |
-| Auto-Replies?           | Webhook after-hour auto-replies                                                  | ?     |
-| Keywords?               | Webhook keyword auto-replies                                                     | ?     |
-| Chrome Extension?       | Display T icon next to phone numbers on any page, launch Widget when clicked     | ?     |
+| Feature                     | Description                                                                  | Who  |
+| --------------------------- | ---------------------------------------------------------------------------- | ---- |
+| WhatsApp                    | Support WhatsApp Channel                                                     | John |
+| FB Messenger                | Support Facebook Messenger Channel                                           | John |
+| Node SDK                    | Use Node SDK instead of fetch for API calls?                                 | John |
+| Deploy to heroku button     | One-click deploy to heroku button                                            | John |
+| New Conversation            | UI, route and db query for creating a new conversation                       | ?    |
+| Archive/Delete Conversation | UI, route and db query for closing/deleting a conversation?                  | ?    |
+| Badge design                | CSS to display unread count with red badge                                   | ?    |
+| Outgoing MMS                | Upload/send MMS images (already supports receiving/displaying MMS images)    | ?    |
+| Contacts                    | UI, route and db query for editing `contact_name` in conversations object    | ?    |
+| Templates (Content API)     | UI, route and db query for editing/using templates                           | ?    |
+| API Key/Secret              | Use API Key and Secret rather than Acct SID and Auth Token                   | ?    |
+| Authentication              | Authenticate users and associate with Twilio Acct phone number               | ?    |
+| Auto-Replies?               | Webhook after-hour auto-replies                                              | ?    |
+| Keywords?                   | Webhook keyword auto-replies                                                 | ?    |
+| Chrome Extension?           | Display T icon next to phone numbers on any page, launch Widget when clicked | ?    |
 
 ## How it works
 
