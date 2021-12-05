@@ -56,7 +56,7 @@ async function createMessage(request, response) {
   client.updateWebsocketClient(messageObject);
 }
 
-// UPDATE CONVERSATION
+// CREATE OR UPDATE CONVERSATION
 async function updateConversation(request, response) {
   console.log("updateConversation()");
   // Outgoing message or message read event, reset unread_count

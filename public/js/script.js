@@ -143,7 +143,7 @@ window.onload = function () {
   function appendMessage(name, img, side, text, date_created) {
     let imgElement = "";
     if (img !== undefined && img !== null) {
-      imgElement = `<div class=""><img src="${img}" alt="${img}" width="100%"></div>`
+      imgElement = `<div class=""><img src="${img}" alt="${img}" width="100%"></div>`;
     }
     const msgHTML = `
   <div class="msg ${side}-msg">
