@@ -10,6 +10,7 @@
 | Node SDK                    | Use Node SDK instead of fetch for API calls?                                 | John |
 | Deploy to heroku button     | One-click deploy to heroku button                                            | John |
 | Badge design                | CSS to display unread count with red badge                                   | ?    |
+| New Button design           | CSS to improve look of New Conversation button                               | ?    |
 | Outgoing MMS                | Upload/send MMS images (already supports receiving/displaying MMS images)    | ?    |
 | Contacts                    | UI, route and db query for editing `contact_name` in conversations object    | ?    |
 | Templates (Content API)     | UI, route and db query for editing/using templates                           | ?    |
