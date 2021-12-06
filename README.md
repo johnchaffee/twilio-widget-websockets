@@ -2,23 +2,24 @@
 
 ## Features left to implement
 
-| Feature                     | Description                                                                  | Who  |
-| --------------------------- | ---------------------------------------------------------------------------- | ---- |
-| Archive/Delete Conversation | Ability to close a conversation or delete a conversation (and its messages)  | John |
-| WhatsApp                    | Support WhatsApp Channel                                                     | John |
-| FB Messenger                | Support Facebook Messenger Channel                                           | John |
-| Node SDK                    | Use Node SDK instead of fetch for API calls?                                 | John |
-| Deploy to heroku button     | One-click deploy to heroku button                                            | John |
-| Badge design                | CSS to display unread count with red badge                                   | ?    |
-| New Button design           | CSS to improve look of New Conversation button                               | ?    |
-| Outgoing MMS                | Upload/send MMS images (already supports receiving/displaying MMS images)    | ?    |
-| Contacts                    | UI, route and db query for editing `contact_name` in conversations object    | ?    |
-| Templates (Content API)     | UI, route and db query for editing/using templates                           | ?    |
-| API Key/Secret              | Use API Key and Secret rather than Acct SID and Auth Token                   | ?    |
-| Authentication              | Authenticate users and associate with Twilio Acct phone number               | ?    |
-| Auto-Replies?               | Webhook after-hour auto-replies                                              | ?    |
-| Keywords?                   | Webhook keyword auto-replies                                                 | ?    |
-| Chrome Extension?           | Display T icon next to phone numbers on any page, launch Widget when clicked | ?    |
+| Feature                        | Description                                                                  | Who  |
+| ------------------------------ | ---------------------------------------------------------------------------- | ---- |
+| Archive/Delete Conversation    | Ability to close a conversation or delete a conversation (and its messages)  | John |
+| WhatsApp                       | Support WhatsApp Channel                                                     | John |
+| FB Messenger                   | Support Facebook Messenger Channel                                           | John |
+| Deploy to heroku button        | One-click deploy to heroku button                                            | John |
+| Architecture Diagram           | Create diagram explaining the architecture and APIs used                     | John |
+| Presentation/Video             | Create submission presentation and video                                     | John |
+| Badge design                   | CSS to display unread count with red badge                                   | ?    |
+| New Conversation button design | CSS to improve look of New Conversation button                               | ?    |
+| Edit Contact button design     | CSS to improve look of Edit Contact button                                   | ?    |
+| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images)    | ?    |
+| Templates (Content API)        | UI, route and db query for editing/using templates                           | ?    |
+| API Key/Secret                 | Use API Key and Secret rather than Acct SID and Auth Token                   | ?    |
+| Authentication                 | Authenticate users and associate with Twilio Acct phone number               | ?    |
+| Auto-Replies?                  | Webhook after-hour auto-replies                                              | ?    |
+| Keywords?                      | Webhook keyword auto-replies                                                 | ?    |
+| Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked | ?    |
 
 ## How it works
 
