@@ -85,17 +85,20 @@ window.onload = function () {
       thisMobileNumber = message.conversation_id.split(";")[1];
       contactName = message.contact_name;
       let badge = "";
-      // Display badge count if > 0
-      if (message.unread_count > 0) {
-        badge = `(${message.unread_count})`;
-      }
+     
       formattedIcon = formatIcon(thisMobileNumber);
       formattedMobile = formatMobile(thisMobileNumber);
       conversationLink = `<a href="?mobile=${encodeURIComponent(
         thisMobileNumber
       )}">${formattedIcon} ${
         contactName != null ? contactName : formattedMobile
-      } ${badge}</a>`;
+      } </a>`;
+       // Display badge count if > 0
+       if (message.unread_count > 0) {
+        badge = `${message.unread_count}`;
+        conversationLink += `
+      <span class="badge">${badge}</span>`;
+      }
       if (thisMobileNumber == mobile_number) {
         // Set background color style for selectedConversation
         conversationListHTML += `
