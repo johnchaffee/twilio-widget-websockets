@@ -43,6 +43,7 @@ You can run locally or deploy to heroku.
 
 - [Node.js](https://nodejs.org/)
 - [Twilio account](https://twilio.com)
+- [Postgresql](https://wiki.postgresql.org/wiki/Homebrew)
 
 ### Local development
 
