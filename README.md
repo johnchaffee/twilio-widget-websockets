@@ -30,13 +30,15 @@ You can run locally or deploy to heroku.
 ## Features
 
 - Chat client built in vanilla html/javascript based on this [Codepen sample UI](https://codepen.io/sajadhsm/pen/odaBdd)
-- Chat client connects to [Websocket](https://npm.im/ws) server to receive messages
-- Chat client sends text messages via Twilio Programmable Messaging API
+- Chat client sends text messages (SMS & MMS) via Twilio Programmable Messaging API
 - Chat client supports WhatsApp and Facebook Messenger via Twilio Channels API
+- Chat client connects to [Websocket](https://npm.im/ws) server to receive messages
 - Express server receives Twilio Event Streams Webhooks for incoming and outgoing text messages
 - Express server forwards Webhook messages to Websocket server
-- Node Websocket server broadcasts messages to chat client(s)
+- Websocket server broadcasts messages to chat clients
 - One click deploy button for [Heroku](https://heroku.com)
+
+<img src="./public/images/architecture.png" width="600px" alt="Architecture">
 
 ## Set up
 
