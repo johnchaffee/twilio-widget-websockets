@@ -93,15 +93,45 @@ app.get("/", (req, res) => {
 });
 
 // CREATE CONVERSATION
-// Catchall to acknowledge webhooks that don't match the paths above
-app.post("/create-conversation", (req, res, next) => {
+// Triggered when client clicks + button and creates a new conversation
+app.post("/conversations", (req, res, next) => {
   console.log("CREATE CONVERSATION");
   conversationObject = {
     type: "conversationUpdated",
-    date_updated: (new Date().toISOString()),
+    date_updated: new Date().toISOString(),
     conversation_id: `${twilio_number};${req.body.mobile_number}`,
     unread_count: 0,
   };
+  db.updateConversation(conversationObject);
+  res.sendStatus(200);
+});
+
+// NAME OR ARCHIVE A CONVERSATION
+// Triggered when client edits contact_name or archives a conversation
+app.put("/conversations", (req, res, next) => {
+  console.log("UPDATE CONVERSATION");
+  console.log(req.body);
+  // Set default conversationObject props
+  conversationObject = {
+    type: "conversationUpdated",
+    date_updated: new Date().toISOString(),
+    conversation_id: `${twilio_number};${req.body.mobile_number}`,
+    unread_count: 0,
+  };
+  console.log(conversationObject);
+  // Set contact_name
+  if (req.body.contact_name != null) {
+    conversationObject.contact_name = req.body.contact_name;
+    db.nameConversation(conversationObject);
+  }
+  // Set status
+  else if (req.body.status != null) {
+    conversationObject.status = req.body.status;
+    if (conversationObject.status === "deleted") {
+      // Delete all associated messages
+      db.deleteMessages(conversationObject);
+    }
+  }
   db.updateConversation(conversationObject);
   res.sendStatus(200);
 });
@@ -158,7 +188,6 @@ wsServer.on("connection", (socketClient) => {
     console.log("socketClient.on(message)");
     console.log(message);
     let messageObject = JSON.parse(message);
-    let thisArray = [];
     getConversations()
       .then(function () {
         console.log("forEach => client.send()");
@@ -169,7 +198,7 @@ wsServer.on("connection", (socketClient) => {
         });
       })
       .catch(function (err) {
-        console.log("getConversations() CATCH")
+        console.log("getConversations() CATCH");
         console.log(err);
       });
     // GET ALL CONVERSATIONS FROM DB
@@ -185,7 +214,7 @@ wsServer.on("connection", (socketClient) => {
           conversation.type = "conversationUpdated";
         });
       } catch (err) {
-        console.log("getConversations() CATCH")
+        console.log("getConversations() CATCH");
         console.error(err);
       }
     }

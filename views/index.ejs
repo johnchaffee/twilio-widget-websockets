@@ -65,12 +65,12 @@
         );
         if (mobile_number != null) {
           console.log("CREATE CONVERSATION: " + mobile_number);
-          // Send POST request to create conversation
+          // Send POST request to /conversations
           window.location = "./?mobile=" + encodeURIComponent(mobile_number);
           createConversation(mobile_number);
 
           function createConversation(mobile_number) {
-            const apiUrl = "./create-conversation";
+            const apiUrl = "./conversations";
             const bodyParams = new URLSearchParams({
               mobile_number: mobile_number,
             });
@@ -90,6 +90,49 @@
               })
               .catch((error) => {
                 console.log("CREATE CONVERSATION CATCH:");
+                console.log(error);
+              });
+          }
+        }
+      }
+
+      function contactPrompt(mobile_number) {
+        // const mobile_number = "+12063996576"
+        console.log("contactPrompt()");
+        console.log("MOBILE NUMBER");
+        console.log(mobile_number);
+        mobile_number = `+${mobile_number}`;
+        console.log("ADD + TO MOBILE NUMBER");
+        console.log(mobile_number);
+        const contact_name = prompt("Enter contact name", "Joe Smith");
+        if (contact_name != null) {
+          console.log("UPDATE CONTACT: " + contact_name);
+          // Send PUT request to /conversations
+          // window.location = "./?mobile=" + encodeURIComponent(mobile_number);
+          updateContact(mobile_number, contact_name);
+
+          function updateContact(mobile_number, contact_name) {
+            const apiUrl = "./conversations";
+            const bodyParams = new URLSearchParams({
+              contact_name: contact_name,
+              mobile_number: mobile_number,
+            });
+            const requestOptions = {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: bodyParams,
+            };
+            fetch(apiUrl, requestOptions)
+              .then((response) => response.text())
+              // .then((response) => response.json())
+              .then((result) => {
+                console.log("UPDATE CONTACT SUCCESS:");
+                console.log(result);
+              })
+              .catch((error) => {
+                console.log("UPDATE CONTACT CATCH:");
                 console.log(error);
               });
           }

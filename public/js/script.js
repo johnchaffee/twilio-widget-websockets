@@ -79,29 +79,36 @@ window.onload = function () {
     let formattedMobile = "";
     let conversationLink = "";
     let thisMobileNumber = "";
+    let contactName = "";
     messages.forEach((message) => {
       // Extract mobile number from conversation_id
       thisMobileNumber = message.conversation_id.split(";")[1];
+      contactName = message.contact_name;
       let badge = "";
       // Display badge count if > 0
       if (message.unread_count > 0) {
         badge = `(${message.unread_count})`;
       }
+      formattedIcon = formatIcon(thisMobileNumber);
       formattedMobile = formatMobile(thisMobileNumber);
       conversationLink = `<a href="?mobile=${encodeURIComponent(
         thisMobileNumber
-      )}">${formattedMobile} ${badge}</a>`;
+      )}">${formattedIcon} ${
+        contactName != null ? contactName : formattedMobile
+      } ${badge}</a>`;
       if (thisMobileNumber == mobile_number) {
         // Set background color style for selectedConversation
         conversationListHTML += `
       <div id="${thisMobileNumber}" class="conversation-bubble selectedConversation">
         ${conversationLink}
+        &nbsp;<button onclick="contactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
       </div>
     `;
       } else {
         conversationListHTML += `
       <div id="${thisMobileNumber}" class="conversation-bubble">
         ${conversationLink}
+        &nbsp;<button onclick="contactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
       </div>
     `;
       }
@@ -110,7 +117,7 @@ window.onload = function () {
       console.log("CONVERSATIONS = 1: DELETE AND INSERT");
       let existingConversation = document.getElementById(thisMobileNumber);
       if (existingConversation != null) {
-        existingConversation.remove();  
+        existingConversation.remove();
       }
       conversationList.insertAdjacentHTML("afterbegin", conversationListHTML);
     } else {
@@ -177,20 +184,25 @@ window.onload = function () {
   // Display phone number as (###) ###-####
   function formatMobile(mobile_number) {
     if (mobile_number.slice(0, 9) === "messenger") {
-      return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;${mobile_number.slice(
-        10
-      )}`;
-      // return "Messenger";
+      return `${mobile_number.slice(10)}`;
     } else if (mobile_number.slice(0, 8) === "whatsapp") {
-      return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;${mobile_number.slice(
-        9
-      )}`;
-      // return "Messenger";
+      return `${mobile_number.slice(9)}`;
     } else {
-      return `<i class="far fa-comment"></i>&nbsp;&nbsp;(${mobile_number.slice(
-        2,
-        5
-      )}) ${mobile_number.slice(5, 8)}-${mobile_number.slice(8, 12)}`;
+      return `(${mobile_number.slice(2, 5)}) ${mobile_number.slice(
+        5,
+        8
+      )}-${mobile_number.slice(8, 12)}`;
+    }
+  }
+
+  // Display channel icon (SMS, WhatsApp, or Facebook Messenger)
+  function formatIcon(mobile_number) {
+    if (mobile_number.slice(0, 9) === "messenger") {
+      return `<i class="fab fa-facebook-messenger"></i>&nbsp;&nbsp;`;
+    } else if (mobile_number.slice(0, 8) === "whatsapp") {
+      return `<i class="fab fa-whatsapp"></i>&nbsp;&nbsp;`;
+    } else {
+      return `<i class="far fa-comment"></i>&nbsp;&nbsp`;
     }
   }
 
@@ -225,5 +237,4 @@ window.onload = function () {
         console.log("MESSAGE SEND FINALLY");
       });
   }
-
 };
