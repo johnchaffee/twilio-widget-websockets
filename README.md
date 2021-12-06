@@ -2,25 +2,24 @@
 
 ## Features left to implement
 
-| Feature                        | Description                                                                  | Who     |
-| ------------------------------ | ---------------------------------------------------------------------------- | ------- |
-| Archive/Delete Conversation    | Ability to close a conversation or delete a conversation (and its messages)  | John    |
-| WhatsApp                       | Support WhatsApp Channel                                                     | John    |
-| FB Messenger                   | Support Facebook Messenger Channel                                           | John    |
-| Deploy to heroku button        | One-click deploy to heroku button                                            | John    |
-| Architecture Diagram           | Create diagram explaining the architecture and APIs used                     | John    |
-| Presentation/Video             | Create submission presentation and video                                     | John    |
-| Badge design                   | CSS to display unread count with red badge                                   | √ Chris |
-| New Conversation button design | CSS to improve look of New Conversation button                               | Chris   |
-| Edit Contact button design     | CSS to improve look of Edit Contact button                                   | Chris   |
-| Mobile Responsive              | Run on mobile device                                                         | Chris   |
-| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images)    | ?       |
-| Templates (Content API)        | UI, route and db query for editing/using templates                           | ?       |
-| API Key/Secret                 | Use API Key and Secret rather than Acct SID and Auth Token                   | ?       |
-| Authentication                 | Authenticate users and associate with Twilio Acct phone number               | ?       |
-| Auto-Replies?                  | Webhook after-hour auto-replies                                              | ?       |
-| Keywords?                      | Webhook keyword auto-replies                                                 | ?       |
-| Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked | ?       |
+| Feature                        | Description                                                                                                                                                                | Who   |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Archive/Delete Conversation    | Ability to close a conversation or delete a conversation (and its messages)                                                                                                | John  |
+| WhatsApp                       | Support WhatsApp Channel                                                                                                                                                   | John  |
+| FB Messenger                   | Support Facebook Messenger Channel                                                                                                                                         | John  |
+| Deploy to heroku button        | One-click deploy to heroku button                                                                                                                                          | John  |
+| Architecture Diagram           | Create diagram explaining the architecture and APIs used                                                                                                                   | John  |
+| Presentation/Video             | Create submission presentation and video                                                                                                                                   | John  |
+| New Conversation button design | CSS to improve look of New Conversation button                                                                                                                             | Chris |
+| Edit Contact button design     | CSS to improve look of Edit Contact button                                                                                                                                 | Chris |
+| Mobile Responsive              | Collapse sidepanel when running on mobile device                                                                                                                                                       | Chris |
+| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images)                                                                                                  | ?     |
+| Templates (Content API)        | UI, route and db query for editing/using templates                                                                                                                         | ?     |
+| API Key/Secret                 | Use API Key and Secret rather than Acct SID and Auth Token                                                                                                                 | ?     |
+| Authentication                 | Authenticate users (via [Basic Auth](https://javascript.plainenglish.io/add-basic-authentication-to-an-express-app-9536f5095e88)?) and associate with Twilio Acct phone number | ?     |
+| Auto-Replies?                  | Webhook after-hour auto-replies                                                                                                                                            | ?     |
+| Keywords?                      | Webhook keyword auto-replies                                                                                                                                               | ?     |
+| Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked                                                                                               | ?     |
 
 ## How it works
 
@@ -39,7 +38,7 @@ You can run locally or deploy to heroku.
 - Websocket server broadcasts messages to chat clients
 - One click deploy button for [Heroku](https://heroku.com)
 
-<img src="./public/images/architecture.png" width="600px" alt="Architecture">
+<img src="./public/images/architecture.png" width="100%" alt="Architecture">
 
 ## Set up
 
