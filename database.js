@@ -64,9 +64,11 @@ async function updateConversation(request, response) {
     try {
       const { date_updated, conversation_id, unread_count } = request;
       const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count",
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count RETURNING contact_name",
         [date_updated, conversation_id, unread_count]
       );
+      console.log(result.rows[0].contact_name);
+      conversationObject.contact_name = result.rows[0].contact_name;
     } catch (err) {
       console.error(err);
       // res.send("Error " + err);
@@ -77,9 +79,11 @@ async function updateConversation(request, response) {
     try {
       const { date_updated, conversation_id, unread_count } = request;
       const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count",
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count RETURNING contact_name",
         [date_updated, conversation_id, unread_count]
       );
+      console.log(result.rows[0].contact_name);
+      conversationObject.contact_name = result.rows[0].contact_name;
     } catch (err) {
       console.error(err);
       // res.send("Error " + err);
@@ -96,9 +100,9 @@ async function nameConversation(request, response) {
   try {
     const { contact_name, conversation_id } = request;
     const result = await pool.query(
-      "UPDATE conversations SET contact_name = $1 WHERE conversation_id = $2", [contact_name, conversation_id]
+      "UPDATE conversations SET contact_name = $1 WHERE conversation_id = $2",
+      [contact_name, conversation_id]
     );
-    
   } catch (err) {
     console.error(err);
     // res.send("Error " + err);
