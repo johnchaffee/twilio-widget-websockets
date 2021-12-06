@@ -104,11 +104,10 @@
         mobile_number = `+${mobile_number}`;
         console.log("ADD + TO MOBILE NUMBER");
         console.log(mobile_number);
-        const contact_name = prompt("Enter contact name", "Joe Smith");
+        const contact_name = prompt("Enter contact name");
         if (contact_name != null) {
           console.log("UPDATE CONTACT: " + contact_name);
-          // Send PUT request to /conversations
-          // window.location = "./?mobile=" + encodeURIComponent(mobile_number);
+          window.location = "./?mobile=" + encodeURIComponent(mobile_number);
           updateContact(mobile_number, contact_name);
 
           function updateContact(mobile_number, contact_name) {
