@@ -95,25 +95,34 @@ window.onload = function () {
       } </a>`;
       // Display badge count if > 0
       if (message.unread_count > 0) {
-      badge = `${message.unread_count}`;
-      conversationLink = `<span class="badge">${badge}</span>` + conversationLink;
+        badge = `${message.unread_count}`;
+        conversationLink = `<span class="badge">${badge}</span>` + conversationLink;
       }
       if (thisMobileNumber == mobile_number) {
         // Set background color style for selectedConversation
         conversationListHTML += `
       <div id="${thisMobileNumber}" class="conversation-bubble selectedConversation">
-        ${conversationLink}
-        &nbsp;<button onclick="updateContactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
-      </div>
     `;
       } else {
         conversationListHTML += `
       <div id="${thisMobileNumber}" class="conversation-bubble">
-        ${conversationLink}
-        &nbsp;<button onclick="updateContactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
-      </div>
     `;
       }
+      // adding contact name icon, placeholder archive icon, placeholder trash icon
+      conversationListHTML += `
+      ${conversationLink}
+      &nbsp;<button class="btn btn-light p-0" onclick="updateContactPrompt(${thisMobileNumber})"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#666" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+      <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
+      </svg></button>
+      &nbsp;<button class="btn btn-light p-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#666" class="bi bi-archive" viewBox="0 0 16 16">
+      <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+    </svg></button>
+      &nbsp;<button class="btn btn-light p-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#666" class="bi bi-trash" viewBox="0 0 16 16">
+      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+    </svg></button>
+      </div>
+    `;
     });
     if (messages.length === 1) {
       let existingConversation = document.getElementById(thisMobileNumber);

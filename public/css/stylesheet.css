@@ -27,11 +27,12 @@ body {
 }
 a {
   color: #666;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 a:hover,
 a:active {
   font-weight: bold;
+  color: #666;
 }
 .msger {
   display: flex;
