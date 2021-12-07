@@ -143,8 +143,6 @@ window.onload = function () {
         if (existingConversation != null) {
           existingConversation.remove();
           // If it's the active conversation, redirect to root
-          console.log(`THIS MOBILE NUMBER: ${thisMobileNumber}`);
-          console.log(`MOBILE NUMBER: ${mobile_number}`);
           if (thisMobileNumber == mobile_number) {
             console.log("REDIRECT TO ROOT");
             window.location = './';
