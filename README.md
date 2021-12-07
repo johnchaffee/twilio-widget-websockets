@@ -7,14 +7,14 @@
 | Archive/Delete Conversation    | Ability to close a conversation or delete a conversation (and its messages)                                                                                                    | John  |
 | WhatsApp                       | Support WhatsApp Channel                                                                                                                                                       | John  |
 | FB Messenger                   | Support Facebook Messenger Channel                                                                                                                                             | John  |
-| Deploy to heroku button        | One-click deploy to heroku button                                                                                                                                              | John  |
-| Node SDK?                      | Consider replacing Fetch API calls with Node SDK                                                                                                                               | John  |
+| Deploy to heroku button        | One-click deploy to heroku button on github repo                                                                                                                               | John  |
 | Architecture Diagram           | Create diagram explaining the architecture and APIs used                                                                                                                       | John  |
 | Presentation/Video             | Create submission presentation and video                                                                                                                                       | John  |
 | API Key/Secret                 | Use API Key and Secret rather than Acct SID and Auth Token                                                                                                                     | John  |
 | New Conversation button design | CSS to improve look of New Conversation button                                                                                                                                 | Chris |
 | Edit Contact button design     | CSS to improve look of Edit Contact button                                                                                                                                     | Chris |
 | Mobile Responsive              | Collapse sidepanel when running on mobile device                                                                                                                               | Chris |
+| Code Exchange One-Click Deploy | One-click deploy to Heroku on Twilio Code Exchange                                                                                                                             | ?     |
 | Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on Twilio Assets                                                                           | ?     |
 | Play Sound on event            | [Play a sound](https://www.w3schools.com/jsref/met_audio_play.asp) when a message is sent or received (on conversationUpdated)                                                 | ?     |
 | Authentication                 | Authenticate users (via [Basic Auth](https://javascript.plainenglish.io/add-basic-authentication-to-an-express-app-9536f5095e88)?) and associate with Twilio Acct phone number | ?     |
@@ -22,6 +22,7 @@
 | Auto-Replies?                  | Webhook after-hour auto-replies                                                                                                                                                | ?     |
 | Keywords?                      | Webhook keyword auto-replies                                                                                                                                                   | ?     |
 | Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked                                                                                                   | ?     |
+| Twilio Node SDK?               | Consider replacing Fetch API calls with Twilio Node SDK                                                                                                                        | ?     |
 
 ## How it works
 
