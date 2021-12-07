@@ -111,28 +111,33 @@ app.post("/conversations", (req, res, next) => {
 app.put("/conversations", (req, res, next) => {
   console.log("UPDATE CONVERSATION");
   console.log(req.body);
-  // Set default conversationObject props
-  conversationObject = {
-    type: "conversationUpdated",
-    date_updated: new Date().toISOString(),
-    conversation_id: `${twilio_number};${req.body.mobile_number}`,
-    unread_count: 0,
-  };
-  console.log(conversationObject);
   // Set contact_name
   if (req.body.contact_name != null) {
-    conversationObject.contact_name = req.body.contact_name;
+    conversationObject = {
+      type: "conversationContactUpdated",
+      conversation_id: `${twilio_number};${req.body.mobile_number}`,
+      contact_name: req.body.contact_name,
+    };
+    console.log(conversationObject);
     db.nameConversation(conversationObject);
+    client.updateWebsocketClient(conversationObject);
   }
   // Set status
   else if (req.body.status != null) {
     conversationObject.status = req.body.status;
-    if (conversationObject.status === "deleted") {
+    conversationObject = {
+      type: "conversationStatusUpdated",
+      conversation_id: `${twilio_number};${req.body.mobile_number}`,
+      status: req.body.status,
+    };
+    if (req.body.status === "deleted") {
       // Delete all associated messages
       db.deleteMessages(conversationObject);
     }
+    db.archiveConversation(conversationObject);
+    client.updateWebsocketClient(conversationObject);
   }
-  db.updateConversation(conversationObject);
+  // db.updateConversation(conversationObject);
   res.sendStatus(200);
 });
 
@@ -192,7 +197,7 @@ wsServer.on("connection", (socketClient) => {
       .then(function () {
         console.log("forEach => client.send()");
         wsServer.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
+          if (client.readyState === WebSocket.OPEN && JSON.stringify(message).length > 2) {
             client.send(JSON.stringify([messageObject]));
           }
         });
