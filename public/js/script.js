@@ -232,7 +232,7 @@ window.onload = function () {
 
   // MESSAGE SEND
   function messageSend(body, mobile_number) {
-    const apiUrl = host + "/messagesend";
+    const apiUrl = host + "/messages";
     // console.log("APIURL: " + apiUrl);
     // url encode body params
     const bodyParams = new URLSearchParams({

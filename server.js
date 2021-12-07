@@ -22,8 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
 // Import and use routes
-const messagesendRouter = require("./routes/messagesend");
-app.use("/messagesend", messagesendRouter);
+const messagesendRouter = require("./routes/messages");
+app.use("/messages", messagesendRouter);
 
 const webhooksRouter = require("./routes/webhooks");
 app.use("/twilio-event-streams", webhooksRouter);

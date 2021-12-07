@@ -13,9 +13,9 @@ const encoded = buf.toString("base64");
 const basic_auth = "Basic " + encoded;
 
 // SEND OUTGOING MESSAGE
-// Web client posts '/messagesend' request to this server, which posts request to Twilio API
+// Web client posts '/messages' request to this server, which posts request to Twilio API
 router.post("/", (req, res, next) => {
-  console.log("/messagesend");
+  console.log("/messages");
   let body = req.body.body;
   let mobile_number = req.body.mobile_number;
   if (mobile_number.slice(0, 9) === "messenger") {
