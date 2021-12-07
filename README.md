@@ -234,21 +234,21 @@ CREATE TABLE conversations (
   date_updated VARCHAR(30),
   conversation_id VARCHAR UNIQUE,
   contact_name VARCHAR,
-  unread_count SMALLINT
+  unread_count SMALLINT,
+  status VARCHAR(10),
 );
 
 -- Create conversation
 INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count)
-  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2), ('2021-11-14T22:35:13.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0);
+  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2, 'open'), ('2021-11-14T22:35:14.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0, 'open');
 
 -- Fetch all conversations
 SELECT * FROM conversations order by date_updated desc;
 
- id |     date_updated         |      conversation_id      | contact_name | unread_count
-----+--------------------------+---------------------------+--------------+--------------
-  2 | 2021-11-14T22:35:13.204Z | +18555080989;+12063693826 | Lani Chaffee |            0
-  1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2
-
+ id |     date_updated         |      conversation_id      | contact_name | unread_count | status
+----+--------------------------+---------------------------+--------------+--------------+--------
+  2 | 2021-11-14T22:35:14.204Z | +18555080989;+12063693826 | Lani Chaffee |            0 | open
+  1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2 | open
 
 -- Sample db config change examples to help in the future
 ALTER TABLE messages RENAME COLUMN mobile TO mobile_number;
