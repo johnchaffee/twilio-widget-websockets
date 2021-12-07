@@ -64,10 +64,11 @@ async function updateConversation(request, response) {
     try {
       const { date_updated, conversation_id, unread_count } = request;
       const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count RETURNING contact_name",
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count RETURNING unread_count, contact_name",
         [date_updated, conversation_id, unread_count]
       );
-      console.log(result.rows[0].contact_name);
+      console.log(result.rows[0]);
+      conversationObject.unread_count = result.rows[0].unread_count;
       conversationObject.contact_name = result.rows[0].contact_name;
     } catch (err) {
       console.error(err);
