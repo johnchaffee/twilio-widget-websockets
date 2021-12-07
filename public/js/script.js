@@ -96,8 +96,7 @@ window.onload = function () {
       // Display badge count if > 0
       if (message.unread_count > 0) {
       badge = `${message.unread_count}`;
-      conversationLink += `
-    <span class="badge">${badge}</span>`;
+      conversationLink = `<span class="badge">${badge}</span>` + conversationLink;
       }
       if (thisMobileNumber == mobile_number) {
         // Set background color style for selectedConversation
