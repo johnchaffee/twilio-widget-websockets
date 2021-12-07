@@ -62,10 +62,10 @@ async function updateConversation(request, response) {
   // Outgoing message or message read event, reset unread_count
   if (request.unread_count === 0) {
     try {
-      const { date_updated, conversation_id, unread_count } = request;
+      const { date_updated, conversation_id, unread_count, status } = request;
       const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count RETURNING unread_count, contact_name",
-        [date_updated, conversation_id, unread_count]
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count, status) VALUES ($1, $2, $3, $4) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count, status = EXCLUDED.status RETURNING unread_count, contact_name",
+        [date_updated, conversation_id, unread_count, status]
       );
       console.log(result.rows[0]);
       conversationObject.unread_count = result.rows[0].unread_count;
@@ -78,10 +78,10 @@ async function updateConversation(request, response) {
   // Incoming message, increment unread_count
   else {
     try {
-      const { date_updated, conversation_id, unread_count } = request;
+      const { date_updated, conversation_id, unread_count, status } = request;
       const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count) VALUES ($1, $2, $3) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count RETURNING unread_count, contact_name",
-        [date_updated, conversation_id, unread_count]
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count, status) VALUES ($1, $2, $3, $4) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count, status = EXCLUDED.status RETURNING unread_count, contact_name",
+        [date_updated, conversation_id, unread_count, status]
       );
       console.log(result.rows[0].contact_name);
       conversationObject.unread_count = result.rows[0].unread_count;
@@ -109,10 +109,6 @@ async function nameConversation(request, response) {
     console.error(err);
     // res.send("Error " + err);
   }
-  // Incoming message, increment unread_count
-
-  // Send conversation to websocket clients
-  // client.updateWebsocketClient(conversationObject);
 }
 
 // ARCHIVE CONVERSATION
@@ -129,9 +125,6 @@ async function archiveConversation(request, response) {
     console.error(err);
     // res.send("Error " + err);
   }
-  // Incoming message, increment unread_count
-  // Send conversation to websocket clients
-  // client.updateWebsocketClient(conversationObject);
 }
 
 // DELETE MESSAGES
@@ -148,8 +141,6 @@ async function deleteMessages(request, response) {
     console.error(err);
     // res.send("Error " + err);
   }
-  // Send empty conversation to websocket clients
-  // client.updateWebsocketClient({});
 }
 
 module.exports = {

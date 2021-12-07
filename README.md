@@ -250,11 +250,12 @@ SELECT * FROM conversations order by date_updated desc;
   1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2
 
 
--- Sample db config changes to help in the future
+-- Sample db config change examples to help in the future
 ALTER TABLE messages RENAME COLUMN mobile TO mobile_number;
 ALTER TABLE messages ADD COLUMN conversation_id VARCHAR;
 ALTER TABLE conversations ADD UNIQUE (conversation_id);
 ALTER TABLE conversations RENAME COLUMN updated_at TO date_updated;
+ALTER TABLE conversations ADD COLUMN status VARCHAR(10);
 DELETE FROM conversations WHERE id = 3;
 ```
 

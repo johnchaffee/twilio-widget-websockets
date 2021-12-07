@@ -101,6 +101,7 @@ app.post("/conversations", (req, res, next) => {
     date_updated: new Date().toISOString(),
     conversation_id: `${twilio_number};${req.body.mobile_number}`,
     unread_count: 0,
+    status: "open",
   };
   db.updateConversation(conversationObject);
   res.sendStatus(200);
@@ -117,6 +118,7 @@ app.put("/conversations", (req, res, next) => {
       type: "conversationContactUpdated",
       conversation_id: `${twilio_number};${req.body.mobile_number}`,
       contact_name: req.body.contact_name,
+      status: "open",
     };
     console.log(conversationObject);
     db.nameConversation(conversationObject);
@@ -211,7 +213,7 @@ wsServer.on("connection", (socketClient) => {
       console.log("getConversations():");
       try {
         const result = await db.pool.query(
-          "SELECT * FROM conversations order by date_updated desc limit $1",
+          "SELECT * FROM conversations WHERE status = 'open' order by date_updated desc limit $1",
           [limit]
         );
         conversations = result.rows;

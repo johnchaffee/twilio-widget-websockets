@@ -38,6 +38,7 @@ router.post("/", (req, res, next) => {
       date_updated: requestBody.data.timestamp,
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       unread_count: 1,
+      status: "open",
     };
     if (requestBody.data.numMedia > 0) {
       // if nuMedia > 0, fetch the mediaUrl and add  it to the messageObject
@@ -117,6 +118,7 @@ router.post("/", (req, res, next) => {
           date_updated: new Date(result.date_created).toISOString(),
           conversation_id: `${result.from};${result.to}`,
           unread_count: 0,
+          status: "open",
         };
         db.createMessage(messageObject);
         db.updateConversation(conversationObject);
