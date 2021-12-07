@@ -81,7 +81,7 @@ window.onload = function () {
     let thisMobileNumber = "";
     let contactName = "";
     messages.forEach((message) => {
-      console.log(message);
+      // console.log(message);
       // Extract mobile number from conversation_id
       thisMobileNumber = message.conversation_id.split(";")[1];
       contactName = message.contact_name;

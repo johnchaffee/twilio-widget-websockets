@@ -115,6 +115,25 @@ async function nameConversation(request, response) {
   // client.updateWebsocketClient(conversationObject);
 }
 
+// ARCHIVE CONVERSATION
+async function archiveConversation(request, response) {
+  console.log("archiveConversation()");
+  console.log(request);
+  try {
+    const { status, conversation_id } = request;
+    const result = await pool.query(
+      "UPDATE conversations SET status = $1 WHERE conversation_id = $2",
+      [status, conversation_id]
+    );
+  } catch (err) {
+    console.error(err);
+    // res.send("Error " + err);
+  }
+  // Incoming message, increment unread_count
+  // Send conversation to websocket clients
+  // client.updateWebsocketClient(conversationObject);
+}
+
 // DELETE MESSAGES
 async function deleteMessages(request, response) {
   console.log("deleteMessages()");
