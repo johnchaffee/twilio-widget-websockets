@@ -147,6 +147,7 @@ module.exports = {
   createMessage,
   updateConversation,
   nameConversation,
+  archiveConversation,
   deleteMessages,
   pool,
 };

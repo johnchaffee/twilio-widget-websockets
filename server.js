@@ -123,10 +123,7 @@ app.put("/conversations", (req, res, next) => {
     console.log(conversationObject);
     db.nameConversation(conversationObject);
     client.updateWebsocketClient(conversationObject);
-  }
-  // Set status
-  else if (req.body.status != null) {
-    conversationObject.status = req.body.status;
+  } else if (req.body.status != null) {
     conversationObject = {
       type: "conversationStatusUpdated",
       conversation_id: `${twilio_number};${req.body.mobile_number}`,
