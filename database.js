@@ -64,7 +64,7 @@ async function updateConversation(request, response) {
     try {
       const { date_updated, conversation_id, unread_count, status } = request;
       const result = await pool.query(
-        "INSERT INTO conversations (date_updated, conversation_id, unread_count, status) VALUES ($1, $2, $3, $4) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = conversations.unread_count + EXCLUDED.unread_count, status = EXCLUDED.status RETURNING unread_count, contact_name",
+        "INSERT INTO conversations (date_updated, conversation_id, unread_count, status) VALUES ($1, $2, $3, $4) ON CONFLICT (conversation_id) DO UPDATE SET date_updated = EXCLUDED.date_updated, unread_count = EXCLUDED.unread_count, status = EXCLUDED.status RETURNING unread_count, contact_name",
         [date_updated, conversation_id, unread_count, status]
       );
       console.log(result.rows[0]);
