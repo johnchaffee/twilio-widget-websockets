@@ -106,7 +106,7 @@ After the above requirements have been met:
     https://<unique_id>.ngrok.io/
     ```
 
-6.  Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming messages. You'll need to point it to the ngrok and/or heroku url above.
+6.  Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming and outgoing messages. You'll need to point it to the ngrok and/or heroku url above.
 
 Create a sink endpoint:
 
