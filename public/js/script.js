@@ -33,7 +33,7 @@ window.onload = function () {
     console.log(messages);
     if (messages.length > 0) {
       messages.forEach((thisMessage) => {
-        // If item is messagecreated and matches selected conversation, render message
+        // If type is messagecreated and matches selected conversation, render message
         if (
           thisMessage.type == "messageCreated" &&
           thisMessage.mobile_number == mobile_number
@@ -42,8 +42,8 @@ window.onload = function () {
           renderMessage(thisMessage);
         }
       });
-      // If first array item is conversationUpdated, render conversation list from entire array
-      if (messages[0].type == "conversationUpdated") {
+      // If first array type is conversationUpdated, render conversation list from entire array
+      if (messages[0].type != "messageCreated") {
         renderConversationList(messages);
       }
     } else {
@@ -81,6 +81,7 @@ window.onload = function () {
     let thisMobileNumber = "";
     let contactName = "";
     messages.forEach((message) => {
+      console.log(message);
       // Extract mobile number from conversation_id
       thisMobileNumber = message.conversation_id.split(";")[1];
       contactName = message.contact_name;
@@ -91,7 +92,6 @@ window.onload = function () {
         thisMobileNumber
       )}">${formattedIcon} ${
         contactName != null ? contactName : formattedMobile
-    
       } </a>`;
       // Display badge count if > 0
       if (message.unread_count > 0) {
@@ -103,25 +103,38 @@ window.onload = function () {
         conversationListHTML += `
       <div id="${thisMobileNumber}" class="conversation-bubble selectedConversation">
         ${conversationLink}
-        &nbsp;<button onclick="contactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
+        &nbsp;<button onclick="updateContactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
       </div>
     `;
       } else {
         conversationListHTML += `
       <div id="${thisMobileNumber}" class="conversation-bubble">
         ${conversationLink}
-        &nbsp;<button onclick="contactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
+        &nbsp;<button onclick="updateContactPrompt(${thisMobileNumber})">&nbsp;i&nbsp;</button>
       </div>
     `;
       }
     });
     if (messages.length === 1) {
-      console.log("CONVERSATIONS = 1: DELETE AND INSERT");
       let existingConversation = document.getElementById(thisMobileNumber);
-      if (existingConversation != null) {
-        existingConversation.remove();
+      if (messages[0].type == "conversationUpdated") {
+        console.log("DELETE AND INSERT CONVERSATION");
+        if (existingConversation != null) {
+          existingConversation.remove();
+        }
+        conversationList.insertAdjacentHTML("afterbegin", conversationListHTML);
+      } else if (messages[0].type == "conversationContactUpdated") {
+        console.log("UPDATE CONTACT");
+        if (existingConversation != null) {
+          existingConversation.outerHTML = conversationListHTML;
+        }
+      } else if (messages[0].type == "conversationArchived") {
+        console.log("ARCHIVE CONVERSATION");
+        if (existingConversation != null) {
+          existingConversation.remove();
+          // If it's the active conversation, redirect to root
+        }
       }
-      conversationList.insertAdjacentHTML("afterbegin", conversationListHTML);
     } else {
       console.log("CONVERSATIONS > 1: UPDATE ALL");
       conversationList.innerHTML = conversationListHTML;
