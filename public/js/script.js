@@ -115,10 +115,10 @@ window.onload = function () {
       <div id="${thisMobileNumber}" class="conversation-bubble">
     `;
       }
-      // adding contact name icon, archive icon, trash icon
+      // add/update contact name icon
       conversationListHTML += `
       ${conversationLink}
-      &nbsp;<button class="btn btn-light p-0" onclick="updateContactPrompt('${thisMobileNumber}')"><i class="fas fa-id-card-alt"></i></button>
+      &nbsp;<button class="btn btn-light p-0 float-right" onclick="updateContactPrompt('${thisMobileNumber}')"><i class="fas fa-id-card-alt"></i></button>
       </div>
     `;
     });
