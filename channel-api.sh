@@ -13,7 +13,7 @@ curl -X POST https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Mess
 --data-urlencode 'Body=Hello from Twilio WhatsApp Channel' \
 -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
 
-# To join the sandbox mobile user must send a WhatsApp message to +1 415 523 8886 with code 'join population-trouble'
+# To join the sandbox mobile user must send a WhatsApp message to +1 415 523 8886 with code 'join shop-dried'
 
 # Pre-approved outgoing templates for WhatsApp
 Your {{1}} code is {{2}}
