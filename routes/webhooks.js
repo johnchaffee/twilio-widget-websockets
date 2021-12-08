@@ -5,7 +5,7 @@ const fetch = require("node-fetch");
 const db = require("../database");
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
-const basic_auth = "Basic " + Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
+const auth_header = "Basic " + Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
 
 // TWILIO EVENT STREAMS WEBHOOKS
 // Listen for incoming and outgoing messages
@@ -41,7 +41,7 @@ router.post("/", (req, res, next) => {
       const requestOptions = {
         method: "GET",
         headers: {
-          Authorization: basic_auth,
+          Authorization: auth_header,
         },
       };
       getMediaUrl(apiUrl, requestOptions)
@@ -91,7 +91,7 @@ router.post("/", (req, res, next) => {
     const requestOptions = {
       method: "GET",
       headers: {
-        Authorization: basic_auth,
+        Authorization: auth_header,
       },
     };
     getMessageBody(apiUrl, requestOptions)

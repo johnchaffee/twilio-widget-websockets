@@ -6,7 +6,7 @@ const fetch = require("node-fetch");
 let twilio_number = "";
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
-const basic_auth = "Basic " + Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
+const auth_header = "Basic " + Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
 
 // SEND OUTGOING MESSAGE
 // Web client posts '/messages' request to this server, which posts request to Twilio API
@@ -36,7 +36,7 @@ router.post("/", (req, res, next) => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: basic_auth,
+      Authorization: auth_header,
     },
     body: bodyParams,
   };
