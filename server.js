@@ -12,6 +12,20 @@ let twilio_number = "";
 let conversations = [];
 let messages = [];
 const limit = process.env.LIMIT || 20;
+const username = process.env.APP_USERNAME;
+const password = process.env.APP_PASSWORD;
+const users = {};
+users[username] = password;
+console.log(users);
+const basicAuth = require("express-basic-auth");
+const basicAuthProps = {
+  users,
+  challenge: true,
+  realm: "twilio_widget",
+  unauthorizedResponse: {
+    message: "Bad credentials",
+  },
+};
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -28,9 +42,21 @@ app.use("/messages", messagesendRouter);
 const webhooksRouter = require("./routes/webhooks");
 app.use("/twilio-event-streams", webhooksRouter);
 
+// Match twilio number to mobile channel
+function twilioNumber(mobile_number) {
+  console.log("twilioNumber()");
+  if (mobile_number.slice(0, 9) === "messenger") {
+    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
+  } else if (mobile_number.slice(0, 8) === "whatsapp") {
+    twilio_number = process.env.WHATSAPP_ID;
+  } else {
+    twilio_number = process.env.TWILIO_NUMBER;
+  }
+}
+
 // When client connects or clicks on a conversation, reset conversation count and fetch messages for selected conversation
 // conversations array and messages array will each be sent via client.updateWebsocketClient()
-app.get("/", (req, res) => {
+app.get("/", basicAuth(basicAuthProps), (req, res) => {
   console.log("REQ.QUERY:");
   console.log(req.query);
   let queryObjSize = JSON.stringify(req.query).length;
@@ -41,13 +67,7 @@ app.get("/", (req, res) => {
   if (queryObjSize > 2) {
     mobileNumberQuery = req.query.mobile;
   }
-  if (mobileNumberQuery.slice(0, 9) === "messenger") {
-    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
-  } else if (mobileNumberQuery.slice(0, 8) === "whatsapp") {
-    twilio_number = process.env.WHATSAPP_ID;
-  } else {
-    twilio_number = process.env.TWILIO_NUMBER;
-  }
+  twilioNumber(mobileNumberQuery);
   conversations = [];
   messages = [];
   resetConversationCount(`${twilio_number};${mobileNumberQuery}`)
@@ -102,13 +122,7 @@ app.get("/", (req, res) => {
 // CREATE CONVERSATION
 // Triggered when client clicks + button and creates a new conversation
 app.post("/conversations", (req, res, next) => {
-  if (req.body.mobile_number.slice(0, 9) === "messenger") {
-    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
-  } else if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
-    twilio_number = process.env.WHATSAPP_ID;
-  } else {
-    twilio_number = process.env.TWILIO_NUMBER;
-  }
+  twilioNumber(req.body.mobile_number);
   console.log("CREATE CONVERSATION");
   conversationObject = {
     type: "conversationUpdated",
@@ -128,13 +142,7 @@ app.put("/conversations", (req, res, next) => {
   console.log(req.body);
   twilio_number = process.env.TWILIO_NUMBER;
   console.log(`TWILIO NUMBER BEFORE: ${twilio_number}`);
-  if (req.body.mobile_number.slice(0, 9) === "messenger") {
-    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
-  } else if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
-    twilio_number = process.env.WHATSAPP_ID;
-  } else {
-    twilio_number = process.env.TWILIO_NUMBER;
-  }
+  twilioNumber(req.body.mobile_number);
   console.log(`TWILIO NUMBER AFTER: ${twilio_number}`);
   // Set contact_name
   if (req.body.contact_name != null) {
