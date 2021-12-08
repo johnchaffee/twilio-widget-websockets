@@ -75,6 +75,8 @@ After the above requirements have been met:
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
     FACEBOOK_MESSENGER_ID=<Your messenger ID>
     WHATSAPP_ID=<Your WhatsApp ID>
+    APP_USERNAME=<A custom username for logging into the app>
+    APP_PASSWORD=<A custom password for logging into the app>
     LIMIT=20
     ```
 
