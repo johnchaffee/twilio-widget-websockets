@@ -74,12 +74,12 @@ a:active {
 }
 .conversation-bubble .badge {
   position: relative;
-  top: -12px;
-  right: -8px;
+  top: -13px;
+  right: -7px;
   padding: 4px 6px;
   margin-left: -20px;
   border-radius: 50%;
-  background-color: rgba(255, 0, 0, 0.8); /* red with 90% opacity */
+  background-color: rgba(255, 0, 0, 0.8); /* red with 80% opacity */
   color: white;
   font-size: 0.5em;
   font-weight:400;
