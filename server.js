@@ -8,8 +8,7 @@ const app = express();
 const db = require("./database");
 const client = require("./client");
 const port = process.env.PORT || 3000;
-let twilio_number = process.env.TWILIO_NUMBER;
-let whatsapp_id = process.env.WHATSAPP_ID;
+let twilio_number = '';
 let conversations = [];
 let messages = [];
 const limit = process.env.LIMIT || 20;
@@ -42,9 +41,10 @@ app.get("/", (req, res) => {
   if (queryObjSize > 2) {
     mobileNumberQuery = req.query.mobile;
   }
-  // if mobile is whatsapp
   if (mobileNumberQuery.slice(0, 8) === "whatsapp") {
-    twilio_number = whatsapp_id;
+    twilio_number = process.env.WHATSAPP_ID;
+  } else {
+    twilio_number = process.env.TWILIO_NUMBER;
   }
   conversations = [];
   messages = [];
@@ -101,7 +101,9 @@ app.get("/", (req, res) => {
 // Triggered when client clicks + button and creates a new conversation
 app.post("/conversations", (req, res, next) => {
   if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
-    twilio_number = whatsapp_id;
+    twilio_number = process.env.WHATSAPP_ID;
+  } else {
+    twilio_number = process.env.TWILIO_NUMBER;
   }
   console.log("CREATE CONVERSATION");
   conversationObject = {
@@ -120,10 +122,15 @@ app.post("/conversations", (req, res, next) => {
 app.put("/conversations", (req, res, next) => {
   console.log("UPDATE CONVERSATION");
   console.log(req.body);
-  // Set contact_name
+  twilio_number = process.env.TWILIO_NUMBER
+  console.log(`TWILIO NUMBER BEFORE: ${twilio_number}`);
   if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
-    twilio_number = whatsapp_id;
+    twilio_number = process.env.WHATSAPP_ID;
+  } else {
+    twilio_number = process.env.TWILIO_NUMBER;
   }
+  console.log(`TWILIO NUMBER AFTER: ${twilio_number}`);
+  // Set contact_name
   if (req.body.contact_name != null) {
     conversationObject = {
       type: "conversationContactUpdated",
