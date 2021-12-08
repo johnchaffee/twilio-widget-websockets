@@ -24,7 +24,9 @@ if (app_host_name === "localhost") {
 // CREATE MESSAGE
 async function createMessage(request, response) {
   console.log("createMessage()");
+  console.log("=================");
   console.log(request);
+  console.log("=================");
   try {
     const {
       date_created,

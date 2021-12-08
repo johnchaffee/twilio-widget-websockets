@@ -75,3 +75,6 @@ typings/
 # FuseBox cache
 .fusebox/
 .DS_Store
+
+# Misc Files
+Lambda_Function.py
