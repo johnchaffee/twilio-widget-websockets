@@ -12,6 +12,20 @@ let twilio_number = "";
 let conversations = [];
 let messages = [];
 const limit = process.env.LIMIT || 20;
+const username = process.env.APP_USERNAME;
+const password = process.env.APP_PASSWORD;
+const users = {};
+users[username] = password;
+console.log(users);
+const basicAuth = require("express-basic-auth");
+const basicAuthProps = {
+  users,
+  challenge: true,
+  realm: "twilio_widget",
+  unauthorizedResponse: {
+    message: "Bad credentials",
+  },
+};
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -37,12 +51,12 @@ function twilioNumber(mobile_number) {
     twilio_number = process.env.WHATSAPP_ID;
   } else {
     twilio_number = process.env.TWILIO_NUMBER;
-  }  
+  }
 }
 
 // When client connects or clicks on a conversation, reset conversation count and fetch messages for selected conversation
 // conversations array and messages array will each be sent via client.updateWebsocketClient()
-app.get("/", (req, res) => {
+app.get("/", basicAuth(basicAuthProps), (req, res) => {
   console.log("REQ.QUERY:");
   console.log(req.query);
   let queryObjSize = JSON.stringify(req.query).length;
