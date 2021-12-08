@@ -149,13 +149,7 @@ You can also send/receive messages with Facebook Messenger users. You'll have to
 
 *Note: You must set a callback URL when configuring the Facebook Messenger Channel in order to enable Event Streams to send incoming webhooks. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes.*
 
-Once you've done that, you can join the sandbox by sending a WhatsApp message from your mobile device to \<your Twilio WhatsApp Number> with your \<Twilio Sandbox code> provided when setting up the account in the Console. You will then be able to send/receive messages between the Widget and WhatsApp.
-
-For best results, the conversation should be initiated by the WhatsApp user on their mobile device. Then you can send any message you want to the WhatsApp user for a period of 24 hours since the last message received.
-
-If you want to initiate a conversation with a WhatsApp user, it must be using one of the following pre-approved outgoing templates for WhatsApp:
-
-
+Once you've done that, you can send a message from Facebook Messenger to your Facebook page to start a conversation. The conversation must be initiated by the Facebook Messenger user on their mobile device. Then you can send any message you want to the Facebook Messenger user.
 
 ## Data Model
 
