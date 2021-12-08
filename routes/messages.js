@@ -3,9 +3,7 @@ const express = require("express");
 const router = express.Router();
 const fetch = require("node-fetch");
 
-let twilio_number = process.env.TWILIO_NUMBER;
-const facebook_messenger_id = process.env.FACEBOOK_MESSENGER_ID;
-const whatsapp_id = process.env.WHATSAPP_ID;
+let twilio_number = "";
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
 const buf = Buffer.from(twilio_account_sid + ":" + twilio_auth_token);
@@ -20,13 +18,13 @@ router.post("/", (req, res, next) => {
   let mobile_number = req.body.mobile_number;
   if (mobile_number.slice(0, 9) === "messenger") {
     // If sending to messenger, send from facebook_messenger_id
-    twilio_number = facebook_messenger_id;
+    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
   } else if (mobile_number.slice(0, 8) === "whatsapp") {
     // If sending to whatsapp, send from whats_app_id
-    twilio_number = whatsapp_id;
+    twilio_number = process.env.WHATSAPP_ID;
   } else {
-    // else, send from twilio SMS number -- its variable is already set
-    // twilio_number = twilio_number;
+    // else, send from twilio SMS number
+    twilio_number = process.env.TWILIO_NUMBER;
   }
   // Send message via Twilio API
   const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`;

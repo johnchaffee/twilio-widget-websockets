@@ -105,7 +105,7 @@ After the above requirements have been met:
 
 6.  Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming and outgoing messages. You'll need to point it to the ngrok and/or heroku url above.
 
-_NOTE: There is a bug in Event Streams where it won't send inbound webhooks unless you configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. The URL does not have to be your actual ngrok endpoint, just any valid URL. I entered `https://example.com` and that fixed the problem. We need to inform the Event Streams team about this bug..._
+_NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_
 
 Create a sink endpoint:
 
@@ -131,15 +131,31 @@ That's it! Now you can start sending and receiving messages text messages in the
 
 In addition to SMS and MMS, you can send/receive messages with WhatsApp users. You can use the Twilio Sandbox for WhatsApp to prototype with WhatsApp immediately, without waiting for your Twilio number to be approved for WhatsApp. You can configure the Twilio WhatsApp Sandbox for your account in the [Twilio Console](https://console.twilio.com/us1/develop/sms/settings/whatsapp-sandbox?frameUrl=%2Fconsole%2Fsms%2Fwhatsapp%2Fsandbox%3Fx-target-region%3Dus1).
 
-Once you've done that, you can join the sandbox by sending a WhatsApp message from your mobile device to \<your Twilio WhatsApp Number> with your \<Twilio Sandbox code> provided when setting up the account in the Console. You will then be able to send/receive messages between the Widget and WhatsApp.
+Once you've done that, you must add your `WHATSAPP_ID` to your environment variables.
 
-For best results, the conversation should be initiated by the WhatsApp user on their mobile device. Then you can send any message you want to the WhatsApp user for a period of 24 hours since the last message received.
+To begin messaging with a WhatsApp user, the WhatsApp mobile user must join the sandbox by sending a WhatsApp message to the `WHATSAPP_ID` with the \<Twilio Sandbox code> provided in the Twilio Console. You will then be able to send/receive messages between the Widget and WhatsApp.
+
+For best results, the conversation should be initiated by the WhatsApp user on their mobile device. Then you can send any messages you want to the WhatsApp user for a period of 24 hours since the last message received.
 
 If you want to initiate a conversation with a WhatsApp user, it must be using one of the following pre-approved outgoing templates for WhatsApp:
 
 - Your {{1}} code is {{2}}
 - Your {{1}} appointment is coming up on {{2}}
 - Your {{1}} order of {{2}} has shipped and should be delivered on {{3}}. Details : {{4}}
+
+## Facebook Messenger
+
+You can also send/receive messages with Facebook Messenger users. You'll have to create a Facebook Page, then insall the Twilio Facebook Messenger Channel and choose the Facebook Page as a Sender following [these instructions](https://support.twilio.com/hc/en-us/articles/360018988274-Getting-Started-with-the-Facebook-Messenger-Channel-Beta-).
+
+*Note: You must set a callback URL when configuring the Facebook Messenger Channel in order to enable Event Streams to send incoming webhooks. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes.*
+
+Once you've done that, you can join the sandbox by sending a WhatsApp message from your mobile device to \<your Twilio WhatsApp Number> with your \<Twilio Sandbox code> provided when setting up the account in the Console. You will then be able to send/receive messages between the Widget and WhatsApp.
+
+For best results, the conversation should be initiated by the WhatsApp user on their mobile device. Then you can send any message you want to the WhatsApp user for a period of 24 hours since the last message received.
+
+If you want to initiate a conversation with a WhatsApp user, it must be using one of the following pre-approved outgoing templates for WhatsApp:
+
+
 
 ## Data Model
 

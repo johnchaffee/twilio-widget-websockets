@@ -41,7 +41,9 @@ app.get("/", (req, res) => {
   if (queryObjSize > 2) {
     mobileNumberQuery = req.query.mobile;
   }
-  if (mobileNumberQuery.slice(0, 8) === "whatsapp") {
+  if (mobileNumberQuery.slice(0, 9) === "messenger") {
+    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
+  } else if (mobileNumberQuery.slice(0, 8) === "whatsapp") {
     twilio_number = process.env.WHATSAPP_ID;
   } else {
     twilio_number = process.env.TWILIO_NUMBER;
@@ -100,7 +102,9 @@ app.get("/", (req, res) => {
 // CREATE CONVERSATION
 // Triggered when client clicks + button and creates a new conversation
 app.post("/conversations", (req, res, next) => {
-  if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
+  if (req.body.mobile_number.slice(0, 9) === "messenger") {
+    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
+  } else if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
     twilio_number = process.env.WHATSAPP_ID;
   } else {
     twilio_number = process.env.TWILIO_NUMBER;
@@ -124,7 +128,9 @@ app.put("/conversations", (req, res, next) => {
   console.log(req.body);
   twilio_number = process.env.TWILIO_NUMBER
   console.log(`TWILIO NUMBER BEFORE: ${twilio_number}`);
-  if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
+  if (req.body.mobile_number.slice(0, 9) === "messenger") {
+    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
+  } else if (req.body.mobile_number.slice(0, 8) === "whatsapp") {
     twilio_number = process.env.WHATSAPP_ID;
   } else {
     twilio_number = process.env.TWILIO_NUMBER;
@@ -162,8 +168,8 @@ app.put("/conversations", (req, res, next) => {
 // Catchall to acknowledge webhooks that don't match the paths above
 app.post(/.*/, (req, res, next) => {
   console.log("ACK WEBHOOK");
-  res.sendStatus(200);
-  // res.send("<Response></Response>");
+  // res.sendStatus(200);
+  res.send("<Response></Response>");
 });
 
 // EXPRESS SERVER
