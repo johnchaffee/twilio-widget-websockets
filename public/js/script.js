@@ -106,8 +106,8 @@ window.onload = function () {
       <div id="${thisMobileNumber}" class="conversation-bubble selectedConversation">
     `;
         //set archive and trash icons at msger-header-options upon conversation change
-        msgerHeaderOptionsHTML = `&nbsp;<button class="btn btn-light p-0" onclick="archiveConversationButton(${thisMobileNumber}, 'closed')"><i class="fas fa-archive"></i></button>
-        &nbsp;&nbsp;<button class="btn btn-light p-0" onclick="archiveConversationButton(${thisMobileNumber}, 'deleted')"><i class="far fa-trash-alt"></i></button>&nbsp;&nbsp;
+        msgerHeaderOptionsHTML = `&nbsp;<button class="btn btn-light p-0" onclick="archiveConversationButton('${thisMobileNumber}', 'closed')"><i class="fas fa-archive"></i></button>
+        &nbsp;&nbsp;<button class="btn btn-light p-0" onclick="archiveConversationButton('${thisMobileNumber}', 'deleted')"><i class="far fa-trash-alt"></i></button>&nbsp;&nbsp;
       `;
         msgerHeaderOptions.innerHTML = msgerHeaderOptionsHTML;
       } else {
@@ -118,7 +118,7 @@ window.onload = function () {
       // adding contact name icon, archive icon, trash icon
       conversationListHTML += `
       ${conversationLink}
-      &nbsp;<button class="btn btn-light p-0" onclick="updateContactPrompt(${thisMobileNumber})"><i class="fas fa-id-card-alt"></i></button>
+      &nbsp;<button class="btn btn-light p-0" onclick="updateContactPrompt('${thisMobileNumber}')"><i class="fas fa-id-card-alt"></i></button>
       </div>
     `;
     });
