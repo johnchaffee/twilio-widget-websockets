@@ -181,8 +181,9 @@ a:active {
 }
 /* custom compose message icon styling */
 .fa-edit {
-  color: #fb713f;
-  font-size: 1.5em;
+  color: rgb(0, 196, 65)  ;
+  font-size: 1.1rem;
+  margin-right: 10px;
 }
 .fa-edit:hover {
   color: rgb(0, 180, 50);
