@@ -119,7 +119,6 @@ window.onload = function () {
       conversationListHTML += `
       ${conversationLink}
       &nbsp;<button class="btn btn-light p-0" onclick="updateContactPrompt(${thisMobileNumber})"><i class="fas fa-id-card-alt"></i></button>
-
       </div>
     `;
     });
