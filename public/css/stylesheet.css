@@ -60,7 +60,7 @@ a:active {
 .sidebar {
   margin: 25px 0 25px 10px;
   background-color: white;
-  width: 330px;
+  min-width: 330px;
   border: var(--border);
   border-radius: 5px;
   background: var(--msger-bg);
@@ -178,4 +178,23 @@ a:active {
 }
 .msger-chat {
   background-color: #fcfcfe;
+}
+/* custom compose message icon styling */
+.fa-edit {
+  color: #fb713f;
+  font-size: 1.5em;
+}
+.fa-edit:hover {
+  color: rgb(0, 180, 50);
+  transition: color 0.23s;
+}
+/* custom icon styling for other fontawesome icons */
+.fa-id-card-alt, .fa-archive, .fa-trash-alt {
+  color: 666;
+  opacity: 40%;
+}
+.fa-archive:hover, .fa-trash-alt:hover {
+  color: red;
+  transition: color 0.23s;
+  opacity: 100%;
 }
