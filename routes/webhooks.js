@@ -5,9 +5,7 @@ const fetch = require("node-fetch");
 const db = require("../database");
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
-const buf = Buffer.from(twilio_account_sid + ":" + twilio_auth_token);
-const encoded = buf.toString("base64");
-const basic_auth = "Basic " + encoded;
+const basic_auth = "Basic " + Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
 
 // TWILIO EVENT STREAMS WEBHOOKS
 // Listen for incoming and outgoing messages
