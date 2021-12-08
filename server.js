@@ -8,7 +8,7 @@ const app = express();
 const db = require("./database");
 const client = require("./client");
 const port = process.env.PORT || 3000;
-let twilio_number = '';
+let twilio_number = "";
 let conversations = [];
 let messages = [];
 const limit = process.env.LIMIT || 20;
@@ -126,7 +126,7 @@ app.post("/conversations", (req, res, next) => {
 app.put("/conversations", (req, res, next) => {
   console.log("UPDATE CONVERSATION");
   console.log(req.body);
-  twilio_number = process.env.TWILIO_NUMBER
+  twilio_number = process.env.TWILIO_NUMBER;
   console.log(`TWILIO NUMBER BEFORE: ${twilio_number}`);
   if (req.body.mobile_number.slice(0, 9) === "messenger") {
     twilio_number = process.env.FACEBOOK_MESSENGER_ID;
