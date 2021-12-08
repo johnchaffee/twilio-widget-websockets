@@ -104,6 +104,8 @@ After the above requirements have been met:
 
 6.  Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming and outgoing messages. You'll need to point it to the ngrok and/or heroku url above.
 
+*NOTE: There is a bug in Event Streams where it won't send inbound webhooks unless you configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. The URL does not have to be your actual ngrok endpoint, just any valid URL. I entered `https://example.com` and that fixed the problem. We need to inform the Event Streams team about this bug...*
+
 Create a sink endpoint:
 
 ```
@@ -123,6 +125,18 @@ twilio api:events:v1:subscriptions:create \
 ```
 
 That's it! Now you can start sending and receiving messages text messages in the web client.
+
+## WhatsApp
+
+In addition to SMS and MMS, you can send/receive messages with WhatsApp users. If you have a WhatsApp account, you must join the sandbox by sending a WhatsApp message from your mobile device to +1 415 523 8886 with code '**join shop-dried**'. You will then be able to send/receive messages between the Widget and WhatsApp. 
+
+For best results, the conversation should be initiated by the WhatsApp user on their mobile device. Then you can send any message you want to the WhatsApp user for a period of 24 hours since the last message received. 
+
+If you want to initiate a conversation with a WhatsApp user, it must be using one of the following pre-approved outgoing templates for WhatsApp:
+
+- Your {{1}} code is {{2}}
+- Your {{1}} appointment is coming up on {{2}}
+- Your {{1}} order of {{2}} has shipped and should be delivered on {{3}}. Details : {{4}}
 
 ## Data Model
 
