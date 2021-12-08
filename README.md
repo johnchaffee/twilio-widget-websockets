@@ -128,7 +128,9 @@ That's it! Now you can start sending and receiving messages text messages in the
 
 ## WhatsApp
 
-In addition to SMS and MMS, you can send/receive messages with WhatsApp users. If you have a WhatsApp account, you must join the sandbox by sending a WhatsApp message from your mobile device to +1 415 523 8886 with code '**join shop-dried**'. You will then be able to send/receive messages between the Widget and WhatsApp. 
+In addition to SMS and MMS, you can send/receive messages with WhatsApp users. You can use the Twilio Sandbox for WhatsApp to prototype with WhatsApp immediately, without waiting for your Twilio number to be approved for WhatsApp. You can configure the Twilio WhatsApp Sandbox for your account in the [Twilio Console](https://console.twilio.com/us1/develop/sms/settings/whatsapp-sandbox?frameUrl=%2Fconsole%2Fsms%2Fwhatsapp%2Fsandbox%3Fx-target-region%3Dus1). 
+
+Once you've done that, you can join the sandbox by sending a WhatsApp message from your mobile device to \<your Twilio WhatsApp Number> with your \<Twilio Sandbox code> provided when setting up the account in the Console. You will then be able to send/receive messages between the Widget and WhatsApp.
 
 For best results, the conversation should be initiated by the WhatsApp user on their mobile device. Then you can send any message you want to the WhatsApp user for a period of 24 hours since the last message received. 
 
