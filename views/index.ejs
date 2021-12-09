@@ -40,7 +40,7 @@
       <header class="msger-header">
         <div class="msger-header-title">
           <i class="fas fa-comments"></i>
-          &nbsp;&nbsp;MESSAGES
+          &nbsp;&nbsp;MESSAGES LIMIT = <%= limit %> 
         </div>
         <div class="msger-header-options">
           <!-- msger-header-optionsHTML goes here -->
@@ -73,8 +73,7 @@
     <script>
       function createConversationPrompt() {
         const mobile_number = prompt(
-          "Enter Mobile Number in E.164 format",
-          "+12063996576"
+          "Enter Mobile Number in E.164 format", "<%= myMobileNumber %>"
         );
         if (mobile_number != null) {
           console.log("CREATE CONVERSATION: " + mobile_number);

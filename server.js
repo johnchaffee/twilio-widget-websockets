@@ -12,6 +12,7 @@ let twilio_number = "";
 let conversations = [];
 let messages = [];
 const limit = process.env.LIMIT || 20;
+const myMobileNumber = process.env.MY_MOBILE_NUMBER || 20;
 const username = process.env.APP_USERNAME;
 const password = process.env.APP_PASSWORD;
 const users = {};
@@ -76,7 +77,7 @@ app.get("/", basicAuth(basicAuthProps), (req, res) => {
       // Get array of messages for this mobile number
       getMessages(mobileNumberQuery).then(function () {
         console.log("RENDER INDEX");
-        res.render("index");
+        res.render("index", { limit: limit, myMobileNumber: myMobileNumber });
         // res.render("index", { conversations, messages });
       });
     })
