@@ -5,6 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon" href="./images/twilio-icon-32.png" sizes="32x32" />
+    <link rel="icon" href="./images/twilio-icon-64.png" sizes="64x64" />
+    <link rel="icon" href="./images/twilio-icon.png" sizes="160x160" />
+    <link rel="apple-touch-icon" href="./images/twilio-icon.png" />
     <link
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -40,9 +44,9 @@
       <header class="msger-header">
         <div class="msger-header-title">
           <i class="fas fa-comments"></i>
-          <!-- commenting out 
-            &nbsp;&nbsp;MESSAGES LIMIT = <%= limit %> 
-            -->
+
+          &nbsp;&nbsp;MESSAGES
+
         </div>
         <div class="msger-header-options">
           <!-- msger-header-optionsHTML goes here -->
@@ -75,7 +79,9 @@
     <script>
       function createConversationPrompt() {
         const mobile_number = prompt(
-          "Enter Mobile Number in E.164 format", "<%= myMobileNumber %>");
+          "Enter Mobile Number in E.164 format",
+          "<%= myMobileNumber %>"
+        );
         if (mobile_number != null) {
           console.log("CREATE CONVERSATION: " + mobile_number);
           // Send POST request to /conversations
