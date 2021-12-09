@@ -73,8 +73,7 @@
     <script>
       function createConversationPrompt() {
         const mobile_number = prompt(
-          "Enter Mobile Number in E.164 format", "<%= myMobileNumber %>"
-        );
+          "Enter Mobile Number in E.164 format", "<%= myMobileNumber %>");
         if (mobile_number != null) {
           console.log("CREATE CONVERSATION: " + mobile_number);
           // Send POST request to /conversations
