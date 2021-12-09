@@ -58,13 +58,17 @@ a:active {
   /* color: #EDEFF2; */
 }
 .sidebar {
+  display: flex;
   margin: 25px 0 25px 10px;
   background-color: white;
-  min-width: 300px;
+  min-width: 250px;
   border: var(--border);
   border-radius: 5px;
   background: var(--msger-bg);
   box-shadow: 0 15px 15px -5px rgba(0, 0, 0, 0.2);
+  flex-flow: column wrap;
+  /* justify-content: space-between; */
+  flex-wrap: nowrap;
 }
 .conversation-bubble {
   max-width: 450px;
@@ -83,6 +87,18 @@ a:active {
   color: white;
   font-size: 0.5em;
   font-weight:400;
+}
+.conversation-list {
+  overflow-y: auto;
+}
+.conversation-list::-webkit-scrollbar {
+  width: 6px;
+}
+.conversation-list::-webkit-scrollbar-track {
+  background: #ddd;
+}
+.conversation-list::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
 }
 .selectedConversation {
   background-color: #f6f7f8;
