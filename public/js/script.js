@@ -142,7 +142,7 @@ window.onload = function () {
           // If it's the active conversation, redirect to root
           if (thisMobileNumber == mobile_number) {
             console.log("REDIRECT TO ROOT");
-            window.location = './';
+            window.location = "./";
           }
         }
       }
@@ -168,11 +168,13 @@ window.onload = function () {
     event.preventDefault();
 
     const body = msgerInput.value;
+    // const media_url = "https://demo.twilio.com/owl.png";
+    const media_url = null;
     if (!body) return;
     msgerInput.value = "";
 
     // MESSAGE/SEND
-    messageSend(body, mobile_number);
+    messageSend(body, mobile_number, media_url);
   });
 
   // APPEND MESSAGE - Render last message
@@ -193,7 +195,7 @@ window.onload = function () {
 `;
 
     msgerChat.insertAdjacentHTML("beforeend", msgHTML);
-    msgerChat.scrollTop += 500;
+    msgerChat.scrollTop += 1500;
   }
 
   // Utils
@@ -234,14 +236,17 @@ window.onload = function () {
   }
 
   // MESSAGE SEND
-  function messageSend(body, mobile_number) {
+  function messageSend(body, mobile_number, media_url) {
+    console.log("messageSend()");
     const apiUrl = host + "/messages";
     // console.log("APIURL: " + apiUrl);
     // url encode body params
     const bodyParams = new URLSearchParams({
       body: body,
       mobile_number: mobile_number,
+      media_url: media_url,
     });
+    console.log(bodyParams);
     const requestOptions = {
       method: "POST",
       headers: {

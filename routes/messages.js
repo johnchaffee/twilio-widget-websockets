@@ -6,7 +6,9 @@ const fetch = require("node-fetch");
 let twilio_number = "";
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
-const auth_header = "Basic " + Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
+const auth_header =
+  "Basic " +
+  Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
 
 // SEND OUTGOING MESSAGE
 // Web client posts '/messages' request to this server, which posts request to Twilio API
@@ -14,6 +16,8 @@ router.post("/", (req, res, next) => {
   console.log("/messages");
   let body = req.body.body;
   let mobile_number = req.body.mobile_number;
+  let media_url = req.body.media_url;
+  console.log(`media_url: ${media_url}`);
   if (mobile_number.slice(0, 9) === "messenger") {
     // If sending to messenger, send from facebook_messenger_id
     twilio_number = process.env.FACEBOOK_MESSENGER_ID;
@@ -27,11 +31,26 @@ router.post("/", (req, res, next) => {
   // Send message via Twilio API
   const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`;
   // url encode body params
-  const bodyParams = new URLSearchParams({
-    From: twilio_number,
-    To: mobile_number,
-    Body: body,
-  });
+  let bodyParams = {};
+  console.log("BODY PARAMS BEFORE:");
+  console.log(bodyParams);
+  if (media_url != 'undefined' && media_url != 'null') {
+    console.log("MEDIA URL != NULL");
+    bodyParams = new URLSearchParams({
+      From: twilio_number,
+      To: mobile_number,
+      Body: body,
+      MediaUrl: media_url,
+    });
+  } else {
+    bodyParams = new URLSearchParams({
+      From: twilio_number,
+      To: mobile_number,
+      Body: body,
+    });
+  }
+  console.log("BODY PARAMS AFTER:");
+  console.log(bodyParams);
   const requestOptions = {
     method: "POST",
     headers: {
