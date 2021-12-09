@@ -31,6 +31,16 @@ window.onload = function () {
     const messages = JSON.parse(event.data);
     console.log("CLIENT ONMESSAGE");
     console.log(messages);
+    // Play Audio for incoming and outgoing messages
+    if (messages.length === 1 && messages[0].type == "messageCreated") {
+      const inboundAudio = new Audio("/images/inboundAudio.mp3");
+      const outboundAudio = new Audio("/images/outboundAudio.mp3");
+      if (messages[0].direction == "inbound") {
+        inboundAudio.play();
+      } else if (messages[0].direction == "outbound") {
+        outboundAudio.play();
+      }
+    }
     if (messages.length > 0) {
       messages.forEach((thisMessage) => {
         // If type is messagecreated and matches selected conversation, render message
@@ -142,7 +152,7 @@ window.onload = function () {
           // If it's the active conversation, redirect to root
           if (thisMobileNumber == mobile_number) {
             console.log("REDIRECT TO ROOT");
-            window.location = './';
+            window.location = "./";
           }
         }
       }
@@ -168,11 +178,13 @@ window.onload = function () {
     event.preventDefault();
 
     const body = msgerInput.value;
+    // const media_url = "https://demo.twilio.com/owl.png";
+    const media_url = null;
     if (!body) return;
     msgerInput.value = "";
 
     // MESSAGE/SEND
-    messageSend(body, mobile_number);
+    messageSend(body, mobile_number, media_url);
   });
 
   // APPEND MESSAGE - Render last message
@@ -193,7 +205,7 @@ window.onload = function () {
 `;
 
     msgerChat.insertAdjacentHTML("beforeend", msgHTML);
-    msgerChat.scrollTop += 500;
+    msgerChat.scrollTop += 1500;
   }
 
   // Utils
@@ -234,14 +246,17 @@ window.onload = function () {
   }
 
   // MESSAGE SEND
-  function messageSend(body, mobile_number) {
+  function messageSend(body, mobile_number, media_url) {
+    console.log("messageSend()");
     const apiUrl = host + "/messages";
     // console.log("APIURL: " + apiUrl);
     // url encode body params
     const bodyParams = new URLSearchParams({
       body: body,
       mobile_number: mobile_number,
+      media_url: media_url,
     });
+    console.log(bodyParams);
     const requestOptions = {
       method: "POST",
       headers: {
