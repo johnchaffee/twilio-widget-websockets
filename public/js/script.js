@@ -31,6 +31,16 @@ window.onload = function () {
     const messages = JSON.parse(event.data);
     console.log("CLIENT ONMESSAGE");
     console.log(messages);
+    // Play Audio for incoming and outgoing messages
+    if (messages.length === 1 && messages[0].type == "messageCreated") {
+      const inboundAudio = new Audio("/images/inboundAudio.mp3");
+      const outboundAudio = new Audio("/images/outboundAudio.mp3");
+      if (messages[0].direction == "inbound") {
+        inboundAudio.play();
+      } else if (messages[0].direction == "outbound") {
+        outboundAudio.play();
+      }
+    }
     if (messages.length > 0) {
       messages.forEach((thisMessage) => {
         // If type is messagecreated and matches selected conversation, render message
