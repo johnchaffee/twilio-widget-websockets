@@ -1,13 +1,11 @@
 {
-  "name": "Text Messaging Widget Example",
-  "description": "A barebones http and websockets sample messaging app",
-  "repository": "https://github.com/johnchaffee/chat-websockets",
-  "keywords": ["node", "express", "websockets"],
+  "name": "Twilio Widget",
+  "description": "A hackathon project for building a conversational messaging app with Twilio APIs",
+  "repository": "https://github.com/johnchaffee/twilio-widget",
+  "success_url": "/welcome",
+  "keywords": ["twilio", "sms"],
+  "addons": ["heroku-postgresql:hobby-dev"],
   "env": {
-    "APP_HOST_NAME": {
-      "description": "Enter an App name above, then re-enter it here.",
-      "value": ""
-    },
     "TWILIO_ACCOUNT_SID": {
       "description": "Enter your Twilio Account SID.",
       "value": ""
@@ -19,9 +17,29 @@
     "TWILIO_NUMBER": {
       "description": "Enter your Twilio phone number in E.164 format (+12065551212).",
       "value": ""
-    }
+    },
+    "APP_USERNAME": {
+      "description": "Enter a username for logging in.",
+      "value": ""
+    },
+    "APP_PASSWORD": {
+      "description": "Enter a password for logging in.",
+      "value": ""
+    },
+    "WHATSAPP_ID": {
+      "description": "(Optional) Enter your WhatsApp ID (whatsapp:+14155231111).",
+      "value": ""
+    },
+    "FACEBOOK_MESSENGER_ID": {
+      "description": "(Optional) Enter your Facebook Messager ID (messenger:100633889142222).",
+      "value": ""
+    },
+    "LIMIT": {
+      "description": "(Optional) Enter a limit for maximum number of messages and conversations to display (default is 20).",
+      "value": ""
+    },
   },
   "scripts": {
-    "postdeploy": "./deploy.sh"
+    "postdeploy": "./db-setup.sh"
   }
 }
