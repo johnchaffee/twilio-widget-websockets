@@ -173,6 +173,15 @@ app.put("/conversations", (req, res, next) => {
   res.sendStatus(200);
 });
 
+// HEROKU DEPLOY WELCOME PAGE
+// Catchall to acknowledge webhooks that don't match the paths above
+app.get("/welcome", (req, res, next) => {
+  console.log("HEROKU DEPLOY WELCOME PAGE");
+  res.send("Welcome");
+  // res.sendStatus(200);
+  // res.send("<Response></Response>");
+});
+
 // ACK CATCHALL WEBHOOK
 // Catchall to acknowledge webhooks that don't match the paths above
 app.post(/.*/, (req, res, next) => {

@@ -4,7 +4,7 @@
 
 | Feature                        | Description                                                                                                                                                                                                                                                                                               | Who          |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on [Twilio Assets](https://www.twilio.com/docs/runtime/assets)                                                                                                                                                        | @pittperson            |
+| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on [Twilio Assets](https://www.twilio.com/docs/runtime/assets)                                                                                                                                                        | @pittperson  |
 | Deploy to heroku button        | One-click deploy to heroku button on github repo                                                                                                                                                                                                                                                          | @johnchaffee |
 | Architecture Diagram           | Create diagram explaining the architecture and APIs used                                                                                                                                                                                                                                                  | @johnchaffee |
 | Templates                      | Ability to insert canned templates with variable using Twilio [Content API](https://docs.google.com/document/d/1DqgGYs3A_EDXZhnfRAspRcxYv7jcvyAfReVi9bk1Shw/edit#) Pilot. We will need to set an account flag (in Monkey?) called `api.messaging.rich-content` on each of our accounts in order to use it | @johnchaffee |
@@ -63,18 +63,27 @@ After the above requirements have been met:
 
 3.  Create a `.env` file in your root directory and enter the environment variables below.
 
-    ```
-    PORT=3000
-    NODE_ENV=development
-    APP_HOST_NAME=localhost
-    TWILIO_NUMBER=<Your Twilio Phone Number>
-    TWILIO_ACCOUNT_SID=<Your Twilio Account SID>
-    TWILIO_AUTH_TOKEN=<Your Twilio Auth Token>
-    FACEBOOK_MESSENGER_ID=<Your messenger ID>
-    WHATSAPP_ID=<Your WhatsApp ID>
-    APP_USERNAME=<A custom username for logging into the app>
-    APP_PASSWORD=<A custom password for logging into the app>
+    ```conf
+    # LOCAL DEVELOPMENT ENV VARIABLES
+    PORT=3000  # Enter a port number for local development
+    NODE_ENV=development  # Required flag for local development 
+    APP_HOST_NAME=localhost  # Required flag for local development
+
+    # TWILIO ENVIRONMENT VARIABLES
+    TWILIO_NUMBER=<Your Twilio Phone Number>  # Available in Twilio Console
+    TWILIO_ACCOUNT_SID=<Your Twilio Account SID> # Available in Twilio Console Dashboard
+    TWILIO_AUTH_TOKEN=<Your Twilio Auth Token> # Available in Twilio Console > Phone Numbers
+    WHATSAPP_ID=<Your WhatsApp ID>  # Available in Twilio Console > Channels (optional)
+    FACEBOOK_MESSENGER_ID=<Your messenger ID>  # Available in Twilio Console > Channels (optional)
+    
+    # HTTP BASIC AUTH ENVIRONMENT VARIABLES
+    APP_USERNAME=<A custom username for logging into the app>  # Username for logging in via HTTP Basic Auth
+    APP_PASSWORD=<A custom password for logging into the app>  # Password for logging in via HTTP Basic Auth
     LIMIT=20
+
+    # OPTIONAL VARIABLES
+    MY_MOBILE_NUMBER=<Your Mobile Phone Number>  # Default mobile phone number for new conversations (optional)
+    LIMIT=20  # Number of conversations and messages returned from db. Defaults to 20. (optional)
     ```
 
 4.  Run the application
@@ -160,16 +169,16 @@ The `conversations_id` is unique and concats the twilio number and mobile number
 ```
  id |conversation_id            |       date_updated       |     name     | unread_count
 ----+---------------------------+--------------------------+--------------+-------------
- 53 | +18555080989;+12063996576 | 2021-11-16T23:27:23.000Z | John Chaffee | 2
- 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Lani Gray    | 0
+ 53 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Joe Smith | 2
+ 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Sally Stevens    | 0
 ```
 
 ```json
 [
   {
-    "conversation_id": "+18555080989;+12063996576",
+    "conversation_id": "+18555080989;+12065551212",
     "date_updated": "2021-11-16T23:27:23.000Z",
-    "name": "John Chaffee",
+    "name": "Joe Smith",
     "unread_count": 2
   }
 ]
@@ -182,19 +191,19 @@ The messages table always stores the `twilio_number` and `mobile_number` in the 
 ```
  id | conversation_id           | twilio_number | mobile_number |       date_created       | direction | body
 ----+---------------------------+---------------+---------------+--------------------------+------------------------------
- 53 | +18555080989;+12063996576 | +18555080989  | +12063996576  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?
- 54 | +18555080989;+12063996576 | +18555080989  | +12063996576  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?
- 55 | +18555080989;+12063996576 | +18555080989  | +12063996576  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking.
+ 53 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?
+ 54 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?
+ 55 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking.
 ```
 
 ```json
 [
   {
-    "conversation_id": "+18555080989;+12063996576",
+    "conversation_id": "+18555080989;+12065551212",
     "dateCreated": "2021-11-14T22:34:13.204Z",
     "direction": "outbound",
     "twilio_number": "+18555080989",
-    "mobile_number": "+12063996576",
+    "mobile_number": "+12065551212",
     "body": "hey, how's it going?"
   }
 ]
@@ -237,16 +246,16 @@ CREATE TABLE messages (
 );
 
 -- Create a sample message
-INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body)
-  VALUES ('2021-11-14T22:34:13.204Z', 'outbound', '+18555080989', '+12063996576', '+18555080989;+12063996576', 'Outgoing message'), ('2021-11-14T22:34:17.934Z', 'inbound', '+18555080989', '+12063996576', '+18555080989;+12063996576', 'Reply from mobile');
+INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body, media_url)
+  VALUES ('2021-11-18T22:18:14.000Z', 'outbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Outgoing message', 'https://demo.twilio.com/owl.png'), ('2021-11-18T22:14:00.000Z', 'inbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Reply from mobile', null);
 
 -- Fetch all messages
 SELECT * FROM messages order by date_created desc;
 
- id  |       date_created       | direction | twilio_number | mobile_number |        body         |    conversation_id
------+--------------------------+-----------+---------------+---------------+---------------------+--------------------------
- 205 | 2021-11-18T22:14:00.000Z | outbound  | +18555080989  | +12063996576  | Reply from mobile   | +18555080989;+12063996576
- 207 | 2021-11-18T22:18:14.000Z | outbound  | +18555080989  | +12063996576  | Outgoing message    | +18555080989;+12063996576
+ id  |       date_created       | direction | twilio_number | mobile_number |    conversation_id        |        body         |          media_url   
+-----+--------------------------+-----------+---------------+---------------+---------------------------+---------------------+--------------------------------
+ 205 | 2021-11-18T22:14:00.000Z | outbound  | +18555080989  | +12065551212  | +18555080989;+12065551212 | Reply from mobile   | <null>
+ 207 | 2021-11-18T22:18:14.000Z | outbound  | +18555080989  | +12065551212  | +18555080989;+12065551212 | Outgoing message    | https://demo.twilio.com/owl.png
 
 
 -- Create conversations table
@@ -259,17 +268,16 @@ CREATE TABLE conversations (
   status VARCHAR(10),
 );
 
--- Create conversation
-INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count)
-  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12063996576', 'John Chaffee', 2, 'open'), ('2021-11-14T22:35:14.204Z', '+18555080989;+12063693826', 'Lani Chaffee', 0, 'open');
+-- Create sample conversation
+INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count, status)
+  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12065551212', 'Joe Smith', 2, 'open');
 
 -- Fetch all conversations
 SELECT * FROM conversations order by date_updated desc;
 
- id |     date_updated         |      conversation_id      | contact_name | unread_count | status
-----+--------------------------+---------------------------+--------------+--------------+--------
-  2 | 2021-11-14T22:35:14.204Z | +18555080989;+12063693826 | Lani Chaffee |            0 | open
-  1 | 2021-11-14T22:34:13.204Z | +18555080989;+12063996576 | John Chaffee |            2 | open
+ id |     date_updated         |      conversation_id      | contact_name  | unread_count | status
+----+--------------------------+---------------------------+---------------+--------------+--------
+  1 | 2021-11-14T22:34:13.204Z | +18555080989;+12065551212 | Joe Smith     |            2 | open
 
 -- Sample db config change examples to help in the future
 ALTER TABLE messages RENAME COLUMN mobile TO mobile_number;
@@ -282,7 +290,7 @@ DELETE FROM conversations WHERE id = 3;
 
 ## Configure Postgres database on heroku
 
-Connect to the heroku postgres db using the heroku CLI command below, then run all the same database operations as above.
+You'll need to provision a postgres add-on for the app on heroku. You can do that on the heroku dashboard or the command line. That will automatically create a database associated with the app so you won't have to manually create the database as we did above. You can connect to the database using the heroku CLI with this command:
 
 ```sql
 -- Connect to heroku postgres
@@ -290,7 +298,11 @@ heroku pg:psql
 --> Connecting to postgresql-crystalline-12737
 ```
 
-## Cloud deployment - TODO
+You'll then need to create the messages table and conversations tables as you did above for localhost.
+
+Note: You won't have to do any of this if you use the Deploy to Heroku button below as it will run a deploy script that sets up the database automatically.
+
+## Deploy to Heroku
 
 As an alternative to running the app locally, you can deploy it to heroku by clicking the button below.
 
@@ -298,10 +310,9 @@ As an alternative to running the app locally, you can deploy it to heroku by cli
   <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
 </a>
 
-Note: When deploying to heroku, you will be prompted to enter several environment variables as described below.
+Note: When deploying to heroku, you will be prompted to enter several environment variables as described below. You should have these ready ahead of time.
 
-- `APP_HOST_NAME` - The subdomain for your app on heroku. For example, enter `my-cool-app` to create an app hosted at `https://my-cool-app.herokuapp.com`.
 - `MOBILE` - A default mobile phone number to send messages to in E.164 format (e.g. `+12065551212`).
-- `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
 - `TWILIO_ACCOUNT_SID`
 - `TWILIO_AUTH_TOKEN`
+- `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
