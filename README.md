@@ -13,19 +13,16 @@ You can run locally or deploy to heroku.
 - Send and receive WhatsApp messages via [Twilio WhatsApp API](https://www.twilio.com/docs/whatsapp/api)
 - Send and receive Facebook Messenger messages via [Twilio Channels API](https://www.twilio.com/docs/messaging/channels)
 - Express server receives [Twilio Event Streams Webhooks](https://www.twilio.com/docs/events/webhook-quickstart) for incoming and outgoing text messages
-- Client & Server communicate via [Websocket](https://npm.im/ws) for real-time updates as messages are sent/received
+- Client & Server communicate via [Websockets](https://npm.im/ws) for real-time updates as messages are sent/received
 - One click [Deploy to Heroku](#deploy-to-heroku) button
 
 ## Deploy to Heroku
 
 As an alternative to configuring and running the app locally, you can quickly deploy it to heroku by clicking the button below. All that is required is a free Heroku account, plus a Twilio account and phone number.
 
-<a href="https://heroku.com/deploy?template=https://github.com/johnchaffee/twilio-widget">
-  <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
-</a>
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/johnchaffee/twilio-widget)
 
 Note: When deploying to heroku, you will be prompted to enter the [environment variables described below](#env-variables). You should have these ready ahead of time.
-
 
 ## Architecture
 
@@ -53,11 +50,11 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     ```
 
 3.  <div id="env-variables"></div>Create a `.env` file in your root directory and enter the environment variables below.
-  
+
     ```conf
     # LOCAL DEVELOPMENT ENV VARIABLES
     PORT=3000  # Enter a port number for local development
-    NODE_ENV=development  # Required flag for local development 
+    NODE_ENV=development  # Required flag for local development
     APP_HOST_NAME=localhost  # Required flag for local development
 
     # TWILIO ENVIRONMENT VARIABLES
@@ -66,7 +63,7 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     TWILIO_AUTH_TOKEN=<Your Twilio Auth Token> # Available in Twilio Console > Phone Numbers
     WHATSAPP_ID=<Your WhatsApp ID>  # Available in Twilio Console > Channels (optional)
     FACEBOOK_MESSENGER_ID=<Your messenger ID>  # Available in Twilio Console > Channels (optional)
-    
+
     # HTTP BASIC AUTH ENVIRONMENT VARIABLES
     APP_USERNAME=<A custom username for logging into the app>  # Username for logging in via HTTP Basic Auth
     APP_PASSWORD=<A custom password for logging into the app>  # Password for logging in via HTTP Basic Auth
@@ -77,7 +74,11 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     LIMIT=20  # Number of conversations and messages returned from db. Defaults to 20. (optional)
     ```
 
-4.  Run the application
+4.  Configure the database
+
+    Follow the instructions below to [configure the postgres database](#configure-postgres-database-on-localhost).
+
+5.  Run the application
 
     ```bash
     npm start
@@ -85,9 +86,9 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
     Your application is now accessible at [http://localhost:3000](http://localhost:3000/)
 
-5.  Make the application visible to the outside world.
+6.  Make the application visible to the outside world.
 
-    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#deploy-to-heroku) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
+    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
 
     If you have ngrok installed, you can open a tunnel to your local server by running the following command:
 
@@ -101,11 +102,11 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     https://<unique_id>.ngrok.io/
     ```
 
-6.  Create [Event Streams](https://www.twilio.com/docs/events) webhooks for incoming and outgoing messages. You'll need to point it to the ngrok and/or heroku url above.
+7.  Create [Event Streams](https://www.twilio.com/docs/events) webhooks for incoming and outgoing messages. You'll need to point it to the ngrok url above.
 
     **Using the Twilio CLI**
 
-    These are the steps for configuring webhooks using the Twilio CLI.
+    These are the steps for configuring event streams webhooks using the [Twilio CLI](https://www.twilio.com/docs/twilio-cli/quickstart).
 
     Create a sink endpoint:
 
@@ -125,9 +126,9 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
       --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
     ```
 
-    **Using Curl**
+    **Or using Curl**
 
-    Here's how to perform the same steps as above using curl, which may come in handy if running as a shell script.
+    Alternatively, you can perform the same steps as above using `curl`, which may come in handy if you are developing a shell script for configuration. *Tip: There is a sample shell script in `./deploy.sh` used for configuring the database and webhooks during the deploy to heroku process.*
 
     Create a sink endpoint:
 
@@ -149,12 +150,7 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
     _NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_
 
-7. Configure Postgres db
-
-    Follow the instructions below to [configure a postgres database](#configure-postgres-database-on-localhost) to create and configure a postgres database.
-
-
-That's it! You can begin sending and receiving text messages in the web client.
+Setup is complete! You can begin sending and receiving text messages in the web client.
 
 ## WhatsApp (optional)
 
@@ -214,8 +210,8 @@ The messages table always stores the `twilio_number` and `mobile_number` in the 
  id | conversation_id           | twilio_number | mobile_number |       date_created       | direction |            body                           media_url
 ----+---------------------------+---------------+---------------+--------------------------+------------------------------------------+--------------------------------
  53 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?         | https://demo.twilio.com/owl.png
- 54 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?    | 
- 55 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking. | 
+ 54 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?    |
+ 55 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking. |
 ```
 
 ```json
@@ -266,7 +262,7 @@ INSERT INTO messages (date_created, direction, twilio_number, mobile_number, con
 -- Fetch all messages
 SELECT * FROM messages order by date_created desc;
 
- id  |       date_created       | direction | twilio_number | mobile_number |    conversation_id        |        body         |          media_url   
+ id  |       date_created       | direction | twilio_number | mobile_number |    conversation_id        |        body         |          media_url
 -----+--------------------------+-----------+---------------+---------------+---------------------------+---------------------+--------------------------------
  205 | 2021-11-18T22:14:00.000Z | outbound  | +18555080989  | +12065551212  | +18555080989;+12065551212 | Reply from mobile   | <null>
  207 | 2021-11-18T22:18:14.000Z | outbound  | +18555080989  | +12065551212  | +18555080989;+12065551212 | Outgoing message    | https://demo.twilio.com/owl.png
