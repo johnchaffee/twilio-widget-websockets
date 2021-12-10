@@ -160,6 +160,31 @@ Once you've done that, you can send a message from Facebook Messenger to your Fa
 
 There are two database tables. One table stores a list of all the conversations that are displayed in the Conversations sidebar, and one that stores a list of all the inbound and outbound messages that are displayed in the Messages section.
 
+### messages table
+
+The messages table always stores the `twilio_number` and `mobile_number` in the same column and indicates whether a message was `outbound` or `inbound` with the `direction` column. This allows you to fetch all inbound and outbound messages between a twilio number and mobile number with a single request.
+
+```
+ id | twilio_number | mobile_number |       date_created       | direction |            body                           media_url
+----+---------------+---------------+--------------------------+------------------------------------------+--------------------------------
+ 53 | +18555080989  | +12065551212  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?         | https://demo.twilio.com/owl.png
+ 54 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?    |
+ 55 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking. |
+```
+
+```json
+[
+  {
+    "twilio_number": "+18555080989",
+    "mobile_number": "+12065551212",
+    "dateCreated": "2021-11-14T22:34:13.204Z",
+    "direction": "outbound",
+    "body": "hey, how's it going?",
+    "media_url": "https://demo.twilio.com/owl.png"
+  }
+]
+```
+
 ### conversations table
 
 The `conversations_id` is unique and concats the twilio number and mobile number separated by a semicolon.
@@ -177,33 +202,8 @@ The `conversations_id` is unique and concats the twilio number and mobile number
     "conversation_id": "+18555080989;+12065551212",
     "date_updated": "2021-11-16T23:27:23.000Z",
     "name": "Joe Smith",
-    "unread_count": 2
-  }
-]
-```
-
-### messages table
-
-The messages table always stores the `twilio_number` and `mobile_number` in the same column and indicates whether a message was `outbound` or `inbound` with the `direction` column. This allows you to fetch all inbound and outbound messages between a twilio number and mobile number with a single request.
-
-```
- id | conversation_id           | twilio_number | mobile_number |       date_created       | direction |            body                           media_url
-----+---------------------------+---------------+---------------+--------------------------+------------------------------------------+--------------------------------
- 53 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?         | https://demo.twilio.com/owl.png
- 54 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?    |
- 55 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking. |
-```
-
-```json
-[
-  {
-    "conversation_id": "+18555080989;+12065551212",
-    "dateCreated": "2021-11-14T22:34:13.204Z",
-    "direction": "outbound",
-    "twilio_number": "+18555080989",
-    "mobile_number": "+12065551212",
-    "body": "hey, how's it going?",
-    "media_url": "https://demo.twilio.com/owl.png"
+    "unread_count": 2,
+    "status": "open",
   }
 ]
 ```
