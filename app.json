@@ -37,7 +37,7 @@
     "LIMIT": {
       "description": "(Optional) Enter a limit for maximum number of messages and conversations to display (default is 20).",
       "value": ""
-    },
+    }
   },
   "scripts": {
     "postdeploy": "./db-setup.sh"
