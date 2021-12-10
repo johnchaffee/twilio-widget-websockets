@@ -4,15 +4,14 @@
 
 | Feature                        | Description                                                                                                                                                                                                                                                                                               | Who          |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on [Twilio Assets](https://www.twilio.com/docs/runtime/assets)                                                                                                                                                        | @pittperson  |
-| Deploy to heroku button        | One-click deploy to heroku button on github repo                                                                                                                                                                                                                                                          | @johnchaffee |
 | Architecture Diagram           | Create diagram explaining the architecture and APIs used                                                                                                                                                                                                                                                  | @johnchaffee |
 | Templates                      | Ability to insert canned templates with variable using Twilio [Content API](https://docs.google.com/document/d/1DqgGYs3A_EDXZhnfRAspRcxYv7jcvyAfReVi9bk1Shw/edit#) Pilot. We will need to set an account flag (in Monkey?) called `api.messaging.rich-content` on each of our accounts in order to use it | @johnchaffee |
 | Presentation                   | Create submission presentation and video                                                                                                                                                                                                                                                                  | @chris-mit   |
 | Video                          | Create submission presentation and video                                                                                                                                                                                                                                                                  | @johnchaffee |
+| Code Exchange One-Click Deploy | One-click deploy to Heroku on Twilio Code Exchange                                                                                                                                                                                                                                                        | ?            |
 | Auto-Replies                   | Studio Flow and/or Functions Webhook after-hour auto-replies                                                                                                                                                                                                                                              | @cici        |
 | Keywords                       | Studio Flow and/or FunctionsWebhook keyword auto-replies                                                                                                                                                                                                                                                  | @cici        |
-| Code Exchange One-Click Deploy | One-click deploy to Heroku on Twilio Code Exchange                                                                                                                                                                                                                                                        | ?            |
+| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on [Twilio Assets](https://www.twilio.com/docs/runtime/assets)                                                                                                                                                        | @pittperson  |
 | Mobile Responsive?             | Collapse sidepanel when running on mobile device                                                                                                                                                                                                                                                          | ?            |
 | Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked                                                                                                                                                                                                                              | ?            |
 | Twilio Node SDK?               | Consider replacing Fetch API calls with Twilio Node SDK                                                                                                                                                                                                                                                   | ?            |
@@ -114,6 +113,8 @@ After the above requirements have been met:
 
 _NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_
 
+**Twilio CLI**
+
 Create a sink endpoint:
 
 ```
@@ -131,6 +132,29 @@ twilio api:events:v1:subscriptions:create \
   --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
   --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
 ```
+
+**Curl**
+
+Here's how to perform the same steps as above with curl, perhaps to run as a shell script.
+
+Create a sink endpoint:
+
+```
+twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
+--sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
+--sink-type webhook
+```
+
+Subscribe to `sent` and `received` messages using the SID returned from above:
+
+```
+twilio api:events:v1:subscriptions:create \
+  --description "Subscribe to 'sent' and 'received' messaging events" \
+  --sink-sid <EVENT STREAM SID> \
+  --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
+  --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
+```
+
 
 That's it! Now you can start sending and receiving messages text messages in the web client.
 
