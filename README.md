@@ -165,10 +165,10 @@ There are two database tables. One table stores a list of all the conversations 
 The `conversations_id` is unique and concats the twilio number and mobile number separated by a semicolon.
 
 ```
- id |conversation_id            |       date_updated       |     name      | unread_count
-----+---------------------------+--------------------------+---------------+-------------
- 53 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Joe Smith     | 2
- 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Sally Stevens | 0
+ id |conversation_id            |       date_updated       |     name      | unread_count | status
+----+---------------------------+--------------------------+---------------+--------------+-------
+ 53 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Joe Smith     | 2            | open  
+ 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Sally Stevens | 0            | closed
 ```
 
 ```json
