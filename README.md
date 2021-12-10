@@ -128,8 +128,6 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
     Alternatively, you can perform the same steps as above using `curl`, which may come in handy if you are developing a shell script for configuration. *Tip: There is a sample shell script in `./deploy.sh` used for configuring the database and webhooks during the deploy to heroku process.*
 
-    ```
-
     _NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_
 
 Setup is complete! You can begin sending and receiving text messages in the web client.
