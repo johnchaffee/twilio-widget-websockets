@@ -61,7 +61,7 @@ a:active {
   display: flex;
   margin: 25px 0 25px 10px;
   background-color: white;
-  min-width: 260px;
+  min-width: 270px;
   border: var(--border);
   border-radius: 5px;
   background: var(--msger-bg);
