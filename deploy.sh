@@ -48,7 +48,7 @@ EOF
 )
 
 SID=`curl -X POST https://events.twilio.com/v1/Sinks \
---data-urlencode "Description=Twilio Widget Webhooks test" \
+--data-urlencode "Description=$APP_HOST_NAME Webhooks" \
 --data-urlencode "SinkConfiguration=$SINKCONFIGURATION" \
 --data-urlencode "SinkType=webhook" \
 -u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN`
