@@ -16,7 +16,7 @@ CREATE TABLE messages (
 
 -- Create sample messages
 INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body, media_url)
-  VALUES ('2021-11-18T22:18:14.000Z', 'outbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Hello from Twilio', 'https://demo.twilio.com/owl.png'), ('2021-11-18T22:15:00.000Z', 'inbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Hi from Mobile', null);
+  VALUES ('2021-11-18T22:15:00.000Z', 'inbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'How do you draw an owl?', null), ('2021-11-18T22:16:14.000Z', 'outbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Like this!', 'https://demo.twilio.com/owl.png');
 
 -- Create conversations table
 CREATE TABLE conversations (
