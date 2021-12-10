@@ -33,12 +33,17 @@ window.onload = function () {
     console.log(messages);
     // Play Audio for incoming and outgoing messages
     if (messages.length === 1 && messages[0].type == "messageCreated") {
+      const now = Date.parse(new Date());
+      const delivered = Date.parse(messages[0].date_created);
       const inboundAudio = new Audio("/images/inboundAudio.mp3");
       const outboundAudio = new Audio("/images/outboundAudio.mp3");
-      if (messages[0].direction == "inbound") {
-        inboundAudio.play();
-      } else if (messages[0].direction == "outbound") {
-        outboundAudio.play();
+      // Only play a sound for new messages delivered within last 2 seconds
+      if (now - delivered < 2000) {
+        if (messages[0].direction == "inbound") {
+          inboundAudio.play();
+        } else if (messages[0].direction == "outbound") {
+          outboundAudio.play();
+        }        
       }
     }
     if (messages.length > 0) {
