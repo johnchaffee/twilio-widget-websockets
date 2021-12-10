@@ -76,7 +76,7 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
 4.  Configure the database
 
-    Follow the instructions below to [configure the postgres database](#configure-postgres-database-on-localhost).
+    Follow the instructions below to [configure the postgres database](#configure-postgres-database).
 
 5.  Run the application
 
@@ -84,9 +84,11 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     npm start
     ```
 
-    Your application is now accessible at [http://localhost:3000](http://localhost:3000/)
+    Your application is now accessible at [http://localhost:3000](http://localhost:3000/). 
+    
+    But it won't be fully functional until you setup ngrok and webhooks in the following steps.
 
-6.  Make the application visible to the outside world.
+6.  ngrok
 
     Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
 
@@ -111,8 +113,8 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     Create a sink endpoint:
 
     ```
-    twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
-    --sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
+    twilio api:events:v1:sinks:create --description "<your ngok url> webhooks" \
+    --sink-configuration '{"destination":"<your ngok url>/twilio-event-streams","method":"POST","batch_events":false}' \
     --sink-type webhook
     ```
 
@@ -133,8 +135,8 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
     Create a sink endpoint:
 
     ```
-    twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
-    --sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
+    twilio api:events:v1:sinks:create --description "<your ngok url> webhooks" \
+    --sink-configuration '{"destination":"<your ngok url>/twilio-event-streams","method":"POST","batch_events":false}' \
     --sink-type webhook
     ```
 
