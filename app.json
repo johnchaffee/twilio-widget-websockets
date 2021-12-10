@@ -2,7 +2,6 @@
   "name": "Twilio Widget",
   "description": "A hackathon project for building a conversational messaging app with Twilio APIs",
   "repository": "https://github.com/johnchaffee/twilio-widget",
-  "success_url": "/welcome",
   "keywords": ["twilio", "sms"],
   "addons": ["heroku-postgresql:hobby-dev"],
   "env": {
@@ -47,6 +46,6 @@
     }
   },
   "scripts": {
-    "postdeploy": "./db-setup.sh"
+    "postdeploy": "./deploy.sh"
   }
 }
