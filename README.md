@@ -1,20 +1,5 @@
 # Twilio Widget
 
-## Features left to implement
-
-| Feature                        | Description                                                                                                                                                                                                                                                                                               | Who          |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| Presentation                   | Create submission presentation and video                                                                                                                                                                                                                                                                  | @chris-mit   |
-| Video                          | Create submission presentation and video                                                                                                                                                                                                                                                                  | @johnchaffee |
-| Code Exchange One-Click Deploy | One-click deploy to Heroku on Twilio Code Exchange                                                                                                                                                                                                                                                        | ?            |
-| Templates                      | Ability to insert canned templates with variable using Twilio [Content API](https://docs.google.com/document/d/1DqgGYs3A_EDXZhnfRAspRcxYv7jcvyAfReVi9bk1Shw/edit#) Pilot. We will need to set an account flag (in Monkey?) called `api.messaging.rich-content` on each of our accounts in order to use it | @johnchaffee |
-| Auto-Replies                   | Studio Flow and/or Functions Webhook after-hour auto-replies                                                                                                                                                                                                                                              | @cici        |
-| Keywords                       | Studio Flow and/or FunctionsWebhook keyword auto-replies                                                                                                                                                                                                                                                  | @cici        |
-| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on [Twilio Assets](https://www.twilio.com/docs/runtime/assets)                                                                                                                                                        | @pittperson  |
-| Mobile Responsive?             | Collapse sidepanel when running on mobile device                                                                                                                                                                                                                                                          | ?            |
-| Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked                                                                                                                                                                                                                              | ?            |
-| Twilio Node SDK?               | Consider replacing Fetch API calls with Twilio Node SDK                                                                                                                                                                                                                                                   | ?            |
-
 ## How it works
 
 This app creates a Zipwhip-like interface for a Twilio phone number to send/receive text messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages via SMS, MMS, WhatsApp and Facebook Messenger; Twilio Event Streams Webhooks for incoming/outgoing messages; Websockets for real-time communicate with the web clients; Twilio Functions/Assets for hosting MMS images, Twilio Content API for Templates; Twilio Verify(?) for authentication.
@@ -23,28 +8,36 @@ You can run locally or deploy to heroku.
 
 ## Features
 
-- Chat client built in vanilla html/javascript based on this [Codepen sample UI](https://codepen.io/sajadhsm/pen/odaBdd)
-- Chat client sends text messages (SMS & MMS) via Twilio Programmable Messaging API
-- Chat client supports WhatsApp and Facebook Messenger via Twilio Channels API
-- Chat client connects to [Websocket](https://npm.im/ws) server to receive messages
-- Express server receives Twilio Event Streams Webhooks for incoming and outgoing text messages
-- Express server forwards Webhook messages to Websocket server
-- Websocket server broadcasts messages to chat clients
-- One click deploy button for [Heroku](https://heroku.com)
+- Web chat client built with vanilla html/javascript based on this [Codepen sample UI](https://codepen.io/sajadhsm/pen/odaBdd)
+- Send and receive text messages (SMS & MMS) via [Twilio Programmable Messaging API](https://www.twilio.com/docs/sms/send-messages)
+- Send and receive WhatsApp messages via [Twilio WhatsApp API](https://www.twilio.com/docs/whatsapp/api)
+- Send and receive Facebook Messenger messages via [Twilio Channels API](https://www.twilio.com/docs/messaging/channels)
+- Express server receives [Twilio Event Streams Webhooks](https://www.twilio.com/docs/events/webhook-quickstart) for incoming and outgoing text messages
+- Client & Server communicate via [Websocket](https://npm.im/ws) for real-time updates as messages are sent/received
+- One click [Deploy to Heroku](#deploy-to-heroku) button
+
+## Deploy to Heroku
+
+As an alternative to configuring and running the app locally, you can quickly deploy it to heroku by clicking the button below. All that is required is a free Heroku account, plus a Twilio account and phone number.
+
+<a href="https://heroku.com/deploy?template=https://github.com/johnchaffee/twilio-widget">
+  <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
+</a>
+
+Note: When deploying to heroku, you will be prompted to enter the [environment variables described below](#env-variables). You should have these ready ahead of time.
+
+
+## Architecture
 
 <img src="./public/images/architecture.png" width="100%" alt="Architecture">
 
-## Set up
-
-### Requirements
+## Requirements
 
 - [Node.js](https://nodejs.org/)
-- [Twilio account](https://twilio.com)
+- [Twilio account](https://twilio.com) and phone number
 - [Postgresql](https://wiki.postgresql.org/wiki/Homebrew)
 
-### Local development
-
-After the above requirements have been met:
+## Set up
 
 1.  Clone this repository and `cd` into it
 
@@ -59,8 +52,8 @@ After the above requirements have been met:
     npm install
     ```
 
-3.  Create a `.env` file in your root directory and enter the environment variables below.
-
+3.  <div id="env-variables"></div>Create a `.env` file in your root directory and enter the environment variables below.
+  
     ```conf
     # LOCAL DEVELOPMENT ENV VARIABLES
     PORT=3000  # Enter a port number for local development
@@ -94,7 +87,7 @@ After the above requirements have been met:
 
 5.  Make the application visible to the outside world.
 
-    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, deploying the app to [heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs?singlepage=true) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
+    Your application needs to be accessible at a public internet address for Webhooks to be able to connect with it. You can do that in different ways, [deploying the app to heroku](#deploy-to-heroku) or using [ngrok](https://ngrok.com/) to create a tunnel to your local server.
 
     If you have ngrok installed, you can open a tunnel to your local server by running the following command:
 
@@ -108,56 +101,62 @@ After the above requirements have been met:
     https://<unique_id>.ngrok.io/
     ```
 
-6.  Create [Event Streams](https://www.twilio.com/docs/events) webhook for incoming and outgoing messages. You'll need to point it to the ngrok and/or heroku url above.
+6.  Create [Event Streams](https://www.twilio.com/docs/events) webhooks for incoming and outgoing messages. You'll need to point it to the ngrok and/or heroku url above.
 
-_NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_
+    **Using the Twilio CLI**
 
-**Twilio CLI**
+    These are the steps for configuring webhooks using the Twilio CLI.
 
-Create a sink endpoint:
+    Create a sink endpoint:
 
-```
-twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
---sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
---sink-type webhook
-```
+    ```
+    twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
+    --sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
+    --sink-type webhook
+    ```
 
-Subscribe to `sent` and `received` messages using the SID returned from above:
+    Subscribe to `sent` and `received` messages using the SID returned from above:
 
-```
-twilio api:events:v1:subscriptions:create \
-  --description "Subscribe to 'sent' and 'received' messaging events" \
-  --sink-sid <EVENT STREAM SID> \
-  --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
-  --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
-```
+    ```
+    twilio api:events:v1:subscriptions:create \
+      --description "Subscribe to 'sent' and 'received' messaging events" \
+      --sink-sid <EVENT STREAM SID> \
+      --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
+      --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
+    ```
 
-**Curl**
+    **Using Curl**
 
-Here's how to perform the same steps as above with curl, perhaps to run as a shell script.
+    Here's how to perform the same steps as above using curl, which may come in handy if running as a shell script.
 
-Create a sink endpoint:
+    Create a sink endpoint:
 
-```
-twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
---sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
---sink-type webhook
-```
+    ```
+    twilio api:events:v1:sinks:create --description "twilio-widget.herokuapp.com webhooks" \
+    --sink-configuration '{"destination":"https://twilio-widget.herokuapp.com/twilio-event-streams","method":"POST","batch_events":false}' \
+    --sink-type webhook
+    ```
 
-Subscribe to `sent` and `received` messages using the SID returned from above:
+    Subscribe to `sent` and `received` messages using the SID returned from above:
 
-```
-twilio api:events:v1:subscriptions:create \
-  --description "Subscribe to 'sent' and 'received' messaging events" \
-  --sink-sid <EVENT STREAM SID> \
-  --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
-  --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
-```
+    ```
+    twilio api:events:v1:subscriptions:create \
+      --description "Subscribe to 'sent' and 'received' messaging events" \
+      --sink-sid <EVENT STREAM SID> \
+      --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
+      --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
+    ```
+
+    _NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_
+
+7. Configure Postgres db
+
+    Follow the instructions below to [configure a postgres database](#configure-postgres-database-on-localhost) to create and configure a postgres database.
 
 
-That's it! Now you can start sending and receiving messages text messages in the web client.
+That's it! You can begin sending and receiving text messages in the web client.
 
-## WhatsApp
+## WhatsApp (optional)
 
 In addition to SMS and MMS, you can send/receive messages with WhatsApp users. You can use the Twilio Sandbox for WhatsApp to prototype with WhatsApp immediately, without waiting for your Twilio number to be approved for WhatsApp. You can configure the Twilio WhatsApp Sandbox for your account in the [Twilio Console](https://console.twilio.com/us1/develop/sms/settings/whatsapp-sandbox?frameUrl=%2Fconsole%2Fsms%2Fwhatsapp%2Fsandbox%3Fx-target-region%3Dus1).
 
@@ -173,7 +172,7 @@ If you want to initiate a conversation with a WhatsApp user, it must be using on
 - Your {{1}} appointment is coming up on {{2}}
 - Your {{1}} order of {{2}} has shipped and should be delivered on {{3}}. Details : {{4}}
 
-## Facebook Messenger
+## Facebook Messenger (optional)
 
 You can also send/receive messages with Facebook Messenger users. You'll have to create a Facebook Page, then insall the Twilio Facebook Messenger Channel and choose the Facebook Page as a Sender following [these instructions](https://support.twilio.com/hc/en-us/articles/360018988274-Getting-Started-with-the-Facebook-Messenger-Channel-Beta-).
 
@@ -190,10 +189,10 @@ There are two database tables. One table stores a list of all the conversations 
 The `conversations_id` is unique and concats the twilio number and mobile number separated by a semicolon.
 
 ```
- id |conversation_id            |       date_updated       |     name     | unread_count
-----+---------------------------+--------------------------+--------------+-------------
- 53 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Joe Smith | 2
- 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Sally Stevens    | 0
+ id |conversation_id            |       date_updated       |     name      | unread_count
+----+---------------------------+--------------------------+---------------+-------------
+ 53 | +18555080989;+12065551212 | 2021-11-16T23:27:23.000Z | Joe Smith     | 2
+ 54 | +18555080989;+12063693826 | 2021-11-16T23:27:23.000Z | Sally Stevens | 0
 ```
 
 ```json
@@ -212,11 +211,11 @@ The `conversations_id` is unique and concats the twilio number and mobile number
 The messages table always stores the `twilio_number` and `mobile_number` in the same column and indicates whether a message was `outbound` or `inbound` with the `direction` column. This allows you to fetch all inbound and outbound messages between a twilio number and mobile number with a single request.
 
 ```
- id | conversation_id           | twilio_number | mobile_number |       date_created       | direction | body
-----+---------------------------+---------------+---------------+--------------------------+------------------------------
- 53 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?
- 54 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?
- 55 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking.
+ id | conversation_id           | twilio_number | mobile_number |       date_created       | direction |            body                           media_url
+----+---------------------------+---------------+---------------+--------------------------+------------------------------------------+--------------------------------
+ 53 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:23.000Z | outbound  | hey, how's it going?         | https://demo.twilio.com/owl.png
+ 54 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:34.000Z | inbound   | pretty good. how are you?    | 
+ 55 | +18555080989;+12065551212 | +18555080989  | +12065551212  | 2021-11-16T23:27:40.000Z | outbound  | I'm fine. Thanks for asking. | 
 ```
 
 ```json
@@ -227,28 +226,20 @@ The messages table always stores the `twilio_number` and `mobile_number` in the 
     "direction": "outbound",
     "twilio_number": "+18555080989",
     "mobile_number": "+12065551212",
-    "body": "hey, how's it going?"
+    "body": "hey, how's it going?",
+    "media_url": "https://demo.twilio.com/owl.png"
   }
 ]
 ```
 
-## Configure Postgres database on localhost
+## Configure Postgres database
+
+If you're going to run the app on localhost, you will have to create a postgres database with the steps below:
 
 ```sql
 
 -- launch postgres
 psql postgres
-
--- List databases
-postgres-# \l
-
-                                         List of databases
-          Name           |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
--------------------------+----------+----------+-------------+-------------+-----------------------
- api                     | me       | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
- node_getting_started    | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
- postgres                | jchaffee | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
-(3 rows)
 
 -- Create widget database
 CREATE DATABASE widget;
@@ -311,31 +302,17 @@ ALTER TABLE conversations ADD COLUMN status VARCHAR(10);
 DELETE FROM conversations WHERE id = 3;
 ```
 
-## Configure Postgres database on heroku
+## Features left to implement
 
-You'll need to provision a postgres add-on for the app on heroku. You can do that on the heroku dashboard or the command line. That will automatically create a database associated with the app so you won't have to manually create the database as we did above. You can connect to the database using the heroku CLI with this command:
-
-```sql
--- Connect to heroku postgres
-heroku pg:psql
---> Connecting to postgresql-crystalline-12737
-```
-
-You'll then need to create the messages table and conversations tables as you did above for localhost.
-
-Note: You won't have to do any of this if you use the Deploy to Heroku button below as it will run a deploy script that sets up the database automatically.
-
-## Deploy to Heroku
-
-As an alternative to running the app locally, you can deploy it to heroku by clicking the button below.
-
-<a href="https://heroku.com/deploy?template=https://github.com/johnchaffee/twilio-widget">
-  <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
-</a>
-
-Note: When deploying to heroku, you will be prompted to enter several environment variables as described below. You should have these ready ahead of time.
-
-- `MOBILE` - A default mobile phone number to send messages to in E.164 format (e.g. `+12065551212`).
-- `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
-- `TWILIO_NUMBER` - Your Twilio phone number to send messages from in E.164 format (e.g. `+12065551212`).
+| Feature                        | Description                                                                                                                                                                                                                                                                                               | Who          |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| Presentation                   | Create submission presentation and video                                                                                                                                                                                                                                                                  | @chris-mit   |
+| Video                          | Create submission presentation and video                                                                                                                                                                                                                                                                  | @johnchaffee |
+| Code Exchange One-Click Deploy | One-click deploy to Heroku on Twilio Code Exchange                                                                                                                                                                                                                                                        | ?            |
+| Templates                      | Ability to insert canned templates with variable using Twilio [Content API](https://docs.google.com/document/d/1DqgGYs3A_EDXZhnfRAspRcxYv7jcvyAfReVi9bk1Shw/edit#) Pilot. We will need to set an account flag (in Monkey?) called `api.messaging.rich-content` on each of our accounts in order to use it | @johnchaffee |
+| Auto-Replies                   | Studio Flow and/or Functions Webhook after-hour auto-replies                                                                                                                                                                                                                                              | @cici        |
+| Keywords                       | Studio Flow and/or FunctionsWebhook keyword auto-replies                                                                                                                                                                                                                                                  | @cici        |
+| Outgoing MMS                   | Upload/send MMS images (already supports receiving/displaying MMS images) and store on [Twilio Assets](https://www.twilio.com/docs/runtime/assets)                                                                                                                                                        | @pittperson  |
+| Mobile Responsive?             | Collapse sidepanel when running on mobile device                                                                                                                                                                                                                                                          | ?            |
+| Chrome Extension?              | Display T icon next to phone numbers on any page, launch Widget when clicked                                                                                                                                                                                                                              | ?            |
+| Twilio Node SDK?               | Consider replacing Fetch API calls with Twilio Node SDK                                                                                                                                                                                                                                                   | ?            |
