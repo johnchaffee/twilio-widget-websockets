@@ -106,13 +106,11 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
 7.  Create [Event Streams](https://www.twilio.com/docs/events) webhooks for incoming and outgoing messages. You'll need to point it to the ngrok url above.
 
-    **Using the Twilio CLI**
-
     These are the steps for configuring event streams webhooks using the [Twilio CLI](https://www.twilio.com/docs/twilio-cli/quickstart).
 
     Create a sink endpoint:
 
-    ```
+    ```sh
     twilio api:events:v1:sinks:create --description "<your ngok url> webhooks" \
     --sink-configuration '{"destination":"<your ngok url>/twilio-event-streams","method":"POST","batch_events":false}' \
     --sink-type webhook
@@ -120,34 +118,16 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
     Subscribe to `sent` and `received` messages using the SID returned from above:
 
-    ```
+    ```sh
     twilio api:events:v1:subscriptions:create \
       --description "Subscribe to 'sent' and 'received' messaging events" \
       --sink-sid <EVENT STREAM SID> \
       --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
       --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
     ```
-
-    **Or using Curl**
 
     Alternatively, you can perform the same steps as above using `curl`, which may come in handy if you are developing a shell script for configuration. *Tip: There is a sample shell script in `./deploy.sh` used for configuring the database and webhooks during the deploy to heroku process.*
 
-    Create a sink endpoint:
-
-    ```
-    twilio api:events:v1:sinks:create --description "<your ngok url> webhooks" \
-    --sink-configuration '{"destination":"<your ngok url>/twilio-event-streams","method":"POST","batch_events":false}' \
-    --sink-type webhook
-    ```
-
-    Subscribe to `sent` and `received` messages using the SID returned from above:
-
-    ```
-    twilio api:events:v1:subscriptions:create \
-      --description "Subscribe to 'sent' and 'received' messaging events" \
-      --sink-sid <EVENT STREAM SID> \
-      --types '{"type":"com.twilio.messaging.message.sent","schema_version":1}' \
-      --types '{"type":"com.twilio.messaging.inbound-message.received","schema_version":1}'
     ```
 
     _NOTE: In order to enable Event Streams to send inbound webhooks you must configure a default incoming webhook for your Twilio Phone Number in Twilio Console > Phone Numbers > Manage > Active Numbers > PHONE_NUMBER. On the bottom of the page in the Messaging section where it says A MESSAGE COMES IN, select Webhook from the popup and enter a URL. It doesn't matter what the callback URL is. It can be your actual endpoint or a random one like https://example.com but be aware that the endpoint will have access to the payload of the incoming webhooks so you should probably send it to your server for security purposes. (We need to inform the Event Streams team about this limitation...)_

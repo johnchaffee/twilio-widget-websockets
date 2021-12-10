@@ -32,7 +32,7 @@ CREATE TABLE conversations (
 
 -- Create sample conversation
 INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count, status)
-  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12065551212', 'Joe Smith', 2, 'open');
+  VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12065551212', 'Jeff Lawson', 2, 'open');
 
 EOF
 
