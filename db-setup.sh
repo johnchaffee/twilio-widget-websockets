@@ -25,7 +25,7 @@ CREATE TABLE conversations (
   conversation_id VARCHAR UNIQUE,
   contact_name VARCHAR,
   unread_count SMALLINT,
-  status VARCHAR(10),
+  status VARCHAR(10)
 );
 
 -- Create sample conversation
