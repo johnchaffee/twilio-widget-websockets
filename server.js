@@ -12,7 +12,6 @@ let twilio_number = ""
 let conversations = []
 let messages = []
 const limit = process.env.LIMIT || 20
-const myMobileNumber = process.env.MY_MOBILE_NUMBER || "+12065551212"
 const username = process.env.APP_USERNAME
 const password = process.env.APP_PASSWORD
 const users = {}

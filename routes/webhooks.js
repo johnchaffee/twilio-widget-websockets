@@ -1,58 +1,93 @@
-require("dotenv").config();
-const express = require("express");
-const router = express.Router();
-const fetch = require("node-fetch");
-const db = require("../database");
-const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
-const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
+require("dotenv").config()
+const express = require("express")
+const router = express.Router()
+const axios = require("axios").default
+const db = require("../database")
+const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID
+const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN
 const auth_header =
   "Basic " +
-  Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
+  Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64")
 
 // TWILIO EVENT STREAMS WEBHOOKS
 // Listen for incoming and outgoing messages
 router.post("/", (req, res, next) => {
-  console.log("/twilio-event-streams WEBHOOK");
+  console.log("/twilio-event-streams WEBHOOK")
+  let media = 0
+  let delay = 5 // delay before fetching media_url
   // Get first array object in request body
-  let requestBody = req.body[0];
-  let delay = 1; // delay before fetching media_url
-
-  // Fetch message body
-  async function getMessageBody(apiUrl, requestOptions) {
-    console.log("getMessageBody()");
-    const response = await fetch(apiUrl, requestOptions);
-    const result = await response.json();
-    return result;
+  let requestBody = req.body[0]
+  let sender = requestBody.data.from
+  if (sender.slice(0, 9) == "messenger" || sender.slice(0, 8) == "whatsapp") {
+    delay = 1
   }
 
+  // Fetch body
+  async function getBody() {
+    const getBodyConfig = {
+      url: `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}.json`,
+      method: "get",
+      headers: {
+        Authorization: auth_header,
+      },
+    }
+    console.log("getBodyConfig()")
+    const response = await axios(getBodyConfig)
+    console.log("RESPONSE.DATA")
+    console.log(response.data)
+    media = response.data.num_media
+    console.log(`MEDIA: ${media}`)
+    // Set messageObject and conversationObject properties, reset unread_count: 0
+    messageObject = {
+      type: "messageCreated",
+      date_created: new Date(response.data.date_created).toISOString(),
+      direction: "outbound",
+      twilio_number: response.data.from,
+      mobile_number: response.data.to,
+      conversation_id: `${response.data.from};${response.data.to}`,
+      body: response.data.body,
+    }
+    conversationObject = {
+      type: "conversationUpdated",
+      date_updated: new Date(response.data.date_created).toISOString(),
+      conversation_id: `${response.data.from};${response.data.to}`,
+      unread_count: 0,
+      status: "open",
+    }
+  }
+  
   // Fetch media url
-  async function getMediaUrl(apiUrl, requestOptions, delay) {
-    console.log("getMediaUrl()");
-    // Wait 1 second before fetching media list to avoid race condition
-    console.log(`start ${delay} second timer`);
-    await new Promise((resolve) => setTimeout(resolve, delay * 1000));
-    console.log(`after ${delay} second timer`);
-    const response = await fetch(apiUrl, requestOptions);
-    const result = await response.json();
+  async function getMediaUrl() {
+    const getMediaConfig = {
+      url: `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}/Media.json`,
+      method: "get",
+      headers: {
+        Authorization: auth_header,
+      },
+    }
+    console.log("getMediaUrl()")
+    // Wait x seconds before fetching media list to avoid race condition
+    console.log(`start ${delay} second timer`)
+    await new Promise((resolve) => setTimeout(resolve, delay * 1000))
+    console.log(`after ${delay} second timer`)
+    const response = await axios(getMediaConfig)
+    console.log("RESPONSE: ", response)
     // if media_list > 0 set messageObject.media_url property
-    if (result.media_list.length > 0) {
-      const media_url =
-        `https://api.twilio.com${result.media_list[0].uri}`.replace(
+    let media_url = ""
+    if (response.data.media_list.length > 0) {
+      media_url =
+        `https://api.twilio.com${response.data.media_list[0].uri}`.replace(
           ".json",
           ""
-        );
-      messageObject.media_url = media_url;
+        )
+      messageObject.media_url = media_url
     }
-    console.log("getMediaUrl() RESULT:");
-    console.log(result);
-    // console.log("const result = await response.json()");
-    // console.log(result);
-    return result;
+    console.log("getMediaUrl(): ", media_url)
   }
 
   // INCOMING WEBHOOK
   if (requestBody.type == "com.twilio.messaging.inbound-message.received") {
-    console.log("INBOUND WEBHOOK");
+    console.log("INBOUND WEBHOOK")
     // If incoming message, the body already exists in payload
     // Set default messageObject and conversationObject properties, unread_count: 1
     messageObject = {
@@ -63,116 +98,62 @@ router.post("/", (req, res, next) => {
       mobile_number: requestBody.data.from,
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       body: requestBody.data.body,
-    };
+    }
     conversationObject = {
       type: "conversationUpdated",
       date_updated: requestBody.data.timestamp,
       conversation_id: `${requestBody.data.to};${requestBody.data.from}`,
       unread_count: 1,
       status: "open",
-    };
+    }
     if (requestBody.data.numMedia > 0) {
-      // if nuMedia > 0, fetch the mediaUrl and add  it to the messageObject
-      const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}/Media.json`;
-      const requestOptions = {
-        method: "GET",
-        headers: {
-          Authorization: auth_header,
-        },
-      };
-      getMediaUrl(apiUrl, requestOptions, delay)
-        .then((result) => {
-          db.createMessage(messageObject);
-          db.updateConversation(conversationObject);
+      console.log("NUM MEDIA > 0")
+      // if nuMedia > 0, fetch the mediaUrl and add it to the messageObject
+      getMediaUrl()
+        .then(() => {
+          db.createMessage(messageObject)
+          db.updateConversation(conversationObject)
         })
         .catch((error) => {
-          console.log("getMediaUrl() CATCH");
-          console.log(error.message);
+          console.log("getMediaUrl() CATCH")
+          console.log(error.message)
           // error.message;
-        });
+        })
     } else {
       // There is no medialUrl, send the default messageObject and conversationObject
-      db.createMessage(messageObject);
-      db.updateConversation(conversationObject);
+      db.createMessage(messageObject)
+      db.updateConversation(conversationObject)
     }
   }
   // OUTGOING WEBHOOK
   else if (requestBody.type == "com.twilio.messaging.message.sent") {
-    console.log("OUTBOUND WEBHOOK");
-    let media = 0;
-    let sender = requestBody.data.from;
-    // If outgoing message, the body does not exist in payload and must be fetched
-    const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}.json`;
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        Authorization: auth_header,
-      },
-    };
-    getMessageBody(apiUrl, requestOptions)
-      .then((result) => {
-        // console.log("getMessageBody() THEN -> RESULT");
-        console.log(result);
-        media = result.num_media;
-        console.log(`MEDIA: ${media}`);
-        // Set messageObject and conversationObject properties, reset unread_count: 0
-        messageObject = {
-          type: "messageCreated",
-          date_created: new Date(result.date_created).toISOString(),
-          direction: "outbound",
-          twilio_number: result.from,
-          mobile_number: result.to,
-          conversation_id: `${result.from};${result.to}`,
-          body: result.body,
-        };
-        conversationObject = {
-          type: "conversationUpdated",
-          date_updated: new Date(result.date_created).toISOString(),
-          conversation_id: `${result.from};${result.to}`,
-          unread_count: 0,
-          status: "open",
-        };
-      })
+    console.log("OUTBOUND WEBHOOK")
+    getBody()
       .then(() => {
         if (media > 0) {
-            // whatsapp and messenger API access to media_url is fast, don't change 1 second delay
-            if (
-            sender.slice(0, 9) !== "messenger" &&
-            sender.slice(0, 8) !== "whatsapp"
-          ) {
-            // MMS API access to media_url is delayed, wait 4 seconds before fetching
-            delay = 4;
-          }
           // if nuMedia > 0, fetch the mediaUrl and add  it to the messageObject
-          const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages/${requestBody.data.messageSid}/Media.json`;
-          const requestOptions = {
-            method: "GET",
-            headers: {
-              Authorization: auth_header,
-            },
-          };
-          getMediaUrl(apiUrl, requestOptions, delay)
-            .then((result) => {
-              db.createMessage(messageObject);
-              db.updateConversation(conversationObject);
+          getMediaUrl()
+            .then(() => {
+              db.createMessage(messageObject)
+              db.updateConversation(conversationObject)
             })
             .catch((error) => {
-              console.log("getMediaUrl() CATCH");
-              console.log(error.message);
+              console.log("getMediaUrl() CATCH")
+              console.log(error.message)
               // error.message;
-            });
+            })
         } else {
-          db.createMessage(messageObject);
-          db.updateConversation(conversationObject);
+          db.createMessage(messageObject)
+          db.updateConversation(conversationObject)
         }
       })
       .catch((error) => {
-        console.log("getMessageBody() CATCH");
-        console.log(error.message);
+        console.log("getMessageBody() CATCH")
+        console.log(error.message)
         // error.message;
-      });
+      })
   }
-  res.sendStatus(200);
-});
+  res.sendStatus(200)
+})
 
-module.exports = router;
+module.exports = router
