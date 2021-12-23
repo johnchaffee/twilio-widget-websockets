@@ -55,9 +55,6 @@
 
       <!-- Append msgerChat message history here -->
       <main class="msger-chat">
-        <%# messages.forEach(function(message) {%>
-        <!-- <p><%#= message.body %></p> -->
-        <%# }); %>
       </main>
 
       <form class="msger-inputarea">
@@ -73,12 +70,12 @@
         <button type="submit" class="msger-send-btn">Send</button>
       </form>
     </section>
-    <script src="/js/script.js"></script>
+    <script src="./js/script.js"></script>
     <script>
       function createConversationPrompt() {
         const mobile_number = prompt(
           "Enter Mobile Number in E.164 format",
-          "<%= myMobileNumber %>"
+          "+12065551234"
         );
         if (mobile_number != null) {
           console.log("CREATE CONVERSATION: " + mobile_number);

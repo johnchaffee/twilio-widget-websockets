@@ -3,7 +3,7 @@ const WebSocket = require("ws")
 const WebSocketServer = WebSocket.Server
 const express = require("express")
 const path = require("path")
-const ejs = require("ejs")
+// const ejs = require("ejs")
 const app = express()
 const db = require("./database")
 const client = require("./client")
@@ -28,13 +28,13 @@ const basicAuthProps = {
   },
 }
 
-app.set("view engine", "ejs")
-app.set("views", path.join(__dirname, "views"))
-app.use(express.static(path.resolve(__dirname, "public")))
+// app.set("view engine", "ejs")
+// app.set("views", path.join(__dirname, "views"))
+// app.use(express.static(path.resolve(__dirname, "public")))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-// app.use(express.static("public"));
+app.use(express.static("public"));
 
 // Import and use routes
 const messagesendRouter = require("./routes/messages")
@@ -77,7 +77,8 @@ app.get("/", basicAuth(basicAuthProps), (req, res) => {
       // Get array of messages for this mobile number
       getMessages(mobileNumberQuery).then(function () {
         console.log("RENDER INDEX")
-        res.render("index", { limit: limit, myMobileNumber: myMobileNumber })
+        res.sendFile(__dirname + '/index.html');
+        // res.render("index", { limit: limit, myMobileNumber: myMobileNumber })
         // res.render("index", { conversations, messages });
       })
     })
