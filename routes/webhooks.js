@@ -19,8 +19,8 @@ router.post("/", (req, res, next) => {
   // INCOMING WEBHOOK
   if (requestBody.SmsStatus == "received") {
     console.log("INBOUND WEBHOOK")
-    // If incoming message, the body and media already exist in payload
-    // Set default messageObject and conversationObject properties, unread_count: 1
+    // If incoming message, the body and media url already exist in payload
+    // Set messageObject and conversationObject properties, unread_count: 1
     messageObject = {
       type: "messageCreated",
       date_created: new Date().toISOString(),
@@ -122,8 +122,8 @@ router.post("/", (req, res, next) => {
 
     getBody()
       .then(() => {
+        // if nuMedia > 0, fetch the mediaUrl and add  it to the messageObject
         if (media > 0) {
-          // if nuMedia > 0, fetch the mediaUrl and add  it to the messageObject
           getMediaUrl()
             .then(() => {
               db.createMessage(messageObject)
