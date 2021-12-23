@@ -4,6 +4,7 @@ const router = express.Router()
 const axios = require("axios").default
 const qs = require('qs');
 
+const app_host_name = process.env.APP_HOST_NAME || "localhost"
 const ngrok_url = process.env.NGROK_URL
 let status_callback_url = ""
 if (process.env.NODE_ENV === "development") {
