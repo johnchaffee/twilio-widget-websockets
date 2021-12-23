@@ -1,84 +1,65 @@
-require("dotenv").config();
-const express = require("express");
-const router = express.Router();
-const fetch = require("node-fetch");
+require("dotenv").config()
+const express = require("express")
+const router = express.Router()
+const axios = require("axios").default
+const qs = require('qs');
 
-let twilio_number = "";
-const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID;
-const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
+let twilio_number = ""
+const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID
+const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN
 const auth_header =
   "Basic " +
-  Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64");
+  Buffer.from(twilio_account_sid + ":" + twilio_auth_token).toString("base64")
 
 // SEND OUTGOING MESSAGE
 // Web client posts '/messages' request to this server, which posts request to Twilio API
 router.post("/", (req, res, next) => {
-  console.log("/messages");
-  let body = req.body.body;
-  let mobile_number = req.body.mobile_number;
-  let media_url = req.body.media_url;
-  console.log(`media_url: ${media_url}`);
-  console.log("MEDIA URL NULL: ", media_url == null)
+  console.log("/messages")
+  let body = req.body.body
+  let mobile_number = req.body.mobile_number
+  let media_url = req.body.media_url
   if (mobile_number.slice(0, 9) === "messenger") {
     // If sending to messenger, send from facebook_messenger_id
-    twilio_number = process.env.FACEBOOK_MESSENGER_ID;
+    twilio_number = process.env.FACEBOOK_MESSENGER_ID
   } else if (mobile_number.slice(0, 8) === "whatsapp") {
     // If sending to whatsapp, send from whats_app_id
-    twilio_number = process.env.WHATSAPP_ID;
+    twilio_number = process.env.WHATSAPP_ID
   } else {
     // else, send from twilio SMS number
-    twilio_number = process.env.TWILIO_NUMBER;
+    twilio_number = process.env.TWILIO_NUMBER
   }
   // Send message via Twilio API
-  const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`;
+  const apiUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`
   // url encode body params
-  let bodyParams = {};
-  console.log("BODY PARAMS BEFORE:");
-  console.log(bodyParams);
+  let bodyParams = {
+    From: twilio_number,
+    To: mobile_number,
+    Body: body,
+  }
+  console.log("BODY PARAMS: ", bodyParams)
   if (media_url !== undefined && media_url !== null) {
-    console.log("MEDIA URL != NULL");
-    bodyParams = new URLSearchParams({
-      From: twilio_number,
-      To: mobile_number,
-      Body: body,
-      MediaUrl: media_url,
-    });
-  } else {
-    bodyParams = new URLSearchParams({
-      From: twilio_number,
-      To: mobile_number,
-      Body: body,
-    });
-  }
-  console.log("BODY PARAMS AFTER:");
-  console.log(bodyParams);
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: auth_header,
+    bodyParams.MediaUrl = media_url
+    console.log("MEDIA URL PARAMS: ", bodyParams)
+    }
+  bodyParams = qs.stringify(bodyParams)
+  console.log("QS.STRINGIFY BODY PARAMS: ", bodyParams)
+  const config = {
+    method: 'post',
+    url: apiUrl,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      Authorization: auth_header
     },
-    body: bodyParams,
-  };
-  sendMessage(apiUrl, requestOptions)
-    .then((result) => {
-      // console.log("sendMessage() THEN -> RESULT");
-      // console.log(result);
-      res.sendStatus(200);
-    })
-    .catch((error) => {
-      console.log("sendMessage() CATCH");
-      console.log(error.message);
-      // error.message;
-    });
-
-  async function sendMessage(apiUrl, requestOptions) {
-    console.log("sendMessage()");
-    const response = await fetch(apiUrl, requestOptions);
-    const result = await response.json();
-    return result;
+    data : bodyParams
   }
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data))
+  })
+  .catch(function (error) {
+    console.log(error);
+  })
   // res.sendStatus(200);
-});
+})
 
-module.exports = router;
+module.exports = router
