@@ -178,7 +178,7 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
     -- Create a sample message
     INSERT INTO messages (date_created, direction, twilio_number, mobile_number, conversation_id, body, media_url)
-      VALUES ('2021-11-18T22:18:14.000Z', 'outbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Outgoing message', 'https://demo.twilio.com/owl.png'), ('2021-11-18T22:14:00.000Z', 'inbound', '+18555080989', '+12065551212', '+18555080989;+12065551212', 'Reply from mobile', null);
+      VALUES ('2021-11-18T22:18:14.000Z', 'outbound', '<YOUR_TWILIO_NUMBER>', '+12065551212', '<YOUR_TWILIO_NUMBER>;+12065551212', 'Outgoing message', 'https://demo.twilio.com/owl.png'), ('2021-11-18T22:14:00.000Z', 'inbound', '<YOUR_TWILIO_NUMBER>', '+12065551212', '<YOUR_TWILIO_NUMBER>;+12065551212', 'Reply from mobile', null);
 
     -- Fetch all messages
     SELECT * FROM messages order by date_created desc;
@@ -201,7 +201,7 @@ Note: When deploying to heroku, you will be prompted to enter the [environment v
 
     -- Create sample conversation
     INSERT INTO conversations (date_updated, conversation_id, contact_name, unread_count, status)
-      VALUES ('2021-11-14T22:34:13.204Z', '+18555080989;+12065551212', 'Joe Smith', 2, 'open');
+      VALUES ('2021-11-14T22:34:13.204Z', '<YOUR_TWILIO_NUMBER>;+12065551212', 'Joe Smith', 2, 'open');
 
     -- Fetch all conversations
     SELECT * FROM conversations order by date_updated desc;
