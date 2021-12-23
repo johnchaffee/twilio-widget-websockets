@@ -8,9 +8,9 @@ const app_host_name = process.env.APP_HOST_NAME || "localhost"
 const ngrok_url = process.env.NGROK_URL
 let status_callback_url = ""
 if (process.env.NODE_ENV === "development") {
-  status_callback_url = `${ngrok_url}/twilio-webhook`
+  status_callback_url = `https://${ngrok_url}/twilio-webhook`
 } else {
-  status_callback_url = `${app_host_name}.herokuapp.com/twilio-webhook`
+  status_callback_url = `https://${app_host_name}.herokuapp.com/twilio-webhook`
 }
 
 let twilio_number = ""
