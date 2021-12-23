@@ -40,7 +40,7 @@ const messagesendRouter = require("./routes/messages")
 app.use("/messages", messagesendRouter)
 
 const webhooksRouter = require("./routes/webhooks")
-app.use("/twilio-event-streams", webhooksRouter)
+app.use("/twilio-webhook", webhooksRouter)
 
 // Match twilio number to mobile channel
 function twilioNumber(mobile_number) {
@@ -177,6 +177,8 @@ app.put("/conversations", (req, res, next) => {
 // Catchall to acknowledge webhooks that don't match the paths above
 app.post(/.*/, (req, res, next) => {
   console.log("ACK WEBHOOK")
+  console.log("ACK REQ BODY")
+  console.log(req.body)
   // res.sendStatus(200);
   res.send("<Response></Response>")
 })

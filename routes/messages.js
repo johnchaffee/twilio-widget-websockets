@@ -4,6 +4,14 @@ const router = express.Router()
 const axios = require("axios").default
 const qs = require('qs');
 
+const ngrok_url = process.env.NGROK_URL
+let status_callback_url = ""
+if (process.env.NODE_ENV === "development") {
+  status_callback_url = `${ngrok_url}/twilio-webhook`
+} else {
+  status_callback_url = `${app_host_name}.herokuapp.com/twilio-webhook`
+}
+
 let twilio_number = ""
 const twilio_account_sid = process.env.TWILIO_ACCOUNT_SID
 const twilio_auth_token = process.env.TWILIO_AUTH_TOKEN
@@ -35,6 +43,7 @@ router.post("/", (req, res, next) => {
     From: twilio_number,
     To: mobile_number,
     Body: body,
+    StatusCallback: status_callback_url
   }
   console.log("BODY PARAMS: ", bodyParams)
   if (media_url !== undefined && media_url !== null) {
