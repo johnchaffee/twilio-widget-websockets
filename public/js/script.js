@@ -57,8 +57,8 @@ window.onload = function () {
           renderMessage(thisMessage)
         }
       })
-      // If first array type is conversationUpdated, render conversation list from entire array
-      if (messages[0].type != "messageCreated") {
+      // If first array type is conversationSomething, render conversation list from entire array
+      if (messages[0].type !== undefined && messages[0].type.startsWith("conversation")) {
         renderConversationList(messages)
       }
     } else {
