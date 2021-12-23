@@ -54,8 +54,7 @@
       </header>
 
       <!-- Append msgerChat message history here -->
-      <main class="msger-chat">
-      </main>
+      <main class="msger-chat"></main>
 
       <form class="msger-inputarea">
         <input
@@ -76,110 +75,110 @@
         const mobile_number = prompt(
           "Enter Mobile Number in E.164 format",
           "+12065551234"
-        );
+        )
         if (mobile_number != null) {
-          console.log("CREATE CONVERSATION: " + mobile_number);
+          console.log("CREATE CONVERSATION: " + mobile_number)
           // Send POST request to /conversations
-          window.location = "./?mobile=" + encodeURIComponent(mobile_number);
-          createConversation(mobile_number);
+          window.location = "./?mobile=" + encodeURIComponent(mobile_number)
+          createConversation(mobile_number)
 
           function createConversation(mobile_number) {
-            const apiUrl = "./conversations";
+            const apiUrl = "./conversations"
             const bodyParams = new URLSearchParams({
               mobile_number: mobile_number,
-            });
+            })
             const requestOptions = {
               method: "POST",
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
               },
               body: bodyParams,
-            };
+            }
             fetch(apiUrl, requestOptions)
               .then((response) => response.text())
               // .then((response) => response.json())
               .then((result) => {
-                console.log("CREATE CONVERSATION SUCCESS:");
-                console.log(result);
+                console.log("CREATE CONVERSATION SUCCESS:")
+                console.log(result)
               })
               .catch((error) => {
-                console.log("CREATE CONVERSATION CATCH:");
-                console.log(error);
-              });
+                console.log("CREATE CONVERSATION CATCH:")
+                console.log(error)
+              })
           }
         }
       }
 
       function updateContactPrompt(mobile_number) {
-        console.log("updateContactPrompt()");
-        console.log("MOBILE NUMBER");
-        console.log(mobile_number);
-        console.log(mobile_number);
-        const contact_name = prompt("Enter contact name");
+        console.log("updateContactPrompt()")
+        console.log("MOBILE NUMBER")
+        console.log(mobile_number)
+        console.log(mobile_number)
+        const contact_name = prompt("Enter contact name")
         if (contact_name != null) {
-          console.log("UPDATE CONTACT: " + contact_name);
-          updateContact(mobile_number, contact_name);
+          console.log("UPDATE CONTACT: " + contact_name)
+          updateContact(mobile_number, contact_name)
 
           function updateContact(mobile_number, contact_name) {
-            const apiUrl = "./conversations";
+            const apiUrl = "./conversations"
             const bodyParams = new URLSearchParams({
               contact_name: contact_name,
               mobile_number: mobile_number,
-            });
+            })
             const requestOptions = {
               method: "PUT",
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
               },
               body: bodyParams,
-            };
+            }
             fetch(apiUrl, requestOptions)
               .then((response) => response.text())
               // .then((response) => response.json())
               .then((result) => {
-                console.log("UPDATE CONTACT SUCCESS:");
-                console.log(result);
+                console.log("UPDATE CONTACT SUCCESS:")
+                console.log(result)
               })
               .catch((error) => {
-                console.log("UPDATE CONTACT CATCH:");
-                console.log(error);
-              });
+                console.log("UPDATE CONTACT CATCH:")
+                console.log(error)
+              })
           }
         }
       }
 
       function archiveConversationButton(mobile_number, status) {
-        console.log("archiveConversationButton()");
-        console.log(mobile_number);
-        console.log("STATUS");
-        console.log(status);
+        console.log("archiveConversationButton()")
+        console.log(mobile_number)
+        console.log("STATUS")
+        console.log(status)
         if (mobile_number != null) {
-          console.log(`ARCHIVE CONVERSATION: ${mobile_number}, ${status}`);
-          archiveConversation(mobile_number, status);
+          console.log(`ARCHIVE CONVERSATION: ${mobile_number}, ${status}`)
+          archiveConversation(mobile_number, status)
           function archiveConversation(mobile_number, status) {
-            const apiUrl = "./conversations";
+            const apiUrl = "./conversations"
             const bodyParams = new URLSearchParams({
               mobile_number: mobile_number,
               status: status,
-            });
+            })
             const requestOptions = {
               method: "PUT",
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
               },
               body: bodyParams,
-            };
+            }
             fetch(apiUrl, requestOptions)
               .then((response) => response.text())
               // .then((response) => response.json())
               .then((result) => {
-                console.log("ARCHIVE CONVERSATION SUCCESS:");
-                console.log(result);
+                console.log("ARCHIVE CONVERSATION SUCCESS:")
+                console.log(result)
               })
               .catch((error) => {
-                console.log("ARCHIVE CONVERSATION CATCH:");
-                console.log(error);
-              });
+                console.log("ARCHIVE CONVERSATION CATCH:")
+                console.log(error)
+              })
           }
         }
       }
