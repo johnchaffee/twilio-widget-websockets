@@ -18,6 +18,7 @@ router.post("/", (req, res, next) => {
   let mobile_number = req.body.mobile_number;
   let media_url = req.body.media_url;
   console.log(`media_url: ${media_url}`);
+  console.log("MEDIA URL NULL: ", media_url == null)
   if (mobile_number.slice(0, 9) === "messenger") {
     // If sending to messenger, send from facebook_messenger_id
     twilio_number = process.env.FACEBOOK_MESSENGER_ID;
@@ -34,7 +35,7 @@ router.post("/", (req, res, next) => {
   let bodyParams = {};
   console.log("BODY PARAMS BEFORE:");
   console.log(bodyParams);
-  if (media_url != 'undefined' && media_url != 'null') {
+  if (media_url !== undefined && media_url !== null) {
     console.log("MEDIA URL != NULL");
     bodyParams = new URLSearchParams({
       From: twilio_number,

@@ -1,12 +1,12 @@
 window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search)
-  // console.log(`urlParams: ${urlParams}`);
+  // console.log(`urlParams: ${urlParams}`)
   const mobileParam = urlParams.get("mobile")
-  // console.log(`mobileParam: ${mobileParam}`);
+  // console.log(`mobileParam: ${mobileParam}`)
   const mobileParamEncoded = encodeURIComponent(urlParams.get("mobile")) // %2B12065551111
-  // console.log(`mobileParamEncoded: ${mobileParamEncoded}`);
+  // console.log(`mobileParamEncoded: ${mobileParamEncoded}`)
   const mobileParamDecoded = decodeURIComponent(mobileParam) // +12065551111
-  // console.log(`mobileParamDecoded: ${mobileParamDecoded}`);
+  // console.log(`mobileParamDecoded: ${mobileParamDecoded}`)
   let mobile_number = mobileParamDecoded
   console.log(`URL PARAM MOBILE NUMBER: ${mobile_number}`)
 
@@ -253,35 +253,19 @@ window.onload = function () {
   // MESSAGE SEND
   function messageSend(body, mobile_number, media_url) {
     console.log("messageSend()")
-    const apiUrl = host + "/messages"
-    // console.log("APIURL: " + apiUrl);
-    // url encode body params
-    const bodyParams = new URLSearchParams({
-      body: body,
-      mobile_number: mobile_number,
-      media_url: media_url,
-    })
-    console.log(bodyParams)
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: bodyParams,
-    }
-    fetch(apiUrl, requestOptions)
-      .then((response) => response.text())
-      // .then((response) => response.json())
-      .then((result) => {
-        console.log("MESSAGE SEND SUCCESS:")
-        console.log(result)
+    axios
+      .post("./messages", {
+        body: body,
+        mobile_number: mobile_number,
+        media_url: media_url,
       })
-      .catch((error) => {
+      .then(function (response) {
+        console.log("MESSAGE SEND SUCCESS:")
+        console.log(response)
+      })
+      .catch(function (error) {
         console.log("MESSAGE SEND CATCH:")
         console.log(error)
-      })
-      .finally(() => {
-        console.log("MESSAGE SEND FINALLY")
       })
   }
 }

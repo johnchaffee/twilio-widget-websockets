@@ -69,6 +69,7 @@
         <button type="submit" class="msger-send-btn">Send</button>
       </form>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./js/script.js"></script>
     <script>
       function createConversationPrompt() {
@@ -83,29 +84,20 @@
           createConversation(mobile_number)
 
           function createConversation(mobile_number) {
-            const apiUrl = "./conversations"
-            const bodyParams = new URLSearchParams({
-              mobile_number: mobile_number,
-            })
-            const requestOptions = {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: bodyParams,
-            }
-            fetch(apiUrl, requestOptions)
-              .then((response) => response.text())
-              // .then((response) => response.json())
-              .then((result) => {
-                console.log("CREATE CONVERSATION SUCCESS:")
-                console.log(result)
+            axios
+              .post("./conversations", {
+                mobile_number: mobile_number,
               })
-              .catch((error) => {
+              .then(function (response) {
+                console.log("CREATE CONVERSATION SUCCESS:")
+                console.log(response)
+              })
+              .catch(function (error) {
                 console.log("CREATE CONVERSATION CATCH:")
                 console.log(error)
               })
           }
+
         }
       }
 
@@ -120,26 +112,16 @@
           updateContact(mobile_number, contact_name)
 
           function updateContact(mobile_number, contact_name) {
-            const apiUrl = "./conversations"
-            const bodyParams = new URLSearchParams({
-              contact_name: contact_name,
-              mobile_number: mobile_number,
-            })
-            const requestOptions = {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: bodyParams,
-            }
-            fetch(apiUrl, requestOptions)
-              .then((response) => response.text())
-              // .then((response) => response.json())
-              .then((result) => {
-                console.log("UPDATE CONTACT SUCCESS:")
-                console.log(result)
+            axios
+              .put("./conversations", {
+                contact_name: contact_name,
+                mobile_number: mobile_number,
               })
-              .catch((error) => {
+              .then(function (response) {
+                console.log("UPDATE CONTACT SUCCESS:")
+                console.log(response)
+              })
+              .catch(function (error) {
                 console.log("UPDATE CONTACT CATCH:")
                 console.log(error)
               })
@@ -156,26 +138,16 @@
           console.log(`ARCHIVE CONVERSATION: ${mobile_number}, ${status}`)
           archiveConversation(mobile_number, status)
           function archiveConversation(mobile_number, status) {
-            const apiUrl = "./conversations"
-            const bodyParams = new URLSearchParams({
-              mobile_number: mobile_number,
-              status: status,
-            })
-            const requestOptions = {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: bodyParams,
-            }
-            fetch(apiUrl, requestOptions)
-              .then((response) => response.text())
-              // .then((response) => response.json())
-              .then((result) => {
-                console.log("ARCHIVE CONVERSATION SUCCESS:")
-                console.log(result)
+            axios
+              .put("./conversations", {
+                mobile_number: mobile_number,
+                status: status,
               })
-              .catch((error) => {
+              .then(function (response) {
+                console.log("ARCHIVE CONVERSATION SUCCESS:")
+                console.log(response)
+              })
+              .catch(function (error) {
                 console.log("ARCHIVE CONVERSATION CATCH:")
                 console.log(error)
               })
