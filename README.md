@@ -1,5 +1,7 @@
 # Twilio Widget
 
+**You'll find a React version of this Widget here: [ziplio](https://github.com/johnchaffee/ziplio)**
+
 ## How it works
 
 This app creates a Zipwhip-like interface for a Twilio phone number to send/receive text messages to/from a mobile phone. It uses the Twilio Programmable Messaging API to send messages via SMS, MMS, WhatsApp and Facebook Messenger; Twilio Event Streams Webhooks for incoming/outgoing messages; Websockets for real-time communicate with the web clients; Twilio Functions/Assets for hosting MMS images, Twilio Content API for Templates; Twilio Verify(?) for authentication.
